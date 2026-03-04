@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', Arial, sans-serif; background-color: #f4f7ff;">
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f7ff;">
     <table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding: 40px 20px;">
         <tr>
             <td align="center">
                 <table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 30px rgba(79, 70, 229, 0.08);">
                     <tr>
                         <td align="center" style="padding: 40px 40px 20px;">
-                            <h2 style="color: #333; margin-bottom: 10px; font-weight: 800;">Sistem ICT4U</h2>
+                            <h2 style="color: #333; margin-bottom: 10px;">Sistem ICT4U</h2>
                             
                         </td>
                     </tr>

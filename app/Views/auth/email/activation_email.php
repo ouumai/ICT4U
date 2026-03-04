@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <title>Kod Pengaktifan ICT4U</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', Arial, sans-serif; background-color: #f4f4f4;">
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
     <table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding: 40px 20px;">
         <tr>
             <td align="center">
                 <table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 600px; background: white; padding: 30px; border-radius: 12px; border: 1px solid #ddd; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                     <tr>
                         <td align="center">
-                            <h2 style="color: #333; margin-bottom: 10px; font-weight: 800;">Sistem ICT4U</h2>
+                            <h2 style="color: #333; margin-bottom: 10px;">Sistem ICT4U</h2>
                             <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 25px;">
                         </td>
                     </tr>
