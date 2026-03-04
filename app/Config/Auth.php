@@ -54,10 +54,10 @@ class Auth extends ShieldAuth
         'action_email_2fa'            => '\CodeIgniter\Shield\Views\email_2fa_show',
         'action_email_2fa_verify'     => '\CodeIgniter\Shield\Views\email_2fa_verify',
         'action_email_2fa_email'      => '\CodeIgniter\Shield\Views\Email\email_2fa_email',
-        'action_email_activate_show'  => '\CodeIgniter\Shield\Views\email_activate_show',
-        'action_email_activate_email' => '\CodeIgniter\Shield\Views\Email\email_activate_email',
+        'action_email_activate_show' => 'auth/email_activation',
+        'action_email_activate_email' => 'auth/email/activation_email',
         'magic-link-login' => 'auth/forgot_password', 
-        'magic-link-message'          => '\CodeIgniter\Shield\Views\magic_link_message',
+        'magic-link-message' => 'auth/magic_link_message',
         'magic-link-email'            => '\CodeIgniter\Shield\Views\Email\magic_link_email',
     ];
 
@@ -138,6 +138,9 @@ public array $actions = [
      */
     public string $defaultAuthenticator = 'session';
 
+    // tukar 'en' kepada 'ms'
+    public string $defaultLocale = 'ms';
+
     /**
      * --------------------------------------------------------------------
      * Authentication Chain
@@ -194,7 +197,7 @@ public array $actions = [
      * Specifies the amount of time, in seconds, that a magic link is valid.
      * You can use Time Constants or any desired number.
      */
-    public int $magicLinkLifetime = HOUR;
+    public int $magicLinkLifetime = 300;
 
     /**
      * --------------------------------------------------------------------
