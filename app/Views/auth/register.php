@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sertai Kami</title>
+    <title>Sertai Kami | ICT4U</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -136,11 +136,12 @@
             font-size: 1rem;
             margin-top: 10px;
             box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+            transition: all 0.3s ease;
         }
 
         .btn-register:hover {
             background: var(--brand-hover);
-            color: white;
+            transform: translateY(-2px);
         }
 
         .requirement-text {
@@ -148,7 +149,7 @@
             transition: all 0.3s ease;
         }
 
-        .req-met { color: #10b981 !important; font-weight: 700; } /* Warna Hijau */
+        .req-met { color: #10b981 !important; font-weight: 700; }
         
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
@@ -168,7 +169,7 @@
         <div class="overlay-content">
             <div class="glass-card">
                 <h2 class="fw-bold mb-3" style="font-size: 1.8rem;">Mulakan Langkah Anda</h2>
-                <p class="mb-0 opacity-90 leading-relaxed font-medium">Daftar sekarang untuk akses penuh ke sistem pengurusan ICT4U. Pantas, selamat dan bersepadu.</p>
+                <p class="mb-0 opacity-90">Daftar sekarang untuk akses penuh ke sistem pengurusan ICT4U. Pantas, selamat dan bersepadu.</p>
             </div>
         </div>
     </div>
@@ -183,21 +184,22 @@
             <p class="text-subtitle">Sertai komuniti teknologi kami hari ini.</p>
         </div>
 
-        <?php if (session()->getFlashdata('error_pw')): ?>
-            <div class="alert alert-danger border-0 rounded-4 mb-4 shadow-sm d-flex align-items-center" role="alert" style="background-color: #fef2f2; color: #991b1b;">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                <div style="font-size: 0.85rem; font-weight: 600;">
-                    <?= session()->getFlashdata('error_pw') ?>
-                </div>
+        <?php if (session('errors')) : ?>
+            <div class="alert alert-danger border-0 rounded-4 mb-4 shadow-sm" style="background-color: #fef2f2; color: #991b1b;">
+                <ul class="mb-0 small fw-bold">
+                <?php foreach (session('errors') as $error) : ?>
+                    <li><?= $error ?></li>
+                <?php endforeach ?>
+                </ul>
             </div>
-        <?php endif; ?>
+        <?php endif ?>
 
-        <form action="<?= base_url('/register') ?>" method="post">
+        <form action="<?= url_to('register') ?>" method="post">
             <?= csrf_field() ?>
             
             <div class="mb-3">
                 <label class="form-label">Nama Penuh</label>
-                <input type="text" name="fullname" class="form-control" placeholder="Ahmad Zulkarnain" value="<?= old('fullname') ?>" required>
+                <input type="text" name="username" class="form-control" placeholder="Umairah Sabri" value="<?= old('username') ?>" required>
             </div>
 
             <div class="mb-3">
@@ -212,7 +214,7 @@
                 </div>
                 <div class="col-6">
                     <label class="form-label">Sahkan</label>
-                    <input type="password" name="confirm_password" class="form-control" placeholder="••••••••" minlength="8" required>
+                    <input type="password" name="password_confirm" class="form-control" placeholder="••••••••" minlength="8" required>
                 </div>
             </div>
 
@@ -225,8 +227,8 @@
 
             <button type="submit" class="btn-register w-100 mb-4">Daftar Sekarang</button>
 
-            <p class="text-center small text-secondary font-semibold" style="font-weight: 600;">
-                Dah ada akaun? <a href="<?= base_url('/login') ?>" class="login-link text-decoration-none" style="color: var(--brand-color); font-weight: 700;">Log masuk</a>
+            <p class="text-center small text-secondary fw-semibold">
+                Dah ada akaun? <a href="<?= url_to('login') ?>" class="text-decoration-none" style="color: var(--brand-color); font-weight: 700;">Log masuk</a>
             </p>
         </form>
 
@@ -252,7 +254,6 @@
         } else {
             hintText.classList.remove('req-met');
             hintText.innerHTML = 'Kata laluan mestilah sekurang-kurangnya <strong>8 aksara</strong>.';
-            hintIcon.classList.add('text-primary');
             hintIcon.classList.replace('text-success', 'text-primary');
             hintIcon.classList.replace('bi-check-circle-fill', 'bi-info-circle-fill');
         }

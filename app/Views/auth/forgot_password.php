@@ -1,5 +1,3 @@
-//EMAIL//
-
 <!DOCTYPE html>
 <html lang="ms">
 <head>
@@ -207,7 +205,7 @@
             </div>
         <?php endif; ?>
 
-        <form action="<?= base_url('forgot/step1') ?>" method="post">
+        <form action="<?= url_to('magic-link') ?>" method="post">
              <?= csrf_field() ?>
             
             <div class="mb-3">

@@ -1,11 +1,11 @@
-//TOKEN//
+//TUKAR PASSWORD//
 
 <!DOCTYPE html>
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Set Semula Kata Laluan</title>
+    <title>Set Semula Kata Laluan | ICT4U</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -33,7 +33,6 @@
             height: 100vh;
         }
 
-        /* --- Left Side: Visuals --- */
         .image-section {
             flex: 1;
             background: url('<?= base_url('assets/image/roundaboutUKM.jpg') ?>') center/cover no-repeat;
@@ -69,7 +68,6 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
         }
 
-        /* --- Right Side: Form --- */
         .form-section {
             width: 550px;
             display: flex;
@@ -147,13 +145,22 @@
             color: white;
         }
 
-        .back-link {
+        .requirement-text {
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .req-met { color: #10b981 !important; font-weight: 700; }
+
+        .back-link 
+        {
             color: var(--brand-color);
             font-weight: 700;
             text-decoration: none;
         }
 
-        .back-link:hover {
+        .back-link:hover 
+        {
             text-decoration: none;
         }
 
@@ -174,9 +181,9 @@
     <div class="image-section">
         <div class="overlay-content">
             <div class="glass-card">
-                <h2 class="fw-bold mb-3" style="font-size: 1.8rem;">Kemaskini Segera</h2>
+                <h2 class="fw-bold mb-3" style="font-size: 1.8rem;">Langkah Terakhir</h2>
                 <p class="mb-0 opacity-90 leading-relaxed font-medium">
-                    Jangan risau, ia berlaku kepada sesiapa sahaja. Masukkan butiran anda untuk mendapatkan semula akses ke sistem ICT4U.
+                    Cipta kata laluan yang kuat untuk memastikan akaun anda kekal selamat dan dilindungi.
                 </p>
             </div>
         </div>
@@ -188,44 +195,44 @@
         </div>
 
         <div>
-            <h1 class="section-title">Pengesahan Identiti</h1>
-            <p class="text-subtitle">Sila semak emel anda dan masukkan kod keselamatan di bawah.</p>
+            <h1 class="section-title">Kata Laluan Baharu</h1>
+            <p class="text-subtitle">Sila cipta kata laluan baharu untuk akaun anda.</p>
         </div>
 
         <?php if(session()->getFlashdata('error')): ?>
-            <div class="alert alert-danger border-0 rounded-4 small p-3 mb-4">
-                <i class="bi bi-exclamation-circle me-2"></i> <?= session()->getFlashdata('error') ?>
+            <div class="alert alert-danger border-0 rounded-4 small p-3 mb-4 d-flex align-items-center" style="background-color: #fef2f2; color: #991b1b;">
+                <i class="bi bi-exclamation-circle-fill me-2"></i> 
+                <div style="font-weight: 600;"><?= session()->getFlashdata('error') ?></div>
             </div>
         <?php endif; ?>
 
-        <?php if(session()->getFlashdata('success')): ?>
-            <div class="alert alert-success border-0 rounded-4 small p-3 mb-4">
-                <i class="bi bi-check-circle me-2"></i> <?= session()->getFlashdata('success') ?>
-            </div>
-        <?php endif; ?>
-
-       <form action="<?= base_url('forgot/step2') ?>" method="post">
+        <form action="<?= url_to('reset-password') ?>" method="post">
             <?= csrf_field() ?>
+
+            <input type="hidden" name="token" value="<?= esc($token) ?>">
             
-            <div class="mb-4">
-                <label class="form-label d-block text-center">Kod Keselamatan (Token)</label>
-                <input type="text" name="token" 
-                    class="form-control text-center fw-bold" 
-                    placeholder="123456" 
-                    maxlength="6"
-                    style="letter-spacing: 8px; font-size: 1.5rem; height: 60px; border-color: var(--brand-color);" 
-                    required>
+            <div class="mb-3">
+                <label class="form-label">Kata Laluan Baharu</label>
+                <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required>
             </div>
 
-            <button type="submit" class="btn-action w-100 mb-4">Sahkan Kod</button>
+            <div class="mb-4">
+                <label class="form-label">Sahkan Kata Laluan</label>
+                <input type="password" name="confirmpassword" class="form-control" placeholder="••••••••" required>
+            </div>
 
-            <p class="text-center small text-secondary font-semibold">
-                Tidak menerima emel? <a href="<?= base_url('forgot/step1') ?>" class="back-link">Klik di sini</a> untuk hantar semula.
-            </p>
+            <div class="mb-4 d-flex align-items-center gap-2 px-1">
+                <i id="req-icon" class="bi bi-info-circle-fill text-primary" style="font-size: 0.85rem;"></i>
+                <p id="password-hint" class="requirement-text mb-0 text-muted fw-medium">
+                    Kata laluan mestilah sekurang-kurangnya <strong>8 aksara</strong>.
+                </p>
+            </div>
 
-            <p class="text-center mt-3">
+            <button type="submit" class="btn-action w-100 mb-4">Kemaskini Kata Laluan</button>
+
+            <p class="text-center">
                 <a href="<?= base_url('/login') ?>" class="back-link" style="font-size: 0.85rem;">
-                    ← Kembali semula ke Log Masuk
+                    ← Batal & Kembali ke Log Masuk
                 </a>
             </p>
         </form>
@@ -237,6 +244,26 @@
         </div>
     </div>
 </div>
+
+<script>
+    const passwordInput = document.getElementById('password');
+    const hintText = document.getElementById('password-hint');
+    const hintIcon = document.getElementById('req-icon');
+
+    passwordInput.addEventListener('input', function() {
+        if (this.value.length >= 8) {
+            hintText.classList.add('req-met');
+            hintText.innerHTML = 'Syarat kata laluan dipenuhi <i class="bi bi-check-lg"></i>';
+            hintIcon.classList.replace('text-primary', 'text-success');
+            hintIcon.classList.replace('bi-info-circle-fill', 'bi-check-circle-fill');
+        } else {
+            hintText.classList.remove('req-met');
+            hintText.innerHTML = 'Kata laluan mestilah sekurang-kurangnya <strong>8 aksara</strong>.';
+            hintIcon.classList.replace('text-success', 'text-primary');
+            hintIcon.classList.replace('bi-check-circle-fill', 'bi-info-circle-fill');
+        }
+    });
+</script>
 
 </body>
 </html>

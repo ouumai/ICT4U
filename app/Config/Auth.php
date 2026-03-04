@@ -46,8 +46,10 @@ class Auth extends ShieldAuth
      * --------------------------------------------------------------------
      */
     public array $views = [
-        'login'                       => '\CodeIgniter\Shield\Views\login',
-        'register'                    => '\CodeIgniter\Shield\Views\register',
+        'login'                       => 'auth/login',
+        'register'                    => 'auth/register',
+        'forgot'                      => 'auth/forgot_password',
+        'reset_password'              => 'auth/reset_password',
         'layout'                      => '\CodeIgniter\Shield\Views\layout',
         'action_email_2fa'            => '\CodeIgniter\Shield\Views\email_2fa_show',
         'action_email_2fa_verify'     => '\CodeIgniter\Shield\Views\email_2fa_verify',
@@ -102,10 +104,13 @@ class Auth extends ShieldAuth
      *
      * @var array<string, class-string<ActionInterface>|null>
      */
-    public array $actions = [
-        'register' => null,
-        'login'    => null,
-    ];
+   // app/Config/Auth.php
+
+public array $actions = [
+    'register' => \CodeIgniter\Shield\Authentication\Actions\EmailActivator::class,
+    'login'    => null,
+    'forgot'   => null, 
+];
 
     /**
      * --------------------------------------------------------------------
@@ -228,7 +233,8 @@ class Auth extends ShieldAuth
             'required',
             'max_length[30]',
             'min_length[3]',
-            'regex_match[/\A[a-zA-Z0-9\.]+\z/]',
+            'regex_match[/\A[a-zA-Z0-9\.\s]+\z/]',
+            'is_unique[users.username]',
         ],
     ];
 

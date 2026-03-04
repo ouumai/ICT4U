@@ -5,17 +5,26 @@ use CodeIgniter\Router\RouteCollection;
 /** @var RouteCollection $routes */
 
 // --------------------------------------------------------------------
-// 1. PUBLIC ROUTES (Tiada Pagar)
+// 1. PUBLIC ROUTES (TIADA PAGAR)
 // --------------------------------------------------------------------
-// Shield handle /login, /register secara automatik. 
-// Kita tak letak '/' kat sini supaya dia tak bypass login.
+
+/**
+ * GET: PAPAR VIEW FORGOT PASSWORD
+ * Kita panggil view terus supaya tak perlu pusing cari Controller Shield.
+ * Ini ubat untuk ralat 404 "Method not found".
+ */
+$routes->get('forgot', 'Auth\ForgotPasswordController::index'); // Tunjuk form
+$routes->post('forgot', 'Auth\ForgotPasswordController::postEmail'); // Proses hantar email
+
+// Daftarkan routes utama Shield (Login, Register, dsb)
+service('auth')->routes($routes);
 
 // --------------------------------------------------------------------
-// 2. PROTECTED ROUTES (Wajib LOGIN - Shield Session Filter)
+// 2. PROTECTED ROUTES (WAJIB LOGIN - SESSION FILTER)
 // --------------------------------------------------------------------
 $routes->group('', ['filter' => 'session'], static function ($routes) {
 
-    // MAIN ROUTE (Sekarang dah kena login baru boleh nampak dashboard)
+    // MAIN ROUTE ICT4U
     $routes->get('/', 'Dashboard\DashboardController::index');
 
     // --- Dashboard Routes ---
@@ -110,5 +119,3 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
         });
     });
 });
-
-service('auth')->routes($routes);
