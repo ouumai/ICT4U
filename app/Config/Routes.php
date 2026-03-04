@@ -13,11 +13,16 @@ use CodeIgniter\Router\RouteCollection;
  * Kita panggil view terus supaya tak perlu pusing cari Controller Shield.
  * Ini ubat untuk ralat 404 "Method not found".
  */
-$routes->get('forgot', 'Auth\ForgotPasswordController::index'); // Tunjuk form
-$routes->post('forgot', 'Auth\ForgotPasswordController::postEmail'); // Proses hantar email
 
 // Daftarkan routes utama Shield (Login, Register, dsb)
 service('auth')->routes($routes);
+
+// Route untuk tunjuk page tukar kata laluan (Reset Password)
+$routes->get('reset-password', static function() {
+    return view('auth/reset_password');
+});
+
+$routes->post('reset-password', 'Dashboard\DashboardController::updatePassword');
 
 // --------------------------------------------------------------------
 // 2. PROTECTED ROUTES (WAJIB LOGIN - SESSION FILTER)

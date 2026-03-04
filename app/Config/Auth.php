@@ -56,7 +56,7 @@ class Auth extends ShieldAuth
         'action_email_2fa_email'      => '\CodeIgniter\Shield\Views\Email\email_2fa_email',
         'action_email_activate_show'  => '\CodeIgniter\Shield\Views\email_activate_show',
         'action_email_activate_email' => '\CodeIgniter\Shield\Views\Email\email_activate_email',
-        'magic-link-login'            => '\CodeIgniter\Shield\Views\magic_link_form',
+        'magic-link-login' => 'auth/forgot_password', 
         'magic-link-message'          => '\CodeIgniter\Shield\Views\magic_link_message',
         'magic-link-email'            => '\CodeIgniter\Shield\Views\Email\magic_link_email',
     ];
@@ -77,9 +77,9 @@ class Auth extends ShieldAuth
      */
     public array $redirects = [
         'register'          => '/',
-        'login'             => '/',
+        'login'             => 'reset-password',
         'logout'            => 'login',
-        'force_reset'       => '/',
+        'force_reset'       => 'reset-password',
         'permission_denied' => '/',
         'group_denied'      => '/',
     ];
@@ -109,7 +109,6 @@ class Auth extends ShieldAuth
 public array $actions = [
     'register' => \CodeIgniter\Shield\Authentication\Actions\EmailActivator::class,
     'login'    => null,
-    'forgot'   => null, 
 ];
 
     /**
@@ -446,12 +445,18 @@ public array $actions = [
      * to after a successful login.
      */
     public function loginRedirect(): string
-    {
-        $session = session();
-        $url     = $session->getTempdata('beforeLoginUrl') ?? setting('Auth.redirects')['login'];
-
-        return $this->getUrl($url);
+{
+    $session = session();
+    
+    // Jika user masuk guna link email (Magic Link), 
+    // kita paksa dia pergi ke page tukar password
+    if ($session->get('magicLogin')) {
+        return $this->getUrl('reset-password'); 
     }
+
+    $url = $session->getTempdata('beforeLoginUrl') ?? setting('Auth.redirects')['login'];
+    return $this->getUrl($url);
+}
 
     /**
      * Returns the URL that a user should be redirected

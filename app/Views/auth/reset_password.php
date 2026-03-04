@@ -1,5 +1,3 @@
-//TUKAR PASSWORD//
-
 <!DOCTYPE html>
 <html lang="ms">
 <head>
@@ -209,16 +207,14 @@
         <form action="<?= url_to('reset-password') ?>" method="post">
             <?= csrf_field() ?>
 
-            <input type="hidden" name="token" value="<?= esc($token) ?>">
-            
-            <div class="mb-3">
+           <div class="mb-3">
                 <label class="form-label">Kata Laluan Baharu</label>
                 <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required>
             </div>
 
             <div class="mb-4">
                 <label class="form-label">Sahkan Kata Laluan</label>
-                <input type="password" name="confirmpassword" class="form-control" placeholder="••••••••" required>
+                <input type="password" name="password_confirm" class="form-control" placeholder="••••••••" required>
             </div>
 
             <div class="mb-4 d-flex align-items-center gap-2 px-1">
@@ -231,7 +227,7 @@
             <button type="submit" class="btn-action w-100 mb-4">Kemaskini Kata Laluan</button>
 
             <p class="text-center">
-                <a href="<?= base_url('/login') ?>" class="back-link" style="font-size: 0.85rem;">
+                <a href="<?= url_to('logout') ?>" class="back-link" style="font-size: 0.85rem;">
                     ← Batal & Kembali ke Log Masuk
                 </a>
             </p>

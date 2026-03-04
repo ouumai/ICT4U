@@ -200,4 +200,47 @@ class DashboardController extends BaseController
                 ->countAllResults(),
         ];
     }
+
+
+    /**
+     * =========================
+     * UPDATE PASSWORD (RESET)
+     * =========================
+     */
+    public function updatePassword()
+    {
+        // 1. Ambil data dari form reset_password.php
+        $password        = $this->request->getPost('password');
+        $passwordConfirm = $this->request->getPost('password_confirm');
+
+        // 2. Semak jika password dan pengesahan adalah sama
+        if ($password !== $passwordConfirm) {
+            return redirect()->back()->with('error', 'Kata laluan baharu dan pengesahan tidak sepadan.');
+        }
+
+        // 3. Semak panjang password (min 8 aksara)
+        if (strlen($password) < 8) {
+            return redirect()->back()->with('error', 'Kata laluan mestilah sekurang-kurangnya 8 aksara.');
+        }
+
+        // 4. Ambil user yang tengah login (Shield auto-login selepas klik link email)
+        $user = auth()->user();
+
+        if (!$user) {
+            return redirect()->to('/login')->with('error', 'Sesi telah tamat. Sila mohon link baharu.');
+        }
+
+        // 5. Kemaskini password dalam database
+        $user->fill([
+            'password' => $password
+        ]);
+
+        // Guna UserModel atau Shield provider untuk simpan
+        $userProvider = model(setting('Auth.userProvider'));
+        $userProvider->save($user);
+
+        // 6. Redirect ke dashboard dengan mesej berjaya
+        return redirect()->to('/')->with('message', 'Kata laluan anda telah berjaya dikemaskini!');
+    }
+
 }
