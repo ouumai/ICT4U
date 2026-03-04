@@ -1,0 +1,267 @@
+//TUKAR PASSWORD//
+
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Semula Kata Laluan | ICT4U</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --brand-color: #4f46e5;
+            --brand-hover: #3730a3;
+            --slate-500: #64748b;
+            --slate-700: #334155;
+            --slate-dark: #1e293b;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #ffffff;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .main-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .image-section {
+            flex: 1;
+            background: url('<?= base_url('assets/image/roundaboutUKM.jpg') ?>') center/cover no-repeat;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+        }
+
+        .image-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.85), rgba(124, 58, 237, 0.5));
+        }
+
+        .overlay-content {
+            position: relative;
+            z-index: 2;
+            color: white;
+            max-width: 500px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 45px;
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-section {
+            width: 550px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 80px;
+            background: #fff;
+            overflow-y: auto;
+        }
+
+        .brand-logo {
+            font-weight: 800;
+            font-size: 1.75rem;
+            color: var(--brand-color);
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--slate-dark);
+            margin-bottom: 8px;
+        }
+
+        .text-subtitle {
+            color: var(--slate-500);
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--slate-700);
+            margin-left: 4px;
+        }
+
+        .form-control {
+            border: 2px solid #f1f5f9;
+            background: #f8fafc;
+            padding: 12px 18px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--slate-700);
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--brand-color);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+            outline: none;
+        }
+
+        .btn-action {
+            background: var(--brand-color);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-top: 10px;
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+            transition: all 0.3s;
+        }
+
+        .btn-action:hover {
+            background: var(--brand-hover);
+            color: white;
+        }
+
+        .requirement-text {
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .req-met { color: #10b981 !important; font-weight: 700; }
+
+        .back-link 
+        {
+            color: var(--brand-color);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .back-link:hover 
+        {
+            text-decoration: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 992px) {
+            .image-section { display: none; }
+            .form-section { width: 100%; padding: 40px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="image-section">
+        <div class="overlay-content">
+            <div class="glass-card">
+                <h2 class="fw-bold mb-3" style="font-size: 1.8rem;">Langkah Terakhir</h2>
+                <p class="mb-0 opacity-90 leading-relaxed font-medium">
+                    Cipta kata laluan yang kuat untuk memastikan akaun anda kekal selamat dan dilindungi.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <div class="brand-logo">
+            <i class="bi bi-cpu-fill"></i> ICT4U
+        </div>
+
+        <div>
+            <h1 class="section-title">Kata Laluan Baharu</h1>
+            <p class="text-subtitle">Sila cipta kata laluan baharu untuk akaun anda.</p>
+        </div>
+
+        <?php if(session()->getFlashdata('error')): ?>
+            <div class="alert alert-danger border-0 rounded-4 small p-3 mb-4 d-flex align-items-center" style="background-color: #fef2f2; color: #991b1b;">
+                <i class="bi bi-exclamation-circle-fill me-2"></i> 
+                <div style="font-weight: 600;"><?= session()->getFlashdata('error') ?></div>
+            </div>
+        <?php endif; ?>
+
+        <form action="<?= base_url('forgot/step3') ?>" method="post">
+            <?= csrf_field() ?>
+            
+            <div class="mb-3">
+                <label class="form-label">Kata Laluan Baharu</label>
+                <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Sahkan Kata Laluan</label>
+                <input type="password" name="confirmpassword" class="form-control" placeholder="••••••••" required>
+            </div>
+
+            <div class="mb-4 d-flex align-items-center gap-2 px-1">
+                <i id="req-icon" class="bi bi-info-circle-fill text-primary" style="font-size: 0.85rem;"></i>
+                <p id="password-hint" class="requirement-text mb-0 text-muted fw-medium">
+                    Kata laluan mestilah sekurang-kurangnya <strong>8 aksara</strong>.
+                </p>
+            </div>
+
+            <button type="submit" class="btn-action w-100 mb-4">Kemaskini Kata Laluan</button>
+
+            <p class="text-center">
+                <a href="<?= base_url('/login') ?>" class="back-link" style="font-size: 0.85rem;">
+                    ← Batal & Kembali ke Log Masuk
+                </a>
+            </p>
+        </form>
+
+        <div class="mt-auto pt-4 text-center">
+            <p class="small text-muted fw-bold text-uppercase tracking-wider" style="font-size: 0.7rem;">
+                &copy; 2026 ICT4U Management System
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const passwordInput = document.getElementById('password');
+    const hintText = document.getElementById('password-hint');
+    const hintIcon = document.getElementById('req-icon');
+
+    passwordInput.addEventListener('input', function() {
+        if (this.value.length >= 8) {
+            hintText.classList.add('req-met');
+            hintText.innerHTML = 'Syarat kata laluan dipenuhi <i class="bi bi-check-lg"></i>';
+            hintIcon.classList.replace('text-primary', 'text-success');
+            hintIcon.classList.replace('bi-info-circle-fill', 'bi-check-circle-fill');
+        } else {
+            hintText.classList.remove('req-met');
+            hintText.innerHTML = 'Kata laluan mestilah sekurang-kurangnya <strong>8 aksara</strong>.';
+            hintIcon.classList.replace('text-success', 'text-primary');
+            hintIcon.classList.replace('bi-check-circle-fill', 'bi-info-circle-fill');
+        }
+    });
+</script>
+
+</body>
+</html>
