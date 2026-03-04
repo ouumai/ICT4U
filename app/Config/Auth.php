@@ -58,7 +58,7 @@ class Auth extends ShieldAuth
         'action_email_activate_email' => 'auth/email/activation_email',
         'magic-link-login' => 'auth/forgot_password', 
         'magic-link-message' => 'auth/magic_link_message',
-        'magic-link-email'            => '\CodeIgniter\Shield\Views\Email\magic_link_email',
+        'magic-link-email' => 'auth/email/magic_link_email',
     ];
 
     /**

@@ -24,6 +24,8 @@ $routes->get('reset-password', static function() {
 
 $routes->post('reset-password', 'Dashboard\DashboardController::updatePassword');
 
+$routes->get('login/magic-link/verify', '\CodeIgniter\Shield\Controllers\MagicLinkController::verify', ['as' => 'magic-link-verify']);
+
 // --------------------------------------------------------------------
 // 2. PROTECTED ROUTES (WAJIB LOGIN - SESSION FILTER)
 // --------------------------------------------------------------------
