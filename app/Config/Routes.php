@@ -110,3 +110,5 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
         });
     });
 });
+
+service('auth')->routes($routes);
