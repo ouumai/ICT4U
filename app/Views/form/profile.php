@@ -70,7 +70,7 @@
                         <div class="avatar-box" id="imagePreview">
                         <?php 
                             // 1. Ambil nama fail dari database
-                            $picName = $user['profile_pic'];
+                            $picName = $user->profile_pic;
                             
                             // 2. Tentukan laluan fizikal fail kat folder public guna FCPATH
                             $filePath = FCPATH . 'uploads/profile/' . $picName;

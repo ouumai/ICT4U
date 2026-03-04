@@ -199,7 +199,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="<?= site_url('profile') ?>" class="nav-link <?= $seg1 === 'profile' ? 'active' : '' ?>">
+                    <a href="<?= base_url('profile') ?>" class="nav-link <?= $seg1 === 'profile' ? 'active' : '' ?>">
                         <div class="nav-link-content">
                             <i class="nav-icon bi bi-person-bounding-box"></i>
                             <p class="mb-0">My Profile</p>

@@ -5,25 +5,24 @@ use CodeIgniter\Router\RouteCollection;
 /** @var RouteCollection $routes */
 
 // --------------------------------------------------------------------
-// 1. PUBLIC ROUTES (TIADA PAGAR)
+// 1. PUBLIC ROUTES (SHIELD AUTH & RESET PASSWORD)
 // --------------------------------------------------------------------
 
-/**
- * GET: PAPAR VIEW FORGOT PASSWORD
- * Kita panggil view terus supaya tak perlu pusing cari Controller Shield.
- * Ini ubat untuk ralat 404 "Method not found".
- */
-
-// Daftarkan routes utama Shield (Login, Register, dsb)
+// Daftarkan semua route automatic Shield (Login, Register, dsb)
 service('auth')->routes($routes);
 
-// Route untuk tunjuk page tukar kata laluan (Reset Password)
+/**
+ * Route Reset Password (Public)
+ * Diletakkan di luar group session supaya user yang belum login boleh akses.
+ */
 $routes->get('reset-password', static function() {
     return view('auth/reset_password');
 });
-
 $routes->post('reset-password', 'Dashboard\DashboardController::updatePassword');
 
+/**
+ * Route Magic Link Verify
+ */
 $routes->get('login/magic-link/verify', '\CodeIgniter\Shield\Controllers\MagicLinkController::verify', ['as' => 'magic-link-verify']);
 
 // --------------------------------------------------------------------
@@ -31,8 +30,17 @@ $routes->get('login/magic-link/verify', '\CodeIgniter\Shield\Controllers\MagicLi
 // --------------------------------------------------------------------
 $routes->group('', ['filter' => 'session'], static function ($routes) {
 
-    // MAIN ROUTE ICT4U
+    // Default Route ICT4U
     $routes->get('/', 'Dashboard\DashboardController::index');
+
+    /**
+     * Profile Management
+     * Wajib guna "\" kat depan App untuk panggil Controller Auth Mai sendiri.
+     */
+    $routes->get('profile', '\App\Controllers\Auth::profile'); 
+    $routes->post('profile/update', '\App\Controllers\Auth::updateProfile');
+    $routes->post('profile/update-password', '\App\Controllers\Auth::updatePassword');
+    $routes->get('profile/delete-pic', '\App\Controllers\Auth::deleteProfilePic');
 
     // --- Dashboard Routes ---
     $routes->group('dashboard', ['namespace' => 'App\Controllers\Dashboard'], function($routes) {
@@ -50,7 +58,7 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
     });
 
     // --- Tambahan Perincian Modul ---
-    $routes->group('tambahan', ['namespace' => 'App\Controllers'], function ($routes) {
+    $routes->group('dashboard', ['namespace' => 'App\Controllers'], function ($routes) {
         $routes->get('TambahanPerincian', 'TambahanPerincianController::index');
         $routes->get('TambahanPerincian/getServis/(:num)', 'TambahanPerincianController::getServis/$1');
         $routes->post('TambahanPerincian/saveServis', 'TambahanPerincianController::saveServis');
@@ -63,37 +71,9 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
         $routes->get('/', 'DokumenController::index');
         $routes->get('getDokumen/(:num)', 'DokumenController::getDokumen/$1');
         $routes->post('tambah', 'DokumenController::tambah');
-        $routes->get('edit/(:num)', 'DokumenController::edit/$1');
         $routes->post('kemaskini/(:num)', 'DokumenController::kemaskini/$1');
         $routes->post('hapus/(:num)', 'DokumenController::hapus/$1');
         $routes->get('viewFile/(:num)/(:any)', 'DokumenController::viewFile/$1/$2');
-    });
-
-    // --- Approval Dokumen Management ---
-    $routes->group('approvaldokumen', ['namespace' => 'App\Controllers'], function($routes) {
-        $routes->get('/', 'ApprovalDokumenController::index');
-        $routes->get('getAll', 'ApprovalDokumenController::getAll');
-        $routes->get('getDokumen/(:num)', 'ApprovalDokumenController::getDokumen/$1');
-        $routes->post('changeStatus/(:num)/(:any)', 'ApprovalDokumenController::changeStatus/$1/$2');
-        $routes->get('viewFile/(:num)/(:any)', 'ApprovalDokumenController::viewFile/$1/$2');
-    });
-
-    // --- User Management ---
-    $routes->group('users', ['namespace' => 'App\Controllers'], function($routes){
-        $routes->get('/', 'UserController::index');
-        $routes->get('getAll', 'UserController::getAll');
-        $routes->get('(:num)', 'UserController::show/$1');
-        $routes->post('add', 'UserController::add');
-        $routes->post('update/(:num)', 'UserController::update/$1');
-        $routes->post('delete/(:num)', 'UserController::delete/$1');
-    });
-
-    // --- Servis Kelulusan ---
-    $routes->group('serviskelulusan', ['namespace' => 'App\Controllers\Servis'], function($routes){
-        $routes->get('/', 'ServisKelulusanController::index');
-        $routes->get('getAll', 'ServisKelulusanController::getAll');
-        $routes->get('getServis/(:num)', 'ServisKelulusanController::getServis/$1');
-        $routes->post('changeStatus/(:num)/(:segment)', 'ServisKelulusanController::changeStatus/$1/$2');
     });
 
     // --- FAQ Management ---
@@ -108,21 +88,12 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
         $routes->get('ajax/(:num)', 'FaqController::ajax/$1');
     });
 
-    // --- Frontend Modul ---
-    $routes->group('f', ['namespace' => 'App\Controllers\Frontend'], function($routes) {
-        $routes->get('dashboard', 'DashboardController::index');
-        $routes->group('perincian', function($routes) {
-            $routes->get('/', 'PerincianController::index');
-            $routes->get('getServis/(:num)', 'PerincianController::getServis/$1');
-            $routes->post('save', 'PerincianController::save');
-        });
-        $routes->group('pengurusan', function($routes) {
-            $routes->get('/', 'DokumenPengurusanController::index');
-            $routes->get('getDokumen/(:num)', 'DokumenPengurusanController::getDokumen/$1');
-            $routes->get('getDokumenById/(:num)', 'DokumenPengurusanController::getDokumenById/$1');
-            $routes->post('tambah', 'DokumenPengurusanController::tambah');
-            $routes->post('kemaskini/(:num)', 'DokumenPengurusanController::kemaskini/$1');
-            $routes->get('remove/(:num)', 'DokumenPengurusanController::remove/$1');
-        });
+    // --- User Management ---
+    $routes->group('users', ['namespace' => 'App\Controllers'], function($routes){
+        $routes->get('/', 'UserController::index');
+        $routes->get('getAll', 'UserController::getAll');
+        $routes->post('add', 'UserController::add');
+        $routes->post('update/(:num)', 'UserController::update/$1');
+        $routes->post('delete/(:num)', 'UserController::delete/$1');
     });
 });
