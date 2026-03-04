@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result.data && result.data.length > 0) {
                 populateTable(result.data, result.pagination);
             } else {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-12 text-center text-slate-400 italic">Tiada rekod dijumpai.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="p-12 text-center text-slate-400">Tiada rekod dijumpai.</td></tr>';
                 document.getElementById('totalInfo').innerText = 'Menunjukkan 0 rekod';
                 paginationContainer.innerHTML = '';
             }
