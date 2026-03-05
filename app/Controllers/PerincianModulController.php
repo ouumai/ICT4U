@@ -45,8 +45,8 @@ class PerincianModulController extends BaseController
             ]);
         }
 
-        // Ambil description dari table modul_desc (menggunakan 108idservis sebagai foreign key)
-        $desc = $this->descModel->where('108idservis', $idservis)->first();
+        // Ambil description dari table modul_desc (menggunakan idservis sebagai foreign key)
+        $desc = $this->descModel->where('idservis', $idservis)->first();
         
         // Optional: Jika anda perlukan data status dokumen (seperti dalam kod asal anda)
         $dokumenModel = model('App\Models\ApprovalDokumenModel');
@@ -80,8 +80,7 @@ class PerincianModulController extends BaseController
         $namaservis  = trim($this->request->getPost('namaservis'));
         $infourl     = trim($this->request->getPost('infourl'));
         $mohonurl    = trim($this->request->getPost('mohonurl'));
-        $description = trim($this->request->getPost('description'));
-
+        $description = trim(strip_tags($this->request->getPost('description')));
         $errors = [];
 
         // 1. VALIDASI ID SERVIS
@@ -140,7 +139,7 @@ class PerincianModulController extends BaseController
             ]);
 
             // 2. Update/Insert Table Description
-            $existingDesc = $this->descModel->where('108idservis', $idservis)->first();
+            $existingDesc = $this->descModel->where('idservis', $idservis)->first();
             
             if ($existingDesc) {
                 $this->descModel->update($existingDesc['iddesc'], [
@@ -148,7 +147,7 @@ class PerincianModulController extends BaseController
                 ]);
             } else {
                 $this->descModel->insert([
-                    '108idservis' => $idservis,
+                    'idservis' => $idservis,
                     'description' => $description
                 ]);
             }
@@ -172,7 +171,7 @@ class PerincianModulController extends BaseController
 
         // Padam servis & description (Jika model guna SoftDelete, ia akan ikut rules model)
         $this->servisModel->delete($idservis);
-        $this->descModel->where('108idservis', $idservis)->delete();
+        $this->descModel->where('idservis', $idservis)->delete();
 
         return redirect()->back()->with('success', 'Servis berjaya dipadam.');
     }

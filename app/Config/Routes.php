@@ -49,7 +49,7 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
         $routes->get('getData', 'DashboardController::getData');
     });
 
-    // --- Perincian Modul ---
+    // Perincian Modul
     $routes->group('perincianmodul', ['namespace' => 'App\Controllers'], function($routes) {
         $routes->get('/', 'PerincianModulController::index');
         $routes->get('getServis/(:num)', 'PerincianModulController::getServis/$1');

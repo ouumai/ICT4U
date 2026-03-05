@@ -9,7 +9,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="<?= base_url('ckeditor5-build-classic/build/ckeditor.js') ?>"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
@@ -157,11 +157,21 @@ $(document).ready(function() {
     let originalData = {};
 
     // 1. Initialize CKEditor
-    ClassicEditor.create(document.querySelector('#description'), {
-        toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'undo', 'redo']
-    }).then(newEditor => {
+    ClassicEditor
+    .create(document.querySelector('#description'), {
+        toolbar: [
+            'heading','|',
+            'bold','italic','link',
+            'bulletedList','numberedList',
+            'blockQuote','undo','redo'
+        ]
+    })
+    .then(newEditor => {
         editor = newEditor;
-    }).catch(error => console.error(error));
+    })
+    .catch(error => {
+        console.error("CKEditor failed to load:", error);
+    });
 
     // 2. Dropdown Change Handler
     $('#dropdownServis').change(function() {
@@ -193,11 +203,12 @@ $(document).ready(function() {
         $('#mohonurl').val(mohon);
 
         // Fetch data terbaru dari DB melalui AJAX
-        editor.setData('<p><i>Memuatkan data terbaru...</i></p>');
+        editor.setData();
         $.get(`<?= base_url('perincianmodul/getServis') ?>/${id}`, function(res) {
             const descContent = (res.desc && res.desc.description) ? res.desc.description : '';
-            editor.setData(descContent);
-            
+            if (editor) {
+                editor.setData(descContent);
+            }           
             originalData = {
                 name: name,
                 info: info,
@@ -210,7 +221,7 @@ $(document).ready(function() {
     // 3. Validation Logic (Elak simpan kosong)
     $('#servisForm').on('submit', function(e) {
         const nameVal = $('#namaservis').val().trim();
-        const descVal = editor.getData().trim();
+        const descVal = editor ? editor.getData().trim() : "";
 
         if (nameVal === "" || descVal === "" || descVal === "<p>&nbsp;</p>") {
             e.preventDefault();
