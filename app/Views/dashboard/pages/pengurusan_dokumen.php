@@ -13,6 +13,10 @@
         font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
 
+    .content-wrapper > .container-fluid > .d-md-flex.align-items-center.justify-content-between.mb-5 {
+        display: none !important;
+    }
+
     .glass-card {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
@@ -56,7 +60,7 @@
     .status-approved { background-color: #DCFCE7; color: #166534; }
 </style>
 
-<div class="container-fluid py-4">
+<div class="container-fluid py-1">
     <div class="glass-card p-8 mb-8 flex flex-col md:flex-row items-center justify-between">
         <div class="flex items-center gap-4">
             <div class="bg-indigo-50 p-3 rounded-2xl">
@@ -157,7 +161,7 @@ function refreshTable(idservis){
                     <td class="px-8 py-6 text-center">
                         <div class="flex justify-center gap-2">
                             <a href="${fileUrl}" target="_blank" class="btn-action-table-large btn-view-modern" title="Lihat"><i class="bi bi-eye"></i></a>
-                            <button onclick="openDokumenEditor(${d.iddoc})" class="btn-action-table-large btn-edit-modern"><i class="bi bi-pencil-square"></i> EDIT</button>
+                            <button onclick="openDokumenEditor(${d.iddoc})" class="btn-action-table-large btn-edit-modern"><i class="bi bi-pencil-square"></i></button>
                             <button onclick="hapusDokumen(${d.iddoc})" class="btn-action-table-large btn-delete-modern"><i class="bi bi-trash"></i></button>
                         </div>
                     </td>
