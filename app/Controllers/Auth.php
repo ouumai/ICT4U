@@ -58,20 +58,22 @@ class Auth extends BaseController
     // 3. UPDATE PASSWORD (DARI DALAM PROFILE)
    public function updatePassword()
     {
-        if (!auth()->loggedIn()) {
-            return redirect()->to('/login');
-        }
+        if (!auth()->loggedIn()) return redirect()->to('/login');
 
         $user = auth()->user();
         $currentPassInput = $this->request->getPost('current_password');
 
-        $identity = $user->getIdentities('password')[0] ?? null;
+        // 1. Sahkan password lama (Guna helper Shield)
+        $credentials = [
+            'email'    => $user->email,
+            'password' => $currentPassInput,
+        ];
 
-        if (!$identity || !password_verify($currentPassInput, $identity->secret)) {
-            return redirect()->back()->with('error_pw', 'Kata laluan semasa anda salah! Sila cuba lagi.');
+        if (! auth()->getAuthenticator()->check($credentials)) {
+            return redirect()->back()->with('error_pw', 'Kata laluan semasa anda salah!');
         }
 
-        // 2. Validation untuk password baru
+        // 2. Validation password baru
         $rules = [
             'new_password'     => 'required|min_length[8]',
             'confirm_password' => 'required|matches[new_password]'
@@ -81,9 +83,10 @@ class Auth extends BaseController
             return redirect()->back()->with('error_pw', 'Pastikan password baru minima 8 aksara & sepadan.');
         }
 
-        // 3. Simpan password baru guna Shield Entity
+        // 3. Simpan password baru (Cara Shield yang betul)
         $user->password = $this->request->getPost('new_password');
-        $userModel = new \CodeIgniter\Shield\Models\UserModel();
+        
+        $userModel = new \App\Models\UserModel(); // Guna model yang kita repair tadi
         $userModel->save($user);
 
         return redirect()->back()->with('success', 'Kata laluan berjaya dikemaskini.');
