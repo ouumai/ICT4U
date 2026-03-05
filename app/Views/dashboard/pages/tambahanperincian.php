@@ -9,7 +9,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="<?= base_url('ckeditor5-build-classic/build/ckeditor.js') ?>"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
@@ -197,16 +197,51 @@ function openEditor(id = null) {
         buttonsStyling: false,
         customClass: { confirmButton: 'btn-swal-hantar', denyButton: 'btn-swal-padam', closeButton: 'swal2-close' },
         backdrop: `rgba(15, 23, 42, 0.5) blur(8px)`,
+        
         didOpen: () => {
-            ClassicEditor.create(document.querySelector('#swal-description'), {
-                toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList']
-            }).then(newEditor => { editor = newEditor; if(s) editor.setData(s.perincian?.description || ''); });
+
+            if(editor){
+                editor.destroy();
+                editor = null;
+            }
+
+            ClassicEditor
+            .create(document.querySelector('#swal-description'), {
+                toolbar: [
+                    'heading','|',
+                    'bold','italic','link',
+                    'bulletedList','numberedList'
+                ]
+            })
+            .then(newEditor => {
+                editor = newEditor;
+
+                if(s && s.perincian){
+                    editor.setData(s.perincian.description || '');
+                }
+            })
+            .catch(error => {
+                console.error("CKEditor error:", error);
+            });
         },
+
         preConfirm: () => {
             const name = document.getElementById('swal-namaservis').value;
-            if (!name) { Swal.showValidationMessage('Nama Servis wajib diisi!'); return false; }
-            return { idservis: id, namaservis: name, infourl: document.getElementById('swal-infourl').value, mohonurl: document.getElementById('swal-mohonurl').value, description: editor.getData() }
+
+            if (!name) {
+                Swal.showValidationMessage('Nama Servis wajib diisi!');
+                return false;
+            }
+
+            return {
+                idservis: id,
+                namaservis: name,
+                infourl: document.getElementById('swal-infourl').value,
+                mohonurl: document.getElementById('swal-mohonurl').value,
+                description: editor ? editor.getData() : ''
+            }
         }
+
     }).then((result) => {
         if (result.isConfirmed) { saveServis(result.value); } 
         else if (result.isDenied) { deleteServis(id); }
