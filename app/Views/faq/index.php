@@ -145,9 +145,7 @@
     <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-8">
         <div class="md:col-span-4">
             <div class="glass-card p-6 h-full">
-                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                    <i class="bi bi-tag-fill"></i> Kategori Servis
-                </label>
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Kategori Servis</label>
                 <div class="relative">
                     <select id="dropdownServis" class="w-full appearance-none bg-white border border-slate-200 p-3 rounded-xl focus:outline-none font-semibold text-slate-600 cursor-pointer shadow-sm">
                         <option value="">-- Sila Pilih Servis --</option>
@@ -155,11 +153,10 @@
                             <option value="<?= esc($s['idservis']) ?>"><?= esc($s['namaservis']) ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <i class="bi bi-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                    <i class="bi bi-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
                 </div>
             </div>
         </div>
-
         <div class="md:col-span-8">
             <div id="searchContainer" class="glass-card p-6 h-full hidden">
                 <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
@@ -174,11 +171,8 @@
     </div>
 
     <div id="emptyState" class="glass-card py-20 bg-white text-center">
-        <div class="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="bi bi-filter text-4xl text-slate-300"></i>
-        </div>
+        <i class="bi bi-filter text-4xl text-slate-300"></i>
         <h5 class="text-slate-900 font-bold mb-1">Sila Pilih Servis</h5>
-        <p class="text-slate-500 font-medium">Pilih kategori servis di atas untuk memaparkan senarai FAQ.</p>
     </div>
 
     <div id="faqArea" class="hidden">
@@ -188,15 +182,28 @@
 
 <script>
 $(document).ready(function() {
+    
+    // 1. Setup Security (CSRF)
+    let csrfToken = '<?= csrf_hash() ?>';
+    $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': csrfToken } });
 
+    // Fungsi Refresh Token supaya boleh klik banyak kali
+    function refreshToken(newToken) {
+        csrfToken = newToken;
+        $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': csrfToken } });
+    }
+
+    // 2. Fungsi Load FAQ (Maintain Design Asal Mai)
     function loadFaq(id) {
         $('#faqList').html('<div class="text-center py-10 text-slate-400 font-bold">Memproses data...</div>');
         $.get(`<?= base_url('faq/ajax') ?>/${id}`, function(res) {
             if(res.success && res.faqs.length > 0) {
                 let html = '<div class="accordion" id="faqAccordion">';
                 res.faqs.forEach((faq, i) => {
-                    let safeQuestion = faq.question.replace(/'/g, "\\'");
-                    let safeAnswer = faq.answer.replace(/'/g, "\\'");
+                    // Escape simbol pelik guna Base64 supaya butang Edit tak pecah
+                    let qBase64 = btoa(unescape(encodeURIComponent(faq.question)));
+                    let aBase64 = btoa(unescape(encodeURIComponent(faq.answer)));
+
                     html += `
                     <div class="accordion-item shadow-sm border-0">
                         <div class="flex items-center justify-between bg-white pr-4">
@@ -204,10 +211,10 @@ $(document).ready(function() {
                                 <span>${faq.question}</span>
                             </button>
                             <div class="flex gap-2 py-2">
-                                <button onclick="openEditModal(${faq.id}, '${safeQuestion}', '${safeAnswer}')" class="w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition" title="Edit">
+                                <button onclick="openEditModal(${faq.id}, '${qBase64}', '${aBase64}')" class="w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
-                                <button onclick="deleteFaq(${faq.id})" class="w-10 h-10 flex items-center justify-center bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-600 hover:text-white transition" title="Padam">
+                                <button onclick="deleteFaq(${faq.id})" class="w-10 h-10 flex items-center justify-center bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-600 hover:text-white transition">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </div>
@@ -222,128 +229,102 @@ $(document).ready(function() {
                 html += '</div>';
                 $('#faqList').html(html);
             } else {
-                $('#faqList').html('<div class="glass-card p-20 text-center">...</div>');
+                $('#faqList').html('<div class="glass-card p-20 text-center text-slate-400">Belum ada soalan untuk servis ini.</div>');
             }
         });
     }
 
-    // --- TAMBAH FAQ (DENGAN X) ---
+    // 3. Tambah FAQ Baru
     $('#btnCreateFaq').click(function() {
         const idServis = $('#dropdownServis').val();
         Swal.fire({
-            title: '<span class="text-2xl font-bold">Tambah FAQ Baru</span>',
-            showCloseButton: true, // ICON X ADA KAT SINI
+            title: 'Tambah FAQ Baru',
             html: `
                 <div class="text-left mt-4">
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Soalan</label>
-                    <input id="swal-question" class="input-modern mb-4" placeholder="Taip soalan...">
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Jawapan</label>
-                    <textarea id="swal-answer" class="input-modern" rows="5" placeholder="Taip jawapan..."></textarea>
-                </div>
-            `,
+                    <input id="swal-q" class="input-modern mb-4" placeholder="Taip soalan...">
+                    <textarea id="swal-a" class="input-modern" rows="5" placeholder="Taip jawapan..."></textarea>
+                </div>`,
             showCancelButton: true,
-            confirmButtonText: 'Simpan Rekod',
-            cancelButtonText: 'Batal',
-            customClass: {
-                popup: 'swal-rounded',
-                confirmButton: 'btn-swal-hantar',
-                cancelButton: 'btn-swal-batal'
-            },
+            confirmButtonText: 'Simpan',
+            customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-batal' },
             preConfirm: () => {
-                const q = document.getElementById('swal-question').value;
-                const a = document.getElementById('swal-answer').value;
-                if (!q || !a) { Swal.showValidationMessage('Sila isi semua!'); }
-                return { question: q, answer: a, idservis: idServis };
+                return { question: $('#swal-q').val(), answer: $('#swal-a').val(), idservis: idServis };
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                $.post('<?= base_url('faq/save') ?>', result.value, function() {
-                    Swal.fire({ title: 'Berjaya!', icon: 'success', customClass: { popup: 'swal-rounded' } });
+                $.post('<?= base_url('faq/store') ?>', result.value, function(res) {
+                    refreshToken(res.csrf); // Update token!
+                    Swal.fire('Berjaya!', 'FAQ disimpan.', 'success');
                     loadFaq(idServis);
-                });
+                }).fail(function() { Swal.fire('Ralat!', 'Gagal simpan.', 'error'); });
             }
         });
     });
 
-    // --- EDIT FAQ (DENGAN X) ---
-    window.openEditModal = function(id, question, answer) {
+    // 4. Edit FAQ (Repair Base64)
+    window.openEditModal = function(id, qBase64, aBase64) {
+        let question = decodeURIComponent(escape(atob(qBase64)));
+        let answer = decodeURIComponent(escape(atob(aBase64)));
+
         Swal.fire({
-            title: '<span class="text-2xl font-bold">Kemaskini FAQ</span>',
-            showCloseButton: true, // ICON X ADA KAT SINI JUGA
+            title: 'Kemaskini FAQ',
             html: `
                 <div class="text-left mt-4">
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Soalan</label>
-                    <input id="swal-question" class="input-modern mb-4" value="${question}">
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Jawapan</label>
-                    <textarea id="swal-answer" class="input-modern" rows="5">${answer}</textarea>
-                </div>
-            `,
+                    <input id="swal-eq" class="input-modern mb-4" value="${question}">
+                    <textarea id="swal-ea" class="input-modern" rows="5">${answer}</textarea>
+                </div>`,
             showCancelButton: true,
             confirmButtonText: 'Kemaskini',
-            cancelButtonText: 'Batal',
-            customClass: {
-                popup: 'swal-rounded',
-                confirmButton: 'btn-swal-hantar',
-                cancelButton: 'btn-swal-batal'
-            },
+            customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-batal' },
             preConfirm: () => {
-                const q = document.getElementById('swal-question').value;
-                const a = document.getElementById('swal-answer').value;
-                if (!q || !a) { Swal.showValidationMessage('Isi semua!'); }
-                return { id: id, question: q, answer: a };
+                return { question: $('#swal-eq').val(), answer: $('#swal-ea').val() };
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                $.post(`<?= base_url('faq/update') ?>/${result.value.id}`, result.value, function() {
-                    Swal.fire({ title: 'Berjaya!', icon: 'success', customClass: { popup: 'swal-rounded' } });
+                $.post(`<?= base_url('faq/update') ?>/${id}`, result.value, function(res) {
+                    refreshToken(res.csrf); // Update token!
+                    Swal.fire('Berjaya!', 'FAQ dikemaskini.', 'success');
                     loadFaq($('#dropdownServis').val());
                 });
             }
         });
     };
 
-    // ... Event listener lain (dropdown, delete, search) dikekalkan sama ...
+    // 5. Dropdown Change
     $('#dropdownServis').change(function() {
         const id = $(this).val();
-        if (!id) {
+        if(id) {
+            $('#emptyState').addClass('hidden');
+            $('#faqArea, #actionArea, #searchContainer').removeClass('hidden');
+            loadFaq(id);
+        } else {
             $('#faqArea, #actionArea, #searchContainer').addClass('hidden');
             $('#emptyState').removeClass('hidden');
-            return;
         }
-        $('#emptyState').addClass('hidden');
-        $('#faqArea, #actionArea, #searchContainer').removeClass('hidden');
-        loadFaq(id);
     });
 
+    // 6. Delete FAQ
     window.deleteFaq = function(id) {
         Swal.fire({
             title: 'Padam FAQ?',
-            text: "Kekal!", icon: 'warning',
+            icon: 'warning',
             showCancelButton: true,
-            showCloseButton: true,
             confirmButtonText: 'Ya, Padam',
-            cancelButtonText: 'Batal',
             customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-batal' }
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
                     url: `<?= base_url('faq/delete') ?>/${id}`,
                     method: 'DELETE',
-                    success: function() { 
+                    success: function(res) { 
+                        refreshToken(res.csrf); // Update token!
                         loadFaq($('#dropdownServis').val());
-                        Swal.fire({ title: 'Dipadam!', icon: 'success', customClass: { popup: 'swal-rounded' } });
+                        Swal.fire('Dipadam!', '', 'success');
                     }
                 });
             }
         });
     };
-
-    $('#faqSearch').on('keyup', function() {
-        let v = $(this).val().toLowerCase();
-        $("#faqAccordion .accordion-item").filter(function() {
-            $(this).toggle($(this).text().toLowerCase().indexOf(v) > -1)
-        });
-    });
 });
 </script>
 

@@ -77,8 +77,8 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
     });
 
     // --- FAQ Management ---
-    $routes->group('faq', ['namespace' => 'App\Controllers'], function($routes){
-        $routes->get('/', 'FaqController::index');
+    $routes->group('faq', function($routes){
+        $routes->get('', 'FaqController::index');
         $routes->get('(:num)', 'FaqController::index/$1');
         $routes->get('create/(:num)', 'FaqController::create/$1');
         $routes->post('store', 'FaqController::store');
