@@ -7,7 +7,6 @@ use App\Models\ServisModel;
 use App\Controllers\BaseController;
 use CodeIgniter\API\ResponseTrait;
 
-
 class DokumenController extends BaseController
 {
     use ResponseTrait;
@@ -26,88 +25,58 @@ class DokumenController extends BaseController
     public function index()
     {
         $data['servis'] = $this->servisModel->findAll();
-        // Pastikan path view ini betul mengikut folder anda
         return view('dashboard/pages/pengurusan_dokumen', $data);
     }
 
     public function getDokumen($idservis)
     {
-        $dokumen = $this->dokumenModel
-            ->where('idservis', $idservis)
-            ->orderBy('updated_at', 'DESC')
-            ->findAll(); 
-
-        return $this->response->setJSON([
-            'status' => true,
-            'items'  => $dokumen
-        ]);
+        $items = $this->dokumenModel->where('idservis', $idservis)->findAll();
+        return $this->response->setJSON(['items' => $items]);
     }
 
     public function tambah()
     {
-        try {
-            $idservis = $this->request->getPost('idservis');
-            $nama     = $this->request->getPost('nama');
-            $descdoc  = $this->request->getPost('descdoc');
-            $file     = $this->request->getFile('file');
+        $idservis = $this->request->getPost('idservis');
+        $nama     = $this->request->getPost('nama');
+        $descdoc  = $this->request->getPost('descdoc');
+        $file     = $this->request->getFile('file');
 
-            // 1. Validasi Input Asas
-            if (empty($idservis) || empty($nama) || !$file || !$file->isValid()) {
-                return $this->response->setJSON(['status' => false, 'msg' => 'Maklumat tidak lengkap atau fail tidak sah.']);
-            }
-
-            // 2. Validasi Server-side (Security Check)
-            if ($file->getMimeType() !== 'application/pdf') {
-                return $this->response->setJSON(['status' => false, 'msg' => 'Hanya fail format PDF sahaja dibenarkan.']);
-            }
-
-            if ($file->getSizeByUnit('mb') > 10) {
-                return $this->response->setJSON(['status' => false, 'msg' => 'Saiz fail melebihi had 10MB.']);
-            }
-
-            $uploadPath = WRITEPATH . "uploads/dokumen/{$idservis}/";
-            if (!is_dir($uploadPath)) mkdir($uploadPath, 0777, true);
-
-            $db = \Config\Database::connect();
-            $db->transStart();
-
-            $iddoc = $this->dokumenModel->insert([
-                'idservis' => $idservis,
-                'nama'     => $nama,
-                'descdoc'  => $descdoc,
-                'status'   => 'pending',
-                'namafail' => '', 
-                'mime'     => $file->getClientMimeType()
-            ], true);
-
-            // Nama fail unik: ID_Timestamp.pdf
-            $newFileName = $iddoc . '_' . time() . '.' . $file->getExtension();
-
-            if ($file->move($uploadPath, $newFileName)) {
-                $this->dokumenModel->update($iddoc, ['namafail' => $newFileName]);
-                $db->transComplete();
-
-                if ($db->transStatus() === false) {
-                    return $this->response->setJSON(['status' => false, 'msg' => 'Gagal mengemaskini rekod pangkalan data.']);
-                }
-
-                return $this->response->setJSON(['status' => true, 'msg' => 'Dokumen berjaya dimuat naik.']);
-            } else {
-                $db->transRollback();
-                return $this->response->setJSON(['status' => false, 'msg' => 'Gagal mengalihkan fail ke storan.']);
-            }
-        } catch (\Exception $e) {
-            return $this->response->setJSON(['status' => false, 'msg' => 'Ralat: ' . $e->getMessage()]);
+        if (!$file || !$file->isValid()) {
+            return $this->response->setJSON(['status' => false, 'msg' => 'Fail tidak sah atau tiada fail']);
         }
+
+        if ($file->getMimeType() !== 'application/pdf') {
+            return $this->response->setJSON(['status' => false, 'msg' => 'Hanya PDF sahaja dibenarkan.']);
+        }
+
+        $uploadPath = WRITEPATH . "uploads/dokumen/{$idservis}/";
+        if (!is_dir($uploadPath)) mkdir($uploadPath, 0755, true);
+
+        $newName = time() . '_' . $file->getRandomName();
+        if (!$file->move($uploadPath, $newName)) {
+            return $this->response->setJSON(['status' => false, 'msg' => 'Gagal memindahkan fail ke server']);
+        }
+
+        $data = [
+            'idservis'   => $idservis,
+            'nama'       => $nama,
+            'descdoc'    => $descdoc,
+            'namafail'   => $newName,
+            'status'     => 'pending',
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+
+        if ($this->dokumenModel->insert($data)) {
+            return $this->response->setJSON(['status' => true]);
+        }
+
+        return $this->response->setJSON(['status' => false, 'msg' => 'Gagal insert database']);
     }
 
     public function edit($iddoc)
     {
         $data = $this->dokumenModel->find($iddoc);
-        return $this->response->setJSON([
-            'status' => !empty($data),
-            'data'   => $data
-        ]);
+        return $this->response->setJSON(['status' => !empty($data), 'data' => $data]);
     }
 
     public function kemaskini($iddoc)
@@ -123,25 +92,22 @@ class DokumenController extends BaseController
             ];
 
             $file = $this->request->getFile('file');
-            
-            // Proses jika ada fail baru dimuat naik
+
             if ($file && $file->isValid() && !$file->hasMoved()) {
-                
-                // Validasi fail baru
                 if ($file->getMimeType() !== 'application/pdf') {
                     return $this->response->setJSON(['status' => false, 'msg' => 'Hanya PDF sahaja dibenarkan.']);
                 }
 
-                $uploadPath = WRITEPATH . "uploads/dokumen/{$dokumen['idservis']}/";
-                
-                // Padam fail lama jika wujud
+                $uploadPath = WRITEPATH . "uploads/dokumen/{$this->request->getPost('idservis')}/";
+                if (!is_dir($uploadPath)) mkdir($uploadPath, 0755, true);
+
                 if (!empty($dokumen['namafail']) && file_exists($uploadPath . $dokumen['namafail'])) {
                     unlink($uploadPath . $dokumen['namafail']);
                 }
 
                 $newFileName = $iddoc . '_' . time() . '.' . $file->getExtension();
                 $file->move($uploadPath, $newFileName);
-                
+
                 $updateData['namafail'] = $newFileName;
                 $updateData['mime']     = $file->getClientMimeType();
             }
@@ -149,9 +115,8 @@ class DokumenController extends BaseController
             if ($this->dokumenModel->update($iddoc, $updateData)) {
                 return $this->response->setJSON(['status' => true, 'msg' => 'Dokumen berjaya dikemaskini.']);
             }
-            
-            return $this->response->setJSON(['status' => false, 'msg' => 'Tiada perubahan dilakukan.']);
 
+            return $this->response->setJSON(['status' => false, 'msg' => 'Tiada perubahan dilakukan.']);
         } catch (\Exception $e) {
             return $this->response->setJSON(['status' => false, 'msg' => 'Ralat: ' . $e->getMessage()]);
         }
@@ -161,17 +126,11 @@ class DokumenController extends BaseController
     {
         try {
             $dokumen = $this->dokumenModel->find($iddoc);
-            if (!$dokumen) {
-                return $this->response->setJSON(['status' => false, 'msg' => 'Dokumen tidak dijumpai.']);
-            }
+            if (!$dokumen) return $this->response->setJSON(['status' => false, 'msg' => 'Dokumen tidak dijumpai.']);
 
-            // 1. Padam fail fizikal secara kekal
             $filePath = WRITEPATH . "uploads/dokumen/{$dokumen['idservis']}/{$dokumen['namafail']}";
-            if (!empty($dokumen['namafail']) && file_exists($filePath)) {
-                unlink($filePath);
-            }
+            if (!empty($dokumen['namafail']) && file_exists($filePath)) unlink($filePath);
 
-            // 2. Padam dari database (Hard Delete)
             if ($this->dokumenModel->delete($iddoc, true)) {
                 return $this->response->setJSON(['status' => true, 'msg' => 'Dokumen dan fail telah dipadam sepenuhnya.']);
             }
@@ -185,13 +144,10 @@ class DokumenController extends BaseController
     public function viewFile($idservis, $filename)
     {
         $path = WRITEPATH . "uploads/dokumen/{$idservis}/{$filename}";
-        
         if (!file_exists($path)) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Fail tidak wujud.");
         }
-
         $mimeType = mime_content_type($path);
-
         return $this->response
             ->setHeader('Content-Type', $mimeType)
             ->setHeader('Content-Disposition', 'inline; filename="' . $filename . '"')

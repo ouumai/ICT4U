@@ -66,14 +66,24 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
         $routes->get('TambahanPerincian/getAll', 'TambahanPerincianController::getAll');
     });
 
-    // --- Dokumen Management ---
+    // Dokumen Management
     $routes->group('dokumen', ['namespace' => 'App\Controllers'], function($routes) {
         $routes->get('/', 'DokumenController::index');
         $routes->get('getDokumen/(:num)', 'DokumenController::getDokumen/$1');
         $routes->post('tambah', 'DokumenController::tambah');
+        $routes->get('edit/(:num)', 'DokumenController::edit/$1');
         $routes->post('kemaskini/(:num)', 'DokumenController::kemaskini/$1');
         $routes->post('hapus/(:num)', 'DokumenController::hapus/$1');
         $routes->get('viewFile/(:num)/(:any)', 'DokumenController::viewFile/$1/$2');
+    });
+
+    // Approval Dokumen Management
+    $routes->group('approvaldokumen', ['namespace' => 'App\Controllers'], function($routes) {
+        $routes->get('/', 'ApprovalDokumenController::index');
+        $routes->get('getAll', 'ApprovalDokumenController::getAll');
+        $routes->get('getDokumen/(:num)', 'ApprovalDokumenController::getDokumen/$1');
+        $routes->post('changeStatus/(:num)/(:any)', 'ApprovalDokumenController::changeStatus/$1/$2');
+        $routes->get('viewFile/(:num)/(:any)', 'ApprovalDokumenController::viewFile/$1/$2');
     });
 
     // --- FAQ Management ---
