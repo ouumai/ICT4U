@@ -70,7 +70,7 @@
 .text-slate-500 { color: #64748b; }
 </style>
 
-<div class="container-fluid py-4">
+<div class="container-fluid py-1">
     <div class="glass-card p-8 mb-8 flex flex-col md:flex-row items-center justify-between">
         <div class="flex items-center gap-4">
             <div class="bg-indigo-50 p-3 rounded-2xl">

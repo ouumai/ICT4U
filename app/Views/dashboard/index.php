@@ -80,7 +80,7 @@
     .fw-700 { font-weight: 700 !important; }
 </style>
 
-<div class="container-fluid py-4">
+<div class="container-fluid py-1">
     
     <div class="glass-card rounded-3xl p-8 mb-8 flex flex-col md:flex-row items-center justify-between">
         <div class="flex items-center gap-6">

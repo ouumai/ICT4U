@@ -90,7 +90,7 @@
     .swal-input-custom { height: 52px; border-radius: 12px; border: 1px solid #e2e8f0; padding: 0 15px; width: 100%; background-color: #ffffff; font-weight: 500; font-size: 0.95rem; }
 </style>
 
-<div class="container-fluid py-4">
+<div class="container-fluid py-1">
     <div class="glass-card p-8 mb-8 flex flex-col md:flex-row items-center justify-between">
         <div class="flex items-center gap-4">
             <div class="bg-indigo-50 p-3 rounded-2xl"><i class="bi bi-folder-plus text-3xl text-indigo-600"></i></div>
