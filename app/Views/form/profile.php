@@ -69,18 +69,14 @@
                     <div class="avatar-wrapper">
                         <div class="avatar-box" id="imagePreview">
                         <?php 
-                            // 1. Ambil nama fail dari database
                             $picName = $user->profile_pic;
-                            
-                            // 2. Tentukan laluan fizikal fail kat folder public guna FCPATH
                             $filePath = FCPATH . 'uploads/profile/' . $picName;
                             
-                            // 3. Syarat: Mesti ada nama fail DAN fail tu wujud kat folder public
                             if (!empty($picName) && is_file($filePath)): 
                         ?>
                             <img src="<?= base_url('uploads/profile/' . $picName) ?>?t=<?= time() ?>" alt="Profile">
                         <?php else: ?>
-                            <span class="text-uppercase"><?= substr($user['fullname'], 0, 1) ?></span>
+                            <span class="text-uppercase"><?= substr($user->username, 0, 1) ?></span> 
                         <?php endif; ?>
                     </div>
                         <label for="profile_pic" class="upload-badge">
@@ -91,7 +87,7 @@
 
                     <div class="p-4 p-md-5 pt-4">
                         <div class="mb-5">
-                            <h3 class="fw-800 text-dark mb-1 font-bold text-2xl"><?= esc($user['fullname']) ?></h3>
+                            <h3 class="fw-800 text-dark mb-1 font-bold text-2xl"><?= esc($user->username) ?></h3>
                             <p class="text-muted small fw-bold"><i class="bi bi-patch-check-fill text-primary"></i> Administrator Sistem</p>
                         </div>
 
@@ -102,11 +98,11 @@
                         <div class="row g-4 mb-5">
                             <div class="col-md-6">
                                 <label class="form-label fw-bold small text-slate-600">Nama Penuh</label>
-                                <input type="text" name="fullname" class="form-control modern-input" value="<?= old('fullname', $user['fullname']) ?>" required>
+                                <input type="text" name="username" class="form-control modern-input" value="<?= old('username', $user->username) ?>" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold small text-slate-600">Alamat Emel</label>
-                                <input type="email" name="email" class="form-control modern-input" value="<?= old('email', $user['email']) ?>" required>
+                                <input type="email" name="email" class="form-control modern-input" value="<?= old('email', $user->email) ?>" required>
                             </div>
                             <div class="col-12 text-end">
                                 <button type="submit" class="btn-submit bg-blue-600 hover:bg-blue-800 text-white px-6 py-2.5 rounded-2xl font-bold transition-all duration-300 shadow-lg shadow-blue-100 border-0">

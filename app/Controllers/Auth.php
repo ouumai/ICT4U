@@ -32,33 +32,27 @@ class Auth extends BaseController
         if (!auth()->loggedIn()) return redirect()->to('/login');
 
         $user = auth()->user();
-        $userModel = new ShieldUserModel();
+        $userModel = new \App\Models\UserModel(); // Guna model yang kita baru repair tadi
 
         $file = $this->request->getFile('profile_pic');
         $picName = $user->profile_pic; 
 
         if ($file && $file->isValid() && !$file->hasMoved()) {
             $picName = $file->getRandomName();
-            
-            // Simpan dalam folder public/uploads/profile/
             $file->move(FCPATH . 'uploads/profile/', $picName);
-            
-            // Padam gambar lama jika ada
-            if ($user->profile_pic && file_exists(FCPATH . 'uploads/profile/' . $user->profile_pic)) {
-                unlink(FCPATH . 'uploads/profile/' . $user->profile_pic);
-            }
         }
 
-        // Update data guna Shield Model
-        $user->fill([
-            'username' => $this->request->getPost('fullname'), // Shield guna username/fullname
-            'email'    => $this->request->getPost('email'),
+        $data = [
+            'username'    => $this->request->getPost('username'),
             'profile_pic' => $picName,
-        ]);
+        ];
 
-        $userModel->save($user);
+        // Simpan terus ke database guna ID user yang login
+        if ($userModel->update($user->id, $data)) {
+            return redirect()->back()->with('success', 'Profil berjaya dikemaskini.');
+        }
 
-        return redirect()->back()->with('success', 'Profil berjaya dikemaskini.');
+        return redirect()->back()->with('error', 'Gagal kemaskini database.');
     }
 
     // 3. UPDATE PASSWORD (DARI DALAM PROFILE)

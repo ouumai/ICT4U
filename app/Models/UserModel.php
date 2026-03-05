@@ -2,15 +2,25 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
+use CodeIgniter\Shield\Models\UserModel as ShieldUserModel;
 
-class UserModel extends Model
+class UserModel extends ShieldUserModel
 {
-    protected $table            = 'users';
-    protected $primaryKey       = 'id';
+    protected $table          = 'users';
+    protected $primaryKey     = 'id';
     
-    // list of database follow as the column on table users
-    protected $allowedFields    = ['fullname', 'email', 'password', 'profile_pic', 'created_at', 'reset_token', 'reset_expires_at'];
+    // Kemaskini allowedFields: Ikut column dalam database Mai + profile_pic
+    protected $allowedFields  = [
+        'username', 
+        'status', 
+        'status_message', 
+        'active', 
+        'last_active', 
+        'profile_pic',
+        'created_at', 
+        'updated_at',
+        'deleted_at'
+    ];
     
     // double hash
     /*
