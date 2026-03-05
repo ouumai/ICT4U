@@ -9,23 +9,36 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 
 <style>
+    /* 1. Global Setup & Typography */
     body, .content-wrapper, h1, h2, h3, h4, h5, h6, p, span, div, table, input, textarea, button {
         font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
 
+    /* Hilangkan header dashboard asal untuk bagi selari dengan page lain */
     .content-wrapper > .container-fluid > .d-md-flex.align-items-center.justify-content-between.mb-5 {
         display: none !important;
     }
 
+    /* Pastikan content rapat ke atas (Selari dengan page Approval) */
+    .content-wrapper {
+        padding-top: 0 !important;
+    }
+
+    .container-fluid.py-1 {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    /* 2. Card Styling */
     .glass-card {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
         border: 1px solid #e2e8f0;
-        border-radius: 1.5rem;
+        border-radius: 1.5rem; /* rounded-3xl */
     }
 
-    /* Table Design Match */
+    /* 3. Table Header Design */
     .compact-th {
         padding: 25px 20px !important;
         background-color: #f8fafc !important;
@@ -37,27 +50,61 @@
         color: #64748b !important;
     }
 
-    /* Button Action Modern */
-    .btn-action-table-large {
-        height: 44px; display: inline-flex; align-items: center; justify-content: center;
-        padding: 0 16px; gap: 10px; font-size: 11px !important; font-weight: 800 !important; border-radius: 12px;
-        text-transform: uppercase; transition: all 0.2s; border: 1px solid transparent;
+    /* 4. Modern Action Buttons (Match Gambar Mai) */
+    .btn-tindakan-moden {
+        width: 48px;
+        height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        transition: all 0.2s ease-in-out;
+        border: none;
+        cursor: pointer;
     }
-    .btn-view-modern { background: #F1F5F9; color: #64748B; border-color: #E2E8F0; }
-    .btn-edit-modern { background: #EEF2FF; color: #4F46E5; border-color: #E0E7FF; }
-    .btn-delete-modern { background: #FFF1F2; color: #E11D48; border-color: #FFE4E6; }
 
-    /* SweetAlert Design Match */
+    .btn-tindakan-moden i {
+        font-size: 1.35rem !important;
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .btn-tindakan-moden:hover i {
+        transform: scale(1.25);
+    }
+
+    /* Button Colors: Kelabu, Purple, Merah */
+    .btn-lihat { background-color: #F1F5F9; color: #64748B; } /* Slate */
+    .btn-lihat:hover { background-color: #E2E8F0; color: #1E293B; }
+
+    .btn-kemaskini { background-color: #EEF2FF; color: #4F46E5; } /* Indigo */
+    .btn-kemaskini:hover { background-color: #E0E7FF; color: #3730A3; }
+
+    .btn-buang { background-color: #FFF1F2; color: #E11D48; } /* Rose */
+    .btn-buang:hover { background-color: #FFE4E6; color: #9F1239; }
+
+    /* 5. SweetAlert UI Design */
+    .swal2-popup { border-radius: 28px !important; padding: 2rem !important; }
     .swal2-actions { width: 100% !important; display: flex !important; flex-direction: row !important; gap: 12px !important; margin-top: 1.5rem !important; padding: 0 1rem !important; }
+    
     .btn-swal-hantar { flex: 1 !important; background: #3b82f6 !important; color: white !important; font-weight: 700 !important; padding: 14px !important; border-radius: 16px !important; border: none !important; font-size: 0.95rem !important; order: 2; }
     .btn-swal-padam { flex: 1 !important; background: #fee2e2 !important; color: #ef4444 !important; font-weight: 700 !important; padding: 14px !important; border-radius: 16px !important; border: none !important; font-size: 0.95rem !important; order: 1; }
-    .swal2-popup { border-radius: 28px !important; padding: 2rem !important; }
+    
     .swal-label-custom { display: block; font-size: 0.8rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
     .swal-input-custom { min-height: 52px; border-radius: 12px; border: 1px solid #e2e8f0; padding: 12px 15px; width: 100%; background-color: #ffffff; font-weight: 500; font-size: 0.95rem; }
-    
+
+    /* 6. Status & Misc */
     .status-pill { padding: 4px 12px; border-radius: 9999px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
     .status-pending { background-color: #FEF3C7; color: #92400E; }
     .status-approved { background-color: #DCFCE7; color: #166534; }
+
+    /* Style untuk nota halus dalam pop-up */
+    .file-reminder-text {
+        font-size: 8px !important; 
+        color: #94a3b8; 
+        margin-top: 4px; 
+        font-style: italic; 
+        opacity: 0.8;
+    }
 </style>
 
 <div class="container-fluid py-1">
@@ -153,16 +200,35 @@ function refreshTable(idservis){
                             <i class="bi bi-file-earmark-pdf-fill text-2xl"></i>
                         </div>
                     </td>
+
                     <td class="px-8 py-6">
                         <div class="font-bold text-slate-800 text-[14px]">${d.nama}</div>
                         <div class="text-xs text-slate-400 mt-1">${d.descdoc || 'Tiada nota'}</div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            <i class="bi bi-clock"></i> ${d.created_at || '-'}
                     </td>
+
+
                     <td class="px-8 py-6 text-center"><span class="status-pill status-${d.status}">${d.status}</span></td>
                     <td class="px-8 py-6 text-center">
                         <div class="flex justify-center gap-2">
-                            <a href="${fileUrl}" target="_blank" class="btn-action-table-large btn-view-modern" title="Lihat"><i class="bi bi-eye"></i></a>
-                            <button onclick="openDokumenEditor(${d.iddoc})" class="btn-action-table-large btn-edit-modern"><i class="bi bi-pencil-square"></i></button>
-                            <button onclick="hapusDokumen(${d.iddoc})" class="btn-action-table-large btn-delete-modern"><i class="bi bi-trash"></i></button>
+                            <a href="${fileUrl}" target="_blank" 
+                            class="viewBtn btn-action bg-gray-50 text-gray-600 p-2 rounded-xl hover:bg-gray-600 hover:text-white transition" 
+                            title="Lihat" data-id="${d.iddoc}">
+                                <i class="bi bi-eye-fill pointer-events-none"></i>
+                            </a>
+
+                            <button onclick="openDokumenEditor(${d.iddoc})" 
+                                    class="editBtn btn-action bg-indigo-50 text-indigo-600 p-2 rounded-xl hover:bg-indigo-600 hover:text-white transition" 
+                                    title="Edit" data-id="${d.iddoc}">
+                                <i class="bi bi-pencil-square pointer-events-none"></i>
+                            </button>
+
+                            <button onclick="hapusDokumen(${d.iddoc})" 
+                                    class="deleteBtn btn-action bg-red-50 text-red-600 p-2 rounded-xl hover:bg-red-600 hover:text-white transition" 
+                                    title="Padam" data-id="${d.iddoc}">
+                                <i class="bi bi-trash3 pointer-events-none"></i>
+                            </button>
                         </div>
                     </td>
                 </tr>`;
@@ -199,10 +265,14 @@ function showSwalEditor(data = null, idservis) {
                 <label class="swal-label-custom">Tajuk Dokumen</label>
                 <input id="swal-nama" class="swal-input-custom" value="${data ? data.nama : ''}" placeholder="Contoh: Sijil Kelayakan">
             </div>
+
             <div>
                 <label class="swal-label-custom">Penerangan / Nota</label>
                 <textarea id="swal-descdoc">${data ? (data.descdoc || '') : ''}</textarea>
             </div>
+
+
+            
             <div>
                 <label class="swal-label-custom">Fail Dokumen (PDF Sahaja)</label>
                 <input type="file" id="swal-file" class="swal-input-custom" style="padding-top:12px" accept="application/pdf">
