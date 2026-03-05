@@ -129,6 +129,22 @@
             margin-bottom: 8px;
         }
 
+        .custom-checkbox {
+        cursor: pointer;
+        width: 1.2rem;
+        height: 1.2rem;
+        border: 2px solid #cbd5e1;
+        }
+        .custom-checkbox:checked {
+            background-color: var(--brand-color);
+            border-color: var(--brand-color);
+        }
+        .form-check-label {
+            cursor: pointer;
+            padding-top: 2px;
+            margin-left: 5px;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -191,10 +207,14 @@
                 <input type="password" name="password" class="form-control" placeholder="minimum 8 aksara" required>
             </div>
 
-            <div class="mb-4 form-check">
-                <input type="checkbox" name="remember" class="form-check-input" id="remember" <?php if (old('remember')): ?> checked <?php endif ?>>
-                <label class="form-check-label small fw-bold text-secondary" for="remember">Ingat Saya</label>
+            <div class="mb-4 d-flex align-items-center justify-content-between">
+            <div class="form-check">
+                <input class="form-check-input custom-checkbox" type="checkbox" name="remember" id="remember" <?= old('remember') ? 'checked' : '' ?>>
+                <label class="form-check-label small fw-bold text-secondary" for="remember">
+                    Ingat Saya
+                </label>
             </div>
+        </div>
 
             <button type="submit" class="btn btn-login w-100 mb-4">Log Masuk Sekarang</button>
 

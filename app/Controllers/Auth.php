@@ -122,4 +122,23 @@ class Auth extends BaseController
         }
         return redirect()->back()->with('error', 'Gagal hantar emel.');
     }
+
+        public function attemptLogin()
+        {
+            $email = $this->request->getPost('email');
+            $password = $this->request->getPost('password');
+            $remember = (bool) $this->request->getPost('remember'); // Ambil nilai checkbox
+
+            $credentials = [
+                'email'    => $email,
+                'password' => $password,
+            ];
+
+            // Guna login() punya parameter ke-2 untuk 'remember'
+            if (auth()->attempt($credentials, $remember)) {
+                return redirect()->to('/dashboard')->with('success', 'Selamat datang semula!');
+            }
+
+            return redirect()->back()->with('error', 'Emel atau kata laluan salah.');
+        }
 }
