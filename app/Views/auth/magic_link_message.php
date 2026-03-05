@@ -126,7 +126,7 @@
 <div class="main-content">
     <div class="glass-card">
         <div class="brand-logo">
-            <i class="bi bi-cpu-fill"></i> ICT4U SYSTEM
+            <i class="bi bi-cpu-fill"></i> ICT4U        
         </div>
 
         <div class="icon-box">
