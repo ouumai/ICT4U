@@ -201,7 +201,7 @@ function refreshTable(idservis){
                         <div class="font-bold text-slate-800 text-[14px]">${d.nama}</div>
                         <div class="text-xs text-slate-400 mt-1">${d.descdoc || 'Tiada nota'}</div>
                         <div class="text-xs text-gray-500 mt-1">
-                            <i class="bi bi-clock"></i> ${d.created_at || '-'}
+                            <i class="bi bi-clock-history"></i> ${d.created_at || '-'}
                     </td>
 
 
