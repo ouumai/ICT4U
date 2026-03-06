@@ -30,10 +30,22 @@ class DokumenController extends BaseController
 
     public function getDokumen($idservis)
     {
+        // Ambil data berdasarkan idservis
         $items = $this->dokumenModel->where('idservis', $idservis)->findAll();
-        return $this->response->setJSON(['items' => $items]);
+        
+        // Return dalam format JSON supaya JS boleh loop
+        return $this->response->setJSON([
+            'status' => true,
+            'items'  => $items
+        ]);
     }
 
+    public function getDokumenDetail($iddoc) 
+    {
+        $data = $this->dokumenModel->find($iddoc);
+        return $this->response->setJSON(['status' => !empty($data), 'data' => $data]);
+    }
+    
     public function tambah()
     {
         $idservis = $this->request->getPost('idservis');
@@ -41,36 +53,38 @@ class DokumenController extends BaseController
         $descdoc  = $this->request->getPost('descdoc');
         $file     = $this->request->getFile('file');
 
+        // 1. Check file manual
         if (!$file || !$file->isValid()) {
-            return $this->response->setJSON(['status' => false, 'msg' => 'Fail tidak sah atau tiada fail']);
+            return $this->response->setJSON(['status' => false, 'msg' => 'Fail tidak sah.']);
         }
 
-        if ($file->getMimeType() !== 'application/pdf') {
-            return $this->response->setJSON(['status' => false, 'msg' => 'Hanya PDF sahaja dibenarkan.']);
-        }
-
-        $uploadPath = WRITEPATH . "uploads/dokumen/{$idservis}/";
-        if (!is_dir($uploadPath)) mkdir($uploadPath, 0755, true);
-
+        // 2. Process file
         $newName = time() . '_' . $file->getRandomName();
-        if (!$file->move($uploadPath, $newName)) {
-            return $this->response->setJSON(['status' => false, 'msg' => 'Gagal memindahkan fail ke server']);
+        $uploadPath = WRITEPATH . "uploads/dokumen/{$idservis}/";
+        
+        if (!is_dir($uploadPath)) mkdir($uploadPath, 0777, true);
+        
+        if ($file->move($uploadPath, $newName)) {
+            $data = [
+                'idservis'   => $idservis,
+                'nama'       => $nama,
+                'descdoc'    => $descdoc,
+                'namafail'   => $newName,
+                'mime'       => $file->getClientMimeType(),
+                'status'     => 'pending'
+            ];
+
+            // 3. Guna try-catch atau check errors model
+            if ($this->dokumenModel->insert($data)) {
+                return $this->response->setJSON(['status' => true, 'msg' => 'Dokumen berjaya dimuat naik!']);
+            } else {
+                // Ni paling penting: Bagitau Mai apa ralat model tu
+                $errors = $this->dokumenModel->errors();
+                return $this->response->setJSON(['status' => false, 'msg' => 'Gagal simpan: ' . implode(', ', $errors)]);
+            }
         }
 
-        $data = [
-            'idservis'   => $idservis,
-            'nama'       => $nama,
-            'descdoc'    => $descdoc,
-            'namafail'   => $newName,
-            'status'     => 'pending',
-            'created_at' => date('Y-m-d H:i:s')
-        ];
-
-        if ($this->dokumenModel->insert($data)) {
-            return $this->response->setJSON(['status' => true]);
-        }
-
-        return $this->response->setJSON(['status' => false, 'msg' => 'Gagal insert database']);
+        return $this->response->setJSON(['status' => false, 'msg' => 'Gagal pindah fail ke server.']);
     }
 
     public function edit($iddoc)

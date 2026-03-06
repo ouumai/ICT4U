@@ -152,6 +152,12 @@
 <script>
 let editorInstance = null;
 
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': '<?= csrf_hash() ?>'
+    }
+});
+
 // 1. Dropdown listener
 $('#dropdownServis').change(function(){
     refreshTable($(this).val());
@@ -168,7 +174,8 @@ function refreshTable(idservis){
     $('#btnTambahModal').prop('disabled', false);
     $('#dokumenArea').html('<div class="text-center py-20 text-slate-400">Memproses data...</div>');
     
-    $.get('/dokumen/getDokumen/' + idservis, function(res){
+    // Guna base_url untuk elak 404
+    $.get('<?= base_url('dokumen/getDokumen') ?>/' + idservis, function(res){
         var items = res.items;
         if(!items || items.length === 0){
             $('#dokumenArea').html(`<div class="p-20 text-center"><div class="bg-red-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm"><i class="bi bi-folder-x text-4xl text-red-500"></i></div><h5 class="text-slate-900 font-bold mb-1">Tiada Fail Dijumpai</h5><p class="text-slate-500 font-medium">Tiada dokumen yang dimuat naik untuk servis ini.</p></div>`);
@@ -188,7 +195,7 @@ function refreshTable(idservis){
                 <tbody class="divide-y divide-slate-100">`;
         
         items.forEach(d => {
-            const fileUrl = `/dokumen/viewFile/${d.idservis}/${d.namafail}`;
+            const fileUrl = `<?= base_url('dokumen/viewFile') ?>/${d.idservis}/${d.namafail}`;
             html += `
                 <tr class="hover:bg-slate-50/50 transition-colors">
                     <td class="px-8 py-6 text-center">
@@ -196,34 +203,24 @@ function refreshTable(idservis){
                             <i class="bi bi-file-earmark-pdf-fill text-2xl"></i>
                         </div>
                     </td>
-
                     <td class="px-8 py-6">
                         <div class="font-bold text-slate-800 text-[14px]">${d.nama}</div>
-                        <div class="text-xs text-slate-400 mt-1">${d.descdoc || 'Tiada nota'}</div>
+                        <div class="text-xs text-slate-400 mt-1">${d.descdoc ? d.descdoc.replace(/<[^>]*>?/gm, '').substring(0, 50) + '...' : 'Tiada nota'}</div>
                         <div class="text-xs text-gray-500 mt-1">
                             <i class="bi bi-clock-history"></i> ${d.created_at || '-'}
+                        </div>
                     </td>
-
-
                     <td class="px-8 py-6 text-center"><span class="status-pill status-${d.status}">${d.status}</span></td>
                     <td class="px-8 py-6 text-center">
                         <div class="flex justify-center gap-2">
-                            <a href="${fileUrl}" target="_blank" 
-                            class="viewBtn btn-action bg-gray-50 text-gray-600 p-2 rounded-xl hover:bg-gray-600 hover:text-white transition" 
-                            title="Lihat" data-id="${d.iddoc}">
-                                <i class="bi bi-eye-fill pointer-events-none"></i>
+                            <a href="${fileUrl}" target="_blank" class="bg-gray-50 text-gray-600 p-2 rounded-xl hover:bg-gray-600 hover:text-white transition" title="Lihat">
+                                <i class="bi bi-eye-fill"></i>
                             </a>
-
-                            <button onclick="openDokumenEditor(${d.iddoc})" 
-                                    class="editBtn btn-action bg-indigo-50 text-indigo-600 p-2 rounded-xl hover:bg-indigo-600 hover:text-white transition" 
-                                    title="Edit" data-id="${d.iddoc}">
-                                <i class="bi bi-pencil-square pointer-events-none"></i>
+                            <button onclick="openDokumenEditor(${d.iddoc})" class="bg-indigo-50 text-indigo-600 p-2 rounded-xl hover:bg-indigo-600 hover:text-white transition" title="Edit">
+                                <i class="bi bi-pencil-square"></i>
                             </button>
-
-                            <button onclick="hapusDokumen(${d.iddoc})" 
-                                    class="deleteBtn btn-action bg-red-50 text-red-600 p-2 rounded-xl hover:bg-red-600 hover:text-white transition" 
-                                    title="Padam" data-id="${d.iddoc}">
-                                <i class="bi bi-trash3 pointer-events-none"></i>
+                            <button onclick="hapusDokumen(${d.iddoc})" class="bg-red-50 text-red-600 p-2 rounded-xl hover:bg-red-600 hover:text-white transition" title="Padam">
+                                <i class="bi bi-trash3"></i>
                             </button>
                         </div>
                     </td>
@@ -231,17 +228,27 @@ function refreshTable(idservis){
         });
         html += '</tbody></table></div>';
         $('#dokumenArea').html(html);
+    }).fail(function(){
+        $('#dokumenArea').html('<div class="p-10 text-center text-red-500">Ralat memuatkan data. Sila periksa sambungan atau route.</div>');
     });
 }
 
 // 3. Open Editor (Create/Edit)
 function openDokumenEditor(iddoc = null) {
     const idservis = $('#dropdownServis').val();
-    if(!idservis) { Swal.fire('Sila pilih servis dahulu'); return; }
+    if(!idservis) { 
+        Swal.fire('Sila pilih servis dahulu'); 
+        return; 
+    }
 
-    if(iddoc){
-        $.get('/dokumen/edit/' + iddoc, function(res){
-            if(res.status) showSwalEditor(res.data, idservis);
+    if(iddoc) {
+        // Bahagian Kemaskini - Guna route getDokumenDetail
+        $.get('<?= base_url('dokumen/getDokumenDetail') ?>/' + iddoc, function(res) {
+            if(res.status) {
+                showSwalEditor(res.data, idservis);
+            } else {
+                Swal.fire('Ralat', 'Gagal mengambil data dokumen', 'error');
+            }
         });
     } else {
         showSwalEditor(null, idservis);
@@ -255,29 +262,20 @@ function showSwalEditor(data = null, idservis) {
     Swal.fire({
         title: isNew ? 'Muat Naik Dokumen Baru' : 'Kemaskini Dokumen',
         showCloseButton: true,
-         html: `
+        html: `
         <div class="text-left space-y-4 p-2 mt-4">
             <div>
                 <label class="swal-label-custom">Tajuk Dokumen</label>
                 <input id="swal-nama" class="swal-input-custom" value="${data ? data.nama : ''}" placeholder="Contoh: Sijil Kelayakan">
             </div>
-
             <div>
                 <label class="swal-label-custom">Penerangan / Nota</label>
                 <textarea id="swal-descdoc">${data ? (data.descdoc || '') : ''}</textarea>
             </div>
-
-
-            
             <div>
                 <label class="swal-label-custom">Fail Dokumen (PDF Sahaja)</label>
                 <input type="file" id="swal-file" class="swal-input-custom" style="padding-top:12px" accept="application/pdf">
-                
-                ${!isNew ? `
-                    <div style="font-size: 15px !important; color: #f86666; margin-top: 4px; opacity: 0.8;">
-                        * Biarkan kosong jika tidak mahu tukar fail
-                    </p>
-                ` : ''}
+                ${!isNew ? `<div class="text-xs text-rose-500 mt-1">* Biarkan kosong jika tidak mahu tukar fail</div>` : ''}
             </div>
         </div>`,
         width: '600px',
@@ -292,14 +290,23 @@ function showSwalEditor(data = null, idservis) {
                 .then(newEditor => { editorInstance = newEditor; })
                 .catch(err => console.error(err));
         },
+        // Cari bahagian preConfirm dalam showSwalEditor Mai dan kemaskini jadi macam ni:
         preConfirm: () => {
+            const idservis = $('#dropdownServis').val();
             const nama = document.getElementById('swal-nama').value;
             const fileInput = document.getElementById('swal-file');
             
+            // 1. Ambil Nama & Hash Token CSRF dari CI4
+            const csrfName = '<?= csrf_token() ?>';
+            const csrfHash = '<?= csrf_hash() ?>';
+
             if (!nama) { Swal.showValidationMessage('Tajuk dokumen wajib diisi!'); return false; }
             if (isNew && fileInput.files.length === 0) { Swal.showValidationMessage('Sila pilih fail PDF!'); return false; }
             
             const fd = new FormData();
+            // 2. Masukkan Token ke dalam FormData (WAJIB)
+            fd.append(csrfName, csrfHash); 
+            
             fd.append('idservis', idservis);
             fd.append('nama', nama);
             fd.append('descdoc', editorInstance ? editorInstance.getData() : '');
@@ -309,7 +316,7 @@ function showSwalEditor(data = null, idservis) {
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            const url = isNew ? '/dokumen/tambah' : '/dokumen/kemaskini/' + data.iddoc;
+        const url = isNew ? '<?= base_url('dokumen/tambah') ?>' : '<?= base_url('dokumen/kemaskini') ?>/' + data.iddoc;
             saveDokumen(url, result.value);
         }
     });
@@ -321,7 +328,7 @@ function saveDokumen(url, formData) {
         url: url, type: 'POST', data: formData, processData: false, contentType: false,
         success: function(res) {
             if(res.status) {
-                Swal.fire({ icon: 'success', title: 'Berjaya', text: 'Data disimpan!', timer: 1500, showConfirmButton: false });
+                Swal.fire({ icon: 'success', title: 'Berjaya', text: res.msg || 'Data disimpan!', timer: 1500, showConfirmButton: false });
                 refreshTable($('#dropdownServis').val());
             } else {
                 Swal.fire('Ralat', res.msg || 'Gagal menyimpan fail', 'error');
@@ -332,20 +339,45 @@ function saveDokumen(url, formData) {
 
 // 6. Delete Function
 window.hapusDokumen = function(id) {
+    // Ambil token CSRF untuk keselamatan
+    const csrfName = '<?= csrf_token() ?>';
+    const csrfHash = '<?= csrf_hash() ?>';
+
     Swal.fire({
-        title: 'Padam Dokumen?',
-        text: "Fail ini akan dibuang secara kekal!",
+        title: 'Hapus Dokumen?',
+        text: "Fail fizikal dan rekod pangkalan data akan dipadam sepenuhnya!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Ya, Padam',
         cancelButtonText: 'Batal',
-        buttonsStyling: false,
-        customClass: { confirmButton: 'btn-swal-padam', cancelButton: 'btn-swal-hantar' }
+        customClass: {
+            confirmButton: 'btn-swal-hantar', // Guna class yang Mai dah design
+            cancelButton: 'btn-swal-padam'
+        },
+        buttonsStyling: false
     }).then((result) => {
         if(result.isConfirmed) {
-            $.post('/dokumen/hapus/' + id, function() {
-                Swal.fire('Dipadam!', 'Dokumen telah dibuang.', 'success');
-                refreshTable($('#dropdownServis').val());
+            // Kita bina data untuk dihantar
+            const dataPadam = {};
+            dataPadam[csrfName] = csrfHash;
+
+            // Buat request POST ke Controller
+            $.post('<?= base_url('dokumen/hapus') ?>/' + id, dataPadam, function(res) {
+                if(res.status) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berjaya',
+                        text: res.msg,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    // Refresh table ikut servis yang tengah dipilih
+                    refreshTable($('#dropdownServis').val());
+                } else {
+                    Swal.fire('Ralat!', res.msg, 'error');
+                }
+            }).fail(function() {
+                Swal.fire('Ralat!', 'Gagal menghubungi pelayan (Check CSRF/Route)', 'error');
             });
         }
     });

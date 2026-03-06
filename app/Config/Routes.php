@@ -70,8 +70,11 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
     $routes->group('dokumen', ['namespace' => 'App\Controllers'], function($routes) {
         $routes->get('/', 'DokumenController::index');
         $routes->get('getDokumen/(:num)', 'DokumenController::getDokumen/$1');
-        $routes->post('tambah', 'DokumenController::tambah');
-        $routes->get('edit/(:num)', 'DokumenController::edit/$1');
+        $routes->get('getDokumenDetail/(:num)', 'DokumenController::getDokumenDetail/$1');
+        
+        $routes->post('tambah', 'DokumenController::tambah'); // <--- BUANG 'dokumen/' kat depan ni
+        
+        $routes->get('edit/(:num)', 'DokumenController::edit/$1'); 
         $routes->post('kemaskini/(:num)', 'DokumenController::kemaskini/$1');
         $routes->post('hapus/(:num)', 'DokumenController::hapus/$1');
         $routes->get('viewFile/(:num)/(:any)', 'DokumenController::viewFile/$1/$2');

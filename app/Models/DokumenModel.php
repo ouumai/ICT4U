@@ -48,16 +48,20 @@ class DokumenModel extends Model
     // =========================
 
     protected $validationRules = [
-    'nama'     => 'required|string|max_length[255]',
-    'namafail' => 'permit_empty|string|max_length[255]', // Tukar ke permit_empty
-    'mime'     => 'permit_empty|string|max_length[100]', // Tukar ke permit_empty
-    'status'   => 'in_list[pending,approved,rejected]'
+        'idservis' => 'required|numeric', // Tambah ni untuk pastikan ID servis sentiasa ada
+        'nama'     => 'required|string|max_length[255]',
+        'namafail' => 'permit_empty', // Biarkan kosong dulu sebab kita handle kat Controller
+        'status'   => 'permit_empty|in_list[pending,approved,rejected]'
     ];
 
     protected $validationMessages = [
-        'nama'     => ['required' => 'Nama dokumen harus diisi.'],
-        'namafail' => ['required' => 'Nama file harus diisi.'],
-        'mime'     => ['required' => 'MIME type harus diisi.'],
-        'status'   => ['in_list' => 'Status dokumen harus salah satu: pending, approved, rejected.']
+        'idservis' => [
+            'required' => 'ID Servis wajib ada.',
+            'numeric'  => 'ID Servis mestilah nombor.'
+        ],
+        'nama' => [
+            'required' => 'Tajuk dokumen wajib diisi.'
+        ]
+        // Buang mesej required untuk namafail & mime sebab kita guna permit_empty
     ];
 }
