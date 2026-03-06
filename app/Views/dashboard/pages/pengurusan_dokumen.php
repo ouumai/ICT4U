@@ -14,19 +14,9 @@
         font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
 
-    /* Hilangkan header dashboard asal untuk bagi selari dengan page lain */
+    /* 2. Hide Default Dashboard Header */
     .content-wrapper > .container-fluid > .d-md-flex.align-items-center.justify-content-between.mb-5 {
         display: none !important;
-    }
-
-    /* Pastikan content rapat ke atas (Selari dengan page Approval) */
-    .content-wrapper {
-        padding-top: 0 !important;
-    }
-
-    .container-fluid.py-1 {
-        margin-top: 0 !important;
-        padding-top: 0 !important;
     }
 
     /* 2. Card Styling */
@@ -70,6 +60,12 @@
 
     .btn-tindakan-moden:hover i {
         transform: scale(1.25);
+    }
+
+    #btnTambahModal:disabled {
+        cursor: not-allowed !important;
+        pointer-events: auto !important;
+        opacity: 0.6;
     }
 
     /* Button Colors: Kelabu, Purple, Merah */
