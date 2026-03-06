@@ -48,7 +48,7 @@
     .status-approved { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
     .status-rejected { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
 
-    /* 4. MODAL X BUTTON (THE FIX) */
+    /* 4. MODAL X BUTTON */
     #closeViewModal {
         color: #94a3b8;
         transition: all 0.2s ease;
@@ -60,7 +60,6 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        /* Tambah stroke untuk nampak BOLD */
         -webkit-text-stroke: 1.2px #94a3b8;
     }
     #closeViewModal:hover, #closeViewModal:active {
@@ -234,19 +233,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.changeStatus = async function(id, status) {
-        const confirmText = status.charAt(0).toUpperCase() + status.slice(1);
-        const result = await Swal.fire({ title: `Pengesahan ${confirmText}`, text: `Pasti mahu tukar status kepada ${status}?`, icon: status === 'approved' ? 'question' : 'warning', showCancelButton: true, confirmButtonColor: status === 'approved' ? '#10b981' : '#ef4444', confirmButtonText: `Ya, ${confirmText}!` });
-        if (!result.isConfirmed) return;
-        try {
-            const res = await fetch(`<?= base_url('approvaldokumen/changeStatus') ?>/${id}/${status}`, { method: 'POST' });
-            const data = await res.json();
-            if (data.status) {
-                if (status === 'approved') { lottieContainer.style.display = 'block'; successAnimation.play(); setTimeout(() => { lottieContainer.style.display = 'none'; }, 1500); }
-                Swal.fire('Berjaya!', data.message, 'success');
-                loadData(currentPage);
+    const confirmText = status.charAt(0).toUpperCase() + status.slice(1);
+    const result = await Swal.fire({ 
+        title: `Pengesahan ${confirmText}`, 
+        text: `Pasti mahu tukar status kepada ${status}?`, 
+        icon: status === 'approved' ? 'question' : 'warning', 
+        showCancelButton: true, 
+        confirmButtonColor: status === 'approved' ? '#10b981' : '#ef4444', 
+        confirmButtonText: `Ya, ${confirmText}!` 
+    });
+    
+    if (!result.isConfirmed) return;
+
+    try {
+        // AMBIL TOKEN CSRF
+        const csrfName = '<?= csrf_token() ?>';
+        const csrfHash = '<?= csrf_hash() ?>';
+
+        // Guna FormData supaya CI4 senang baca
+        const formData = new FormData();
+        formData.append(csrfName, csrfHash);
+
+        const res = await fetch(`<?= base_url('approvaldokumen/changeStatus') ?>/${id}/${status}`, { 
+            method: 'POST',
+            body: formData, // Hantar sebagai body
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
             }
-        } catch (err) { console.error(err); }
+        });
+        
+        const data = await res.json();
+        if (data.status) {
+            if (status === 'approved') { 
+                lottieContainer.style.display = 'block'; 
+                successAnimation.play(); 
+                setTimeout(() => { lottieContainer.style.display = 'none'; }, 1500); 
+            }
+            Swal.fire('Berjaya!', data.message, 'success');
+            loadData(currentPage);
+        } else {
+            Swal.fire('Gagal!', data.message, 'error');
+        }
+    } catch (err) { 
+        console.error(err);
+        Swal.fire('Ralat!', 'Gagal memproses data.', 'error');
     }
+}
 
     tbody.addEventListener('click', e => {
         const btn = e.target.closest('.btn-action');

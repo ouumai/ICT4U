@@ -53,61 +53,39 @@ class ApprovalDokumenController extends BaseController
     // AJAX: Tukar status dokumen (approved/rejected)
     public function changeStatus(int $iddoc, string $status)
     {
-        // 1. Seragamkan status & Validasi input
         $status = strtolower($status);
         if (!in_array($status, ['approved', 'rejected'])) {
             return $this->response->setJSON(['status' => false, 'message' => 'Status tidak sah']);
         }
 
-        // 2. Semak kewujudan dokumen asal
-        $dokumen = $this->dokumenModel->find($iddoc);
-        if (!$dokumen) {
-            return $this->response->setJSON(['status' => false, 'message' => 'Dokumen tidak dijumpai']);
-        }
-
         $userId = session()->get('user_id') ?? 'Admin';
         $now    = date('Y-m-d H:i:s');
 
-        // 3. Mulakan Transaction (Supaya dua-dua table update serentak)
         $db = \Config\Database::connect();
         $db->transStart();
 
-        // 4. Cari rekod approval sedia ada untuk iddoc ini
-        $existingApproval = $this->approvalModel->where('iddoc', $iddoc)->first();
+        // Gunakan fungsi saveStatus dalam model Mai untuk lebih clean
+        $this->approvalModel->saveStatus($iddoc, [
+            'status'      => $status,
+            'approved_by' => $userId,
+            'approved_at' => $now
+        ]);
 
-        if ($existingApproval) {
-            // UPDATE: Target baris spesifik menggunakan Primary Key 'id'
-            $this->approvalModel->update($existingApproval['id'], [
-                'status'      => $status,
-                'approved_by' => $userId,
-                'approved_at' => $now
-            ]);
-        } else {
-            // INSERT: Buat rekod baru jika belum ada
-            $this->approvalModel->insert([
-                'iddoc'       => $iddoc,
-                'status'      => $status,
-                'approved_by' => $userId,
-                'approved_at' => $now
-            ]);
-        }
-
-        // 5. Kemaskini status di table utama (aict4u106mdoc)
+        // Kemaskini table utama
         $this->dokumenModel->update($iddoc, [
-            'status'     => $status, 
+            'status'     => $status,
             'updated_at' => $now
         ]);
 
         $db->transComplete();
 
-        // 6. Semak jika transaction berjaya
         if ($db->transStatus() === false) {
-            return $this->response->setJSON(['status' => false, 'message' => 'Gagal mengemaskini status pangkalan data.']);
+            return $this->response->setJSON(['status' => false, 'message' => 'Database error!']);
         }
 
         return $this->response->setJSON([
-            'status'  => true, 
-            'message' => "Dokumen [ID: $iddoc] kini berstatus " . strtoupper($status)
+            'status'  => true,
+            'message' => "Status dikemaskini ke " . strtoupper($status)
         ]);
     }
 

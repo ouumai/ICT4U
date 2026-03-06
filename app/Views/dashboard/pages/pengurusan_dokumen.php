@@ -290,30 +290,28 @@ function showSwalEditor(data = null, idservis) {
                 .then(newEditor => { editorInstance = newEditor; })
                 .catch(err => console.error(err));
         },
-        // Cari bahagian preConfirm dalam showSwalEditor Mai dan kemaskini jadi macam ni:
-        preConfirm: () => {
-            const idservis = $('#dropdownServis').val();
-            const nama = document.getElementById('swal-nama').value;
-            const fileInput = document.getElementById('swal-file');
-            
-            // 1. Ambil Nama & Hash Token CSRF dari CI4
-            const csrfName = '<?= csrf_token() ?>';
-            const csrfHash = '<?= csrf_hash() ?>';
 
-            if (!nama) { Swal.showValidationMessage('Tajuk dokumen wajib diisi!'); return false; }
-            if (isNew && fileInput.files.length === 0) { Swal.showValidationMessage('Sila pilih fail PDF!'); return false; }
-            
-            const fd = new FormData();
-            // 2. Masukkan Token ke dalam FormData (WAJIB)
-            fd.append(csrfName, csrfHash); 
-            
-            fd.append('idservis', idservis);
-            fd.append('nama', nama);
-            fd.append('descdoc', editorInstance ? editorInstance.getData() : '');
-            if (fileInput.files[0]) fd.append('file', fileInput.files[0]);
-            
-            return fd;
-        }
+        preConfirm: () => {
+        const idservis = $('#dropdownServis').val();
+        const nama = document.getElementById('swal-nama').value;
+        const fileInput = document.getElementById('swal-file');
+        
+        // 1. Ambil Nama & Hash Token CSRF dari CI4
+        const csrfName = '<?= csrf_token() ?>';
+        const csrfHash = '<?= csrf_hash() ?>';
+
+        const fd = new FormData();
+        // 2. Masukkan Token ke dalam FormData (WAJIB)
+        fd.append(csrfName, csrfHash); 
+        
+        fd.append('idservis', idservis);
+        fd.append('nama', nama);
+        fd.append('descdoc', editorInstance ? editorInstance.getData() : '');
+        if (fileInput.files[0]) fd.append('file', fileInput.files[0]);
+        
+        return fd;
+    }
+
     }).then((result) => {
         if (result.isConfirmed) {
         const url = isNew ? '<?= base_url('dokumen/tambah') ?>' : '<?= base_url('dokumen/kemaskini') ?>/' + data.iddoc;
