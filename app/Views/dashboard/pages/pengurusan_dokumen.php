@@ -213,7 +213,7 @@ function refreshTable(idservis){
                     <td class="px-8 py-6 text-center"><span class="status-pill status-${d.status}">${d.status}</span></td>
                     <td class="px-8 py-6 text-center">
                         <div class="flex justify-center gap-2">
-                            <a href="${fileUrl}" target="_blank" class="w-10 h-10 flex items-center justify-center bg-gray-50 text-gray-600 p-2 rounded-xl hover:bg-gray-600 hover:text-white transition" title="Lihat">
+                            <a href="${fileUrl}" target="_blank" class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-600 p-2 rounded-xl hover:bg-gray-600 hover:text-white transition" title="Lihat">
                                 <i class="bi bi-eye-fill"></i>
                             </a>
                             <button onclick="openDokumenEditor(${d.iddoc})" class="w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 p-2 rounded-xl hover:bg-indigo-600 hover:text-white transition" title="Edit">
