@@ -214,8 +214,9 @@ $(document).ready(function() {
                                 <button onclick="openEditModal(${faq.id}, '${qBase64}', '${aBase64}')" class="w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
-                                <button onclick="deleteFaq(${faq.id})" class="w-10 h-10 flex items-center justify-center bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-600 hover:text-white transition">
-                                    <i class="bi bi-trash"></i>
+                                <button onclick="deleteFaq(${faq.id})" 
+                                        class="w-10 h-10 flex items-center justify-center bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition">
+                                    <i class="bi bi-trash3-fill"></i>
                                 </button>
                             </div>
                         </div>
