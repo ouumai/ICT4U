@@ -220,7 +220,7 @@ function refreshTable(idservis){
                                 <i class="bi bi-pencil-square"></i>
                             </button>
                             <button onclick="hapusDokumen(${d.iddoc})" class="bg-red-50 text-red-600 p-2 rounded-xl hover:bg-red-600 hover:text-white transition" title="Padam">
-                                <i class="bi bi-trash3"></i>
+                                <i class="bi bi-trash3-fill"></i>
                             </button>
                         </div>
                     </td>
