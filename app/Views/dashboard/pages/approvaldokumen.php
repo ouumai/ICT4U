@@ -193,9 +193,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="p-4 text-slate-500"><div class="flex items-center gap-2 text-sm"><i class="bi bi-clock-history"></i> ${formatDate(d.created_at)}</div></td>
                 <td class="p-4 text-center">
                     <div class="flex justify-center gap-2">
-                        <button class="viewBtn btn-action bg-indigo-50 text-indigo-600 p-2 rounded-xl hover:bg-indigo-600 hover:text-white transition" data-id="${d.iddoc}"><i class="bi bi-eye-fill pointer-events-none"></i></button>
-                        <button class="approveBtn btn-action bg-green-50 text-green-600 p-2 rounded-xl hover:bg-green-600 hover:text-white transition" data-id="${d.iddoc}"><i class="bi bi-check-lg pointer-events-none"></i></button>
-                        <button class="rejectBtn btn-action bg-red-50 text-red-600 p-2 rounded-xl hover:bg-red-600 hover:text-white transition" data-id="${d.iddoc}"><i class="bi bi-x-lg pointer-events-none"></i></button>
+                        <button class="viewBtn btn-action w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 p-2 rounded-xl hover:bg-indigo-600 hover:text-white transition" data-id="${d.iddoc}"><i class="bi bi-eye-fill pointer-events-none"></i></button>
+                        <button class="approveBtn btn-action w-10 h-10 flex items-center justify-center bg-green-50 text-green-600 p-2 rounded-xl hover:bg-green-600 hover:text-white transition" data-id="${d.iddoc}"><i class="bi bi-check-lg pointer-events-none"></i></button>
+                        <button class="rejectBtn btn-action w-10 h-10 flex items-center justify-center bg-red-50 text-red-600 p-2 rounded-xl hover:bg-red-600 hover:text-white transition" data-id="${d.iddoc}"><i class="bi bi-x-lg pointer-events-none"></i></button>
                     </div>
                 </td>
             `;

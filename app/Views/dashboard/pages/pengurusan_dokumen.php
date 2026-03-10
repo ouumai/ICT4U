@@ -213,13 +213,13 @@ function refreshTable(idservis){
                     <td class="px-8 py-6 text-center"><span class="status-pill status-${d.status}">${d.status}</span></td>
                     <td class="px-8 py-6 text-center">
                         <div class="flex justify-center gap-2">
-                            <a href="${fileUrl}" target="_blank" class="bg-gray-50 text-gray-600 p-2 rounded-xl hover:bg-gray-600 hover:text-white transition" title="Lihat">
+                            <a href="${fileUrl}" target="_blank" class="w-10 h-10 flex items-center justify-center bg-gray-50 text-gray-600 p-2 rounded-xl hover:bg-gray-600 hover:text-white transition" title="Lihat">
                                 <i class="bi bi-eye-fill"></i>
                             </a>
-                            <button onclick="openDokumenEditor(${d.iddoc})" class="bg-indigo-50 text-indigo-600 p-2 rounded-xl hover:bg-indigo-600 hover:text-white transition" title="Edit">
+                            <button onclick="openDokumenEditor(${d.iddoc})" class="w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 p-2 rounded-xl hover:bg-indigo-600 hover:text-white transition" title="Edit">
                                 <i class="bi bi-pencil-square"></i>
                             </button>
-                            <button onclick="hapusDokumen(${d.iddoc})" class="bg-red-50 text-red-600 p-2 rounded-xl hover:bg-red-600 hover:text-white transition" title="Padam">
+                            <button onclick="hapusDokumen(${d.iddoc})" class="w-10 h-10 flex items-center justify-center bg-red-50 text-red-600 p-2 rounded-xl hover:bg-red-600 hover:text-white transition" title="Padam">
                                 <i class="bi bi-trash3-fill"></i>
                             </button>
                         </div>
