@@ -215,7 +215,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function formatDate(str) { if (!str) return '-'; const d = new Date(str); return d.toLocaleDateString('ms-MY', { day: '2-digit', month: 'short', year: 'numeric' }); }
+    function formatDate(str) { 
+        if (!str) return '-'; 
+        const d = new Date(str); 
+        // Format: 11 Mac 2026, 10:33 PG/PT
+        return d.toLocaleString('ms-MY', { 
+            day: '2-digit', 
+            month: 'short', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true 
+        }); 
+    }
 
     window.showDokumenModal = async function(id) {
         viewModal.classList.remove('hidden');
