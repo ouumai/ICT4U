@@ -35,7 +35,6 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
 
     /**
      * Profile Management
-     * Wajib guna "\" kat depan App untuk panggil Controller Auth Mai sendiri.
      */
     $routes->get('profile', '\App\Controllers\Auth::profile'); 
     $routes->post('profile/update', '\App\Controllers\Auth::updateProfile');
@@ -109,4 +108,7 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
         $routes->post('update/(:num)', 'UserController::update/$1');
         $routes->post('delete/(:num)', 'UserController::delete/$1');
     });
+
+    
+
 });

@@ -8,15 +8,20 @@ use CodeIgniter\Shield\Models\UserModel as ShieldUserModel;
 
 class Auth extends BaseController
 {
+    public function __construct()
+    {
+        // Load helper email supaya function hantar emel tak error
+        helper(['url', 'form', 'session', 'email', 'auth']);
+    }
+
     // 1. PROFILE PAGE
     public function profile()
     {
-        // Guna cara Shield untuk check login
         if (!auth()->loggedIn()) {
             return redirect()->to('/login');
         }
 
-        $user = auth()->user(); // Ambil data user yang sedang login
+        $user = auth()->user(); 
 
         $data = [
             'user'  => $user,
@@ -32,7 +37,7 @@ class Auth extends BaseController
         if (!auth()->loggedIn()) return redirect()->to('/login');
 
         $user = auth()->user();
-        $userModel = new \App\Models\UserModel(); // Guna model yang kita baru repair tadi
+        $userModel = new \App\Models\UserModel();
 
         $file = $this->request->getFile('profile_pic');
         $picName = $user->profile_pic; 
@@ -47,7 +52,6 @@ class Auth extends BaseController
             'profile_pic' => $picName,
         ];
 
-        // Simpan terus ke database guna ID user yang login
         if ($userModel->update($user->id, $data)) {
             return redirect()->back()->with('success', 'Profil berjaya dikemaskini.');
         }
@@ -55,15 +59,15 @@ class Auth extends BaseController
         return redirect()->back()->with('error', 'Gagal kemaskini database.');
     }
 
-    // 3. UPDATE PASSWORD (DARI DALAM PROFILE)
-   public function updatePassword()
+    // 3. UPDATE PASSWORD (DENGAN EMEL NOTIFIKASI DINAMIK)
+    public function updatePassword()
     {
         if (!auth()->loggedIn()) return redirect()->to('/login');
 
         $user = auth()->user();
         $currentPassInput = $this->request->getPost('current_password');
 
-        // 1. Sahkan password lama (Guna helper Shield)
+        // Sahkan password lama
         $credentials = [
             'email'    => $user->email,
             'password' => $currentPassInput,
@@ -73,7 +77,7 @@ class Auth extends BaseController
             return redirect()->back()->with('error_pw', 'Kata laluan semasa anda salah!');
         }
 
-        // 2. Validation password baru
+        // Validation password baru
         $rules = [
             'new_password'     => 'required|min_length[8]',
             'confirm_password' => 'required|matches[new_password]'
@@ -83,16 +87,46 @@ class Auth extends BaseController
             return redirect()->back()->with('error_pw', 'Pastikan password baru minima 8 aksara & sepadan.');
         }
 
-        // 3. Simpan password baru (Cara Shield yang betul)
+        // Simpan password baru
         $user->password = $this->request->getPost('new_password');
         
-        $userModel = new \App\Models\UserModel(); // Guna model yang kita repair tadi
-        $userModel->save($user);
+        $userModel = new \App\Models\UserModel(); 
+        if ($userModel->save($user)) {
+            
+            // --- TRIGGER EMEL NOTIFIKASI DI SINI ---
+            // Kita guna $user->email supaya hantar kat "orang tu" (penerima dinamik)
+            $this->sendSecurityAlert($user->email, $user->username);
 
-        return redirect()->back()->with('success', 'Kata laluan berjaya dikemaskini.');
+            return redirect()->back()->with('success', 'Kata laluan berjaya dikemaskini & emel notifikasi telah dihantar.');
+        }
+
+        return redirect()->back()->with('error_pw', 'Gagal mengemaskini kata laluan.');
     }
 
-    // 4. RESET PASSWORD (STEP BY STEP)
+    // 4. PRIVATE FUNCTION: ENGINE HANTAR EMEL
+    private function sendSecurityAlert($penerimaEmail, $namaUser)
+    {
+        $email = \Config\Services::email();
+        
+        // PENGIRIM: Akaun n.umairahsabri@gmail.com
+        $email->setFrom('n.umairahsabri@gmail.com', 'ICT4U Security Alert');
+        
+        // PENERIMA: Emel user yang tengah tukar password
+        $email->setTo($penerimaEmail); 
+        $email->setSubject('Sekuriti ICT4U: Kata Laluan Dikemaskini');
+        
+        $emailData = [
+            'fullname'   => $namaUser,
+            'updateTime' => date('d M Y, h:i A')
+        ];
+
+        $body = view('auth/email/password_changed', $emailData);
+        $email->setMessage($body);
+
+        return $email->send();
+    }
+
+    // --- RESET PASSWORD & LOGIN ATTEMPT (Kekalkan yang asal) ---
     public function forgotStep1() { return view('form/forgot_password'); }
 
     public function processStep1()
@@ -123,22 +157,21 @@ class Auth extends BaseController
         return redirect()->back()->with('error', 'Gagal hantar emel.');
     }
 
-        public function attemptLogin()
-        {
-            $email = $this->request->getPost('email');
-            $password = $this->request->getPost('password');
-            $remember = (bool) $this->request->getPost('remember'); // Ambil nilai checkbox
+    public function attemptLogin()
+    {
+        $email = $this->request->getPost('email');
+        $password = $this->request->getPost('password');
+        $remember = (bool) $this->request->getPost('remember'); 
 
-            $credentials = [
-                'email'    => $email,
-                'password' => $password,
-            ];
+        $credentials = [
+            'email'    => $email,
+            'password' => $password,
+        ];
 
-            // Guna login() punya parameter ke-2 untuk 'remember'
-            if (auth()->attempt($credentials, $remember)) {
-                return redirect()->to('/dashboard')->with('success', 'Selamat datang semula!');
-            }
-
-            return redirect()->back()->with('error', 'Emel atau kata laluan salah.');
+        if (auth()->attempt($credentials, $remember)) {
+            return redirect()->to('/dashboard')->with('success', 'Selamat datang semula!');
         }
+
+        return redirect()->back()->with('error', 'Emel atau kata laluan salah.');
+    }
 }

@@ -32,7 +32,7 @@
                     </tr>
                     <tr>
                         <td align="center" style="padding: 25px; background-color: #f8fafc; color: #94a3b8; font-size: 11px;">
-                            &copy; 2026 ICT4U MANAGEMENT SYSTEM | DigitalUKM
+                            &copy; 2026 ICT4U MANAGEMENT SYSTEM
                         </td>
                     </tr>
                 </table>
