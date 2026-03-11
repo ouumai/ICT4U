@@ -199,7 +199,7 @@ function refreshTable(idservis){
             html += `
                 <tr class="hover:bg-slate-50/50 transition-colors">
                     <td class="px-8 py-6 text-center">
-                        <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center mx-auto shadow-sm">
+                        <div class="w-12 h-12 rounded-xl bg-red-50 text-red-600 flex items-center justify-center mx-auto shadow-sm">
                             <i class="bi bi-file-earmark-pdf-fill text-2xl"></i>
                         </div>
                     </td>
