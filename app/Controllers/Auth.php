@@ -132,29 +132,38 @@ class Auth extends BaseController
     public function processStep1()
     {
         $email = $this->request->getPost('email');
-        $userModel = new ShieldUserModel();
-        $user = $userModel->findByCredentials(['email' => $email]);
+        
+        // Kita panggil UserModel untuk cari fullname user tersebut
+        $userModel = new \App\Models\UserModel();
+        $userData = $userModel->where('email', $email)->first();
 
-        if (!$user) {
+        if (!$userData) {
             return redirect()->back()->with('error', 'Emel tidak dijumpai.');
         }
 
-        $token = rand(100000, 999999);
-        session()->set([
-            'reset_token'      => $token,
-            'reset_email'      => $email,
-            'token_created_at' => time()
-        ]);
+        $token = (string)rand(100000, 999999);
+        
+        // Set data untuk dihantar ke emel
+        $emailData = [
+            'token'    => $token,
+            // Pastikan ambil 'fullname' dari hasil carian database tadi
+            'fullname' => $userData['fullname'] ?? $userData['username'] ?? 'User'
+        ];
 
         $emailService = \Config\Services::email();
         $emailService->setTo($email);
         $emailService->setSubject('Kod Keselamatan ICT4U');
-        $emailService->setFrom('n.umairahsabri@gmail.com', 'ICT4U Management System');
-        $emailService->setMessage("Kod anda: $token (Sah 5 minit)");
+        
+        // Load view dengan data yang kita dah set
+        $body = view('auth/email/activation_email', $emailData);
+        $emailService->setMessage($body);
 
         if ($emailService->send()) {
+            // Simpan token dalam session untuk verify nanti
+            session()->set(['reset_token' => $token, 'reset_email' => $email]);
             return redirect()->to('forgot/step2')->with('success', 'Kod dihantar!');
         }
+        
         return redirect()->back()->with('error', 'Gagal hantar emel.');
     }
 

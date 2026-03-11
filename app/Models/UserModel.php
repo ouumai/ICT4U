@@ -11,7 +11,7 @@ class UserModel extends ShieldUserModel
     
     // Kemaskini allowedFields: Ikut column dalam database Mai + profile_pic
     protected $allowedFields  = [
-        'username', 
+        'fullname', 
         'status', 
         'status_message', 
         'active', 
