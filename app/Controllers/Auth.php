@@ -109,7 +109,7 @@ class Auth extends BaseController
         $email = \Config\Services::email();
         
         // PENGIRIM: Akaun n.umairahsabri@gmail.com
-        $email->setFrom('n.umairahsabri@gmail.com', 'ICT4U Security Alert');
+        $email->setFrom('n.umairahsabri@gmail.com', 'ICT4U Management System');
         
         // PENERIMA: Emel user yang tengah tukar password
         $email->setTo($penerimaEmail); 
@@ -149,6 +149,7 @@ class Auth extends BaseController
         $emailService = \Config\Services::email();
         $emailService->setTo($email);
         $emailService->setSubject('Kod Keselamatan ICT4U');
+        $emailService->setFrom('n.umairahsabri@gmail.com', 'ICT4U Management System');
         $emailService->setMessage("Kod anda: $token (Sah 5 minit)");
 
         if ($emailService->send()) {
