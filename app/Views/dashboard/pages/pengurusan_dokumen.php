@@ -195,37 +195,47 @@ function refreshTable(idservis){
                 <tbody class="divide-y divide-slate-100">`;
         
         items.forEach(d => {
-            const fileUrl = `<?= base_url('dokumen/viewFile') ?>/${d.idservis}/${d.namafail}`;
-            html += `
-                <tr class="hover:bg-slate-50/50 transition-colors">
-                    <td class="px-8 py-6 text-center">
-                        <div class="w-12 h-12 rounded-xl bg-red-50 text-red-600 flex items-center justify-center mx-auto shadow-sm">
-                            <i class="bi bi-file-earmark-pdf-fill text-2xl"></i>
+        const fileUrl = `<?= base_url('dokumen/viewFile') ?>/${d.idservis}/${d.namafail}`;
+        const createdDate = d.created_at ? d.created_at : '-';
+        const updatedDate = d.updated_at ? d.updated_at : createdDate;
+
+        html += `
+            <tr class="hover:bg-slate-50/50 transition-colors">
+                <td class="px-8 py-6 text-center">
+                    <div class="w-12 h-12 rounded-xl bg-red-50 text-red-600 flex items-center justify-center mx-auto shadow-sm">
+                        <i class="bi bi-file-earmark-pdf-fill text-2xl"></i>
+                    </div>
+                </td>
+                <td class="px-8 py-6">
+                    <div class="font-bold text-slate-800 text-[14px]">${d.nama}</div>
+                    <div class="text-xs text-slate-400 mt-1">${d.descdoc ? d.descdoc.replace(/<[^>]*>?/gm, '').substring(0, 50) + '...' : 'Tiada nota'}</div>
+                    
+                    <div class="mt-2 space-y-0.5">
+                        <div class="text-xs text-slate-400 font-medium flex items-center gap-1">
+                            <i class="bi bi-plus-circle"></i> Dicipta: ${createdDate}
                         </div>
-                    </td>
-                    <td class="px-8 py-6">
-                        <div class="font-bold text-slate-800 text-[14px]">${d.nama}</div>
-                        <div class="text-xs text-slate-400 mt-1">${d.descdoc ? d.descdoc.replace(/<[^>]*>?/gm, '').substring(0, 50) + '...' : 'Tiada nota'}</div>
-                        <div class="text-xs text-gray-500 mt-1">
-                            <i class="bi bi-clock-history"></i> ${d.created_at || '-'}
+                        <div class="text-xs text-blue-500 font-bold flex items-center gap-1">
+                            <i class="bi bi-pencil-square"></i> Kemaskini: ${updatedDate}
                         </div>
-                    </td>
-                    <td class="px-8 py-6 text-center"><span class="status-pill status-${d.status}">${d.status}</span></td>
-                    <td class="px-8 py-6 text-center">
-                        <div class="flex justify-center gap-2">
-                            <a href="${fileUrl}" target="_blank" class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-600 p-2 rounded-xl hover:bg-gray-600 hover:text-white transition" title="Lihat">
-                                <i class="bi bi-eye-fill"></i>
-                            </a>
-                            <button onclick="openDokumenEditor(${d.iddoc})" class="w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 p-2 rounded-xl hover:bg-indigo-600 hover:text-white transition" title="Edit">
-                                <i class="bi bi-pencil-square"></i>
-                            </button>
-                            <button onclick="hapusDokumen(${d.iddoc})" class="w-10 h-10 flex items-center justify-center bg-red-50 text-red-600 p-2 rounded-xl hover:bg-red-600 hover:text-white transition" title="Padam">
-                                <i class="bi bi-trash3-fill"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>`;
-        });
+                    </div>
+                </td>
+                <td class="px-8 py-6 text-center"><span class="status-pill status-${d.status}">${d.status}</span></td>
+                <td class="px-8 py-6 text-center">
+                    <div class="flex justify-center gap-2">
+                        <a href="${fileUrl}" target="_blank" class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-600 p-2 rounded-xl hover:bg-gray-600 hover:text-white transition" title="Lihat">
+                            <i class="bi bi-eye-fill"></i>
+                        </a>
+                        <button onclick="openDokumenEditor(${d.iddoc})" class="w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 p-2 rounded-xl hover:bg-indigo-600 hover:text-white transition" title="Edit">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button onclick="hapusDokumen(${d.iddoc})" class="w-10 h-10 flex items-center justify-center bg-red-50 text-red-600 p-2 rounded-xl hover:bg-red-600 hover:text-white transition" title="Padam">
+                            <i class="bi bi-trash3-fill"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>`;
+    });
+        
         html += '</tbody></table></div>';
         $('#dokumenArea').html(html);
     }).fail(function(){
