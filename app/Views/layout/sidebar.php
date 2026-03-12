@@ -29,27 +29,26 @@
     /* HEADER LOGO */
     .brand-link { 
         border-bottom: 1px solid #f1f5f9 !important; 
-        padding: 1.2rem 1rem !important; /* Kurangkan sikit padding kalau logo tinggi */
+        padding: 1.5rem 1rem !important; 
         display: flex;
         justify-content: center;
         align-items: center;
     }
 
-    /* Style untuk SVG logo */
     .brand-logo-img {
-    height: 80px; /* Adjust ketinggian ikut kesesuaian logo kau */
-    width: auto;
-    max-width: 180px; /* Supaya tak langgar tepi sidebar */
-    display: block;
-    margin: 0 auto;
-    transition: transform 0.3s ease;
+        height: 80px; 
+        width: auto;
+        max-width: 180px; 
+        display: block;
+        margin: 0 auto;
+        transition: transform 0.3s ease;
     }
 
     /* SCROLLABLE AREA */
     .sidebar { 
         flex: 1; 
         overflow-y: auto; 
-        padding-top: 15px; 
+        padding-top: 30px !important; /* Tambah jarak supaya menu ke bawah sikit */
     }
 
     /* MENU ITEMS STYLE */
@@ -63,7 +62,7 @@
         transition: all 0.2s;
         display: flex;
         align-items: center;
-        justify-content: space-between; /* Icon kiri, Arrow kanan */
+        justify-content: space-between;
     }
 
     .nav-link-content { 
@@ -78,19 +77,19 @@
         font-size: 1.1rem;
     }
 
-    /* ACTIVE STATE (PURPLE THEME) */
+    /* ACTIVE STATE (TEMA LAVENDER BARU) */
     .nav-pills .nav-link.active {
-        background-color: #f5f3ff !important;
-        color: #4f46e5 !important;
+        background-color: #f0f0fb !important; /* Soft Lavender */
+        color: #624aea !important; /* Dark Lavender untuk text/icon */
     }
     .nav-pills .nav-link.active i.nav-icon { 
-        color: #4f46e5 !important; 
+        color: #624aea !important; 
     }
     
-    /* HOVER STATE */
+    /* HOVER STATE (STYLE ASAL KAU) */
     .nav-pills .nav-link:hover:not(.active):not(.logout-btn) {
-        background-color: #f8fafc;
-        color: #1e293b !important;
+        background-color: #f8fafc !important; /* Kelabu cair style lama */
+        color: #1e293b !important; /* Text gelap style lama */
     }
     .nav-pills .nav-link:hover:not(.active):not(.logout-btn) i.nav-icon { 
         color: #1e293b !important; 
@@ -112,18 +111,13 @@
     .nav-link.logout-btn:hover { background-color: #fee2e2 !important; color: #dc2626 !important; }
     .nav-link.logout-btn:hover i.nav-icon { color: #dc2626 !important; }
     
-    /* FOOTER & ARROW ANIMATION */
-    .sidebar-footer { padding: 20px; border-top: 1px solid #f1f5f9; background: #ffffff; margin-top: auto; }
-    
+    /* ARROW ANIMATION */
     .nav-arrow { 
         transition: transform 0.15s ease-out; 
         font-size: 0.8rem !important; 
-        color: #94a3b8; 
+        color: #7B68EE; 
     }
-    .nav-link.active .nav-arrow { color: #4f46e5 !important; }
-    
-    /* Logic Pusing Arrow: Default (v), Open (^) */
-    .nav-item .nav-link .nav-arrow { transform: rotate(0deg) !important; }
+    .nav-link.active .nav-arrow { color: #BF7ABB !important; }
     .nav-item.menu-open .nav-link .nav-arrow { transform: rotate(180deg) !important; }
 </style>
 
