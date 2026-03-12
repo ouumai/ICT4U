@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Models\ServisModel;
 use App\Models\ModulDescModel;
+use App\Models\PerincianModulModel;
 
 class PerincianModulController extends BaseController
 {
@@ -15,7 +16,7 @@ class PerincianModulController extends BaseController
     {
         helper(['url', 'form']);
         $this->servisModel = new ServisModel();
-        $this->descModel   = new ModulDescModel();
+        $this->descModel = new \App\Models\PerincianModulModel();
     }
 
     /** * Papar halaman utama 
@@ -74,6 +75,8 @@ class PerincianModulController extends BaseController
 
 /** * Simpan atau Kemaskini data (Action dari Form)
      */
+    /** * Simpan atau Kemaskini data (Action dari Form)
+     */
     public function save()
     {
         $idservis    = $this->request->getPost('idservis');
@@ -88,8 +91,7 @@ class PerincianModulController extends BaseController
             $errors[] = 'ID Servis tidak sah atau tidak dipilih.';
         }
 
-        // 2. VALIDASI NAMA SERVIS (Perkara 1.1)
-        // Regex PHP untuk Keyboard Characters sahaja (ASCII 32-126)
+        // 2. VALIDASI NAMA SERVIS
         $keyboardRegex = '/^[\x20-\x7E]*$/'; 
         
         if (empty($namaservis)) {
@@ -97,34 +99,24 @@ class PerincianModulController extends BaseController
         } elseif (mb_strlen($namaservis) > 145) {
             $errors[] = 'Nama servis tidak boleh melebihi 145 aksara.';
         } elseif (!preg_match($keyboardRegex, $namaservis)) {
-            $errors[] = 'Nama servis mengandungi aksara yang tidak dibenarkan (Hanya guna aksara papan kekunci standard).';
+            $errors[] = 'Nama servis mengandungi aksara yang tidak dibenarkan.';
         }
 
-        // 3. VALIDASI URL (Perkara 1.2 & 1.3)
-        // Kita gunakan regex manual kerana filter_var FILTER_VALIDATE_URL kadang-kadang terlepas protokol ftp
+        // 3. VALIDASI URL (Optional - Check kalau tak kosong)
         $urlRegex = '/^(https?|ftp):\/\/[^\s\/$.?#].[^\s]*$/i';
 
-        if (!empty($infourl)) {
-            if (!preg_match($urlRegex, $infourl)) {
-                $errors[] = 'Format Info URL tidak sah. Mesti bermula dengan http://, https:// atau ftp://';
-            }
+        if (!empty($infourl) && !preg_match($urlRegex, $infourl)) {
+            $errors[] = 'Format Info URL tidak sah.';
         }
 
-        if (!empty($mohonurl)) {
-            if (!preg_match($urlRegex, $mohonurl)) {
-                $errors[] = 'Format Mohon URL tidak sah. Mesti bermula dengan http://, https:// atau ftp://';
-            }
+        if (!empty($mohonurl) && !preg_match($urlRegex, $mohonurl)) {
+            $errors[] = 'Format Mohon URL tidak sah.';
         }
 
-        // 4. VALIDASI DESCRIPTION
-        /* if (empty($description) || $description == '&nbsp;') {
-            $errors[] = 'Description/Perincian wajib diisi.';
-        }
-        */
+        // 4. VALIDASI DESCRIPTION (Dah benarkan kosong atas permintaan Mai)
+        $description = $description ?: ''; 
 
-        $description = $description ?: ''; // Pastikan tidak null, walaupun form kosong
-
-        // Jika ada ralat, kembali ke form dengan mesej ralat
+        // Jika ada ralat validasi, hantar balik ke form dengan mesej ralat
         if (!empty($errors)) {
             return redirect()
                 ->back()
@@ -132,35 +124,40 @@ class PerincianModulController extends BaseController
                 ->with('error', implode('<br>', $errors));
         }
 
-        // ===== PROSES KEMASKINI =====
+        // ===== PROSES KEMASKINI DATABASE =====
         try {
-            // 1. Update Table Servis
+            // A. Update Table Servis (Nama & URL)
             $this->servisModel->update($idservis, [
                 'namaservis' => $namaservis,
                 'infourl'    => $infourl ?: null,
                 'mohonurl'   => $mohonurl ?: null
             ]);
 
-            // 2. Update/Insert Table Description
+            // B. Update/Insert Table Perincian (Description)
+            // Guna model yang point ke table aict4u103dperincianmodul
             $existingDesc = $this->descModel->where('idservis', $idservis)->first();
             
             if ($existingDesc) {
-                $this->descModel->update($existingDesc['iddesc'], [
+                // PENTING: Guna key 'id' mengikut PerincianModulModel
+                $this->descModel->update($existingDesc['id'], [ 
                     'description' => $description
                 ]);
             } else {
                 $this->descModel->insert([
-                    'idservis' => $idservis,
+                    'idservis'    => $idservis,
                     'description' => $description
                 ]);
             }
 
+            // Set flashdata success untuk trigger SweetAlert hijau kat View
             session()->setFlashdata('success', 'Maklumat servis berjaya dikemaskini.');
 
         } catch (\Exception $e) {
+            // Jika ada ralat database (contoh: iddesc vs id), dia akan keluar pop-up merah
             return redirect()->back()->with('error', 'Ralat Sistem: ' . $e->getMessage());
         }
 
+        // Redirect balik ke index supaya page refresh dan baca flashdata
         return redirect()->to('/perincianmodul');
     }
 

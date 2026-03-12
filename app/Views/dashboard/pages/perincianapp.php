@@ -109,6 +109,10 @@
     }
     .btn-reset:hover { background: #FEEBE7; color: #dc2626; }
 
+
+    .btn-swal-hantar { order: 2 !important; }
+    .btn-swal-batal { order: 1 !important; }
+
     /* CKEditor Customization */
     .ck-editor__main>.ck-editor__editable { min-height: 250px; border-radius: 0 0 12px 12px !important; padding: 10px 20px !important; }
     .ck.ck-editor__top { border-radius: 12px 12px 0 0 !important; border-bottom: none !important; }
@@ -203,26 +207,53 @@
 <script>
 $(document).ready(function() {
     let editor;
-    let originalData = {};
+    let originalData = { name: '', info: '', mohon: '', desc: '' };
 
-    // 1. Initialize CKEditor
+    // ==========================================
+    // 1. SUCCESS / ERROR HANDLING (FLASH DATA)
+    // ==========================================
+    <?php if(session()->getFlashdata('success')): ?>
+        Swal.fire({ 
+            icon: 'success', 
+            title: 'Berjaya!', 
+            text: '<?= session()->getFlashdata('success') ?>', 
+            showConfirmButton: false,
+            customClass: {
+                popup: 'swal-rounded',
+            },
+            timer: 3000,
+        });
+    <?php endif; ?>
+
+    <?php if(session()->getFlashdata('error')): ?>
+        Swal.fire({ 
+            icon: 'error', 
+            title: 'Ralat!', 
+            html: '<?= session()->getFlashdata('error') ?>', 
+            confirmButtonText: 'Cuba Lagi',
+            customClass: {
+                popup: 'swal-rounded',
+                confirmButton: 'btn-swal-batal'
+            },
+            buttonsStyling: false
+        });
+    <?php endif; ?>
+
+    // ==========================================
+    // 2. INITIALIZE CKEDITOR
+    // ==========================================
     ClassicEditor
     .create(document.querySelector('#description'), {
-        toolbar: [
-            'heading','|',
-            'bold','italic','link',
-            'bulletedList','numberedList',
-            'blockQuote','undo','redo'
-        ]
+        toolbar: ['heading','|','bold','italic','link','bulletedList','numberedList','blockQuote','undo','redo']
     })
     .then(newEditor => {
         editor = newEditor;
     })
-    .catch(error => {
-        console.error("CKEditor failed to load:", error);
-    });
+    .catch(error => { console.error("CKEditor failed:", error); });
 
-    // 2. Dropdown Change Handler
+    // ==========================================
+    // 3. DROPDOWN CHANGE HANDLER
+    // ==========================================
     $('#dropdownServis').change(function() {
         const id = $(this).val();
         const selectedOption = $(this).find('option:selected');
@@ -233,31 +264,24 @@ $(document).ready(function() {
             return;
         }
 
-        // CLEAR VIEW LAMA SERTA-MERTA (Sapu bersih aktiviti lama)
-        $('#namaservis').val('');
-        $('#infourl').val('');
-        $('#mohonurl').val('');
-        if (editor) editor.setData(''); 
-
         $('#emptyState').addClass('hidden');
         $('#formArea').removeClass('hidden');
 
         const name = selectedOption.data('name');
-        const info = selectedOption.data('infourl');
-        const mohon = selectedOption.data('mohonurl');
+        const info = selectedOption.data('infourl') || '';
+        const mohon = selectedOption.data('mohonurl') || '';
 
         $('#idservis').val(id);
         $('#namaservis').val(name);
         $('#infourl').val(info);
         $('#mohonurl').val(mohon);
 
-        // Fetch data terbaru dari DB melalui AJAX
-        editor.setData();
+        // Fetch data AJAX
         $.get(`<?= base_url('perincianmodul/getServis') ?>/${id}`, function(res) {
             const descContent = (res.desc && res.desc.description) ? res.desc.description : '';
-            if (editor) {
-                editor.setData(descContent);
-            }           
+            if (editor) editor.setData(descContent);
+            
+            // Simpan data asal untuk check perubahan link nanti
             originalData = {
                 name: name,
                 info: info,
@@ -267,31 +291,31 @@ $(document).ready(function() {
         });
     });
 
-    // 3. Validation Logic & Confirmation Change
+    // ==========================================
+    // 4. VALIDATION & CONFIRMATION
+    // ==========================================
     $('#servisForm').on('submit', function(e) {
         e.preventDefault();
+        const form = this; // Simpan reference form
 
         const nameVal = $('#namaservis').val().trim();
         const currentInfoUrl = $('#infourl').val().trim();
         const currentMohonUrl = $('#mohonurl').val().trim();
         
-        // Validasi Nama Servis (Wajib)
         if (nameVal === "") {
             Swal.fire({
                 icon: 'warning',
                 title: 'Borang Tidak Lengkap',
                 text: 'Nama Servis Rasmi wajib diisi.',
-                customClass: {
-                    popup: 'swal-rounded',
-                    confirmButton: 'btn-swal-hantar'
-                },
-                buttonsStyling: false // Penting: Supaya style asal Swal tak kacau CSS Mai
+                customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar' },
+                buttonsStyling: false
             });
             return false;
         }
 
-        const isInfoUrlChanged = (currentInfoUrl !== originalData.info);
-        const isMohonUrlChanged = (currentMohonUrl !== originalData.mohon);
+        // Check perubahan link
+        const isInfoUrlChanged = (currentInfoUrl !== (originalData.info || ''));
+        const isMohonUrlChanged = (currentMohonUrl !== (originalData.mohon || ''));
 
         if (isInfoUrlChanged || isMohonUrlChanged) {
             Swal.fire({
@@ -299,11 +323,9 @@ $(document).ready(function() {
                 text: "Adakah anda pasti untuk tukar ke link yang baru?",
                 icon: 'question',
                 showCancelButton: true,
-                showCloseButton: true, // Untuk aktifkan butang (X)
+                showCloseButton: true,
                 confirmButtonText: 'Ya, Simpan!',
                 cancelButtonText: 'Batal',
-                
-                // MAPPING CSS CLASS MAI KAT SINI:
                 customClass: {
                     popup: 'swal-rounded',
                     confirmButton: 'btn-swal-hantar',
@@ -311,47 +333,32 @@ $(document).ready(function() {
                     actions: 'swal2-actions',
                     closeButton: 'swal2-close'
                 },
-                buttonsStyling: false // Wajib set false kalau guna custom button class
-                
+                buttonsStyling: false
             }).then((result) => {
                 if (result.isConfirmed) {
-                    this.submit();
+                    form.submit(); // Submit form guna reference
                 }
             });
         } else {
-            this.submit();
+            form.submit();
         }
     });
 
-    // 4. Success Handling - AUTO REFRESH PAGE
-    <?php if(session()->getFlashdata('success')): ?>
-        Swal.fire({ 
-            icon: 'success', 
-            title: 'Berjaya!', 
-            text: '<?= session()->getFlashdata('success') ?>', 
-            confirmButtonColor: '#3b82f6',
-            timer: 2000
-        }).then(() => {
-            // Ini akan paksa page refresh untuk buang segala cache data lama
-            window.location.reload(); 
-        });
-    <?php endif; ?>
-
-    // 5. Reset Button Logic (Kosongkan Description Sahaja)
-        $('#btnReset').click(function() {
+    // ==========================================
+    // 5. RESET BUTTON
+    // ==========================================
+    $('#btnReset').click(function() {
         Swal.fire({
             title: 'Reset Semula?',
-            text: "Data akan dikosongkan.",
+            text: "Data perincian akan dikosongkan.",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#dc2626',
-            cancelButtonColor: '#94a3b8',
-            confirmButtonText: 'Ya, Padam'
+            confirmButtonText: 'Ya, Kosongkan',
+            customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-batal', cancelButton: 'btn-swal-hantar' },
+            buttonsStyling: false
         }).then((result) => {
-            if (result.isConfirmed) {
-                if (editor) {
-                    editor.setData(''); 
-                }
+            if (result.isConfirmed && editor) {
+                editor.setData(''); 
             }
         });
     });
