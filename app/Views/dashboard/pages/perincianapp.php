@@ -194,9 +194,12 @@
                 </div>
 
                 <div class="flex justify-end items-center gap-4 pt-6 border-t border-slate-100">
-                    <button type="button" id="btnReset" class="btn-reset">Reset</button>
-                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold transition shadow-lg shadow-blue-500/30">
-                        <i class="bi bi-check2-circle me-2"></i> Simpan Perubahan
+                    <button type="button" id="btnReset" class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-xl font-bold transition shadow-lg shadow-red-500/30">
+                        Reset
+                    </button>
+                    
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-xl font-bold transition shadow-lg shadow-blue-500/30">
+                        Simpan Perubahan
                     </button>
                 </div>
             </form>
