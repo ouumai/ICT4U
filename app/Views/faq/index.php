@@ -187,20 +187,32 @@ $(document).ready(function() {
     let csrfToken = '<?= csrf_hash() ?>';
     $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': csrfToken } });
 
-    // Fungsi Refresh Token supaya boleh klik banyak kali
+    // Fungsi Refresh Token supaya boleh klik banyak kali tanpa error 403
     function refreshToken(newToken) {
         csrfToken = newToken;
         $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': csrfToken } });
     }
 
-    // 2. Fungsi Load FAQ (Maintain Design Asal Mai)
+    // Fungsi Pop-up Berjaya (Tanpa Butang - Auto Close)
+    function alertSuccess(msg) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Berjaya!',
+            text: msg,
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            customClass: { popup: 'swal-rounded' }
+        });
+    }
+
+    // 2. Fungsi Load FAQ
     function loadFaq(id) {
         $('#faqList').html('<div class="text-center py-10 text-slate-400 font-bold">Memproses data...</div>');
         $.get(`<?= base_url('faq/ajax') ?>/${id}`, function(res) {
             if(res.success && res.faqs.length > 0) {
                 let html = '<div class="accordion" id="faqAccordion">';
                 res.faqs.forEach((faq, i) => {
-                    // Escape simbol pelik guna Base64 supaya butang Edit tak pecah
                     let qBase64 = btoa(unescape(encodeURIComponent(faq.question)));
                     let aBase64 = btoa(unescape(encodeURIComponent(faq.answer)));
 
@@ -214,8 +226,7 @@ $(document).ready(function() {
                                 <button onclick="openEditModal(${faq.id}, '${qBase64}', '${aBase64}')" class="w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
-                                <button onclick="deleteFaq(${faq.id})" 
-                                        class="w-10 h-10 flex items-center justify-center bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition">
+                                <button onclick="deleteFaq(${faq.id})" class="w-10 h-10 flex items-center justify-center bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition">
                                     <i class="bi bi-trash3-fill"></i>
                                 </button>
                             </div>
@@ -235,34 +246,52 @@ $(document).ready(function() {
         });
     }
 
-    // 3. Tambah FAQ Baru
+    // 3. Tambah FAQ Baru (Dengan Style Baru)
     $('#btnCreateFaq').click(function() {
         const idServis = $('#dropdownServis').val();
         Swal.fire({
             title: 'Tambah FAQ Baru',
             html: `
                 <div class="text-left mt-4">
-                    <input id="swal-q" class="input-modern mb-4" placeholder="Taip soalan...">
-                    <textarea id="swal-a" class="input-modern" rows="5" placeholder="Taip jawapan..."></textarea>
+                    <label class="text-xs font-bold text-slate-400 uppercase">Soalan</label>
+                    <input id="swal-q" class="input-modern mb-4 mt-1" placeholder="Taip soalan...">
+                    <label class="text-xs font-bold text-slate-400 uppercase">Jawapan</label>
+                    <textarea id="swal-a" class="input-modern mt-1" rows="5" placeholder="Taip jawapan..."></textarea>
                 </div>`,
             showCancelButton: true,
-            confirmButtonText: 'Simpan',
-            customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-batal' },
+            confirmButtonText: 'Simpan FAQ',
+            cancelButtonText: 'Batal',
+            showCloseButton: true,
+            buttonsStyling: false,
+            customClass: { 
+                popup: 'swal-rounded', 
+                confirmButton: 'btn-swal-hantar', 
+                cancelButton: 'btn-swal-batal',
+                actions: 'swal2-actions'
+            },
             preConfirm: () => {
-                return { question: $('#swal-q').val(), answer: $('#swal-a').val(), idservis: idServis };
+                const q = $('#swal-q').val().trim();
+                const a = $('#swal-a').val().trim();
+                if (!q || !a) {
+                    Swal.showValidationMessage('Sila isi soalan dan jawapan');
+                    return false;
+                }
+                return { question: q, answer: a, idservis: idServis };
             }
         }).then((result) => {
             if (result.isConfirmed) {
                 $.post('<?= base_url('faq/store') ?>', result.value, function(res) {
-                    refreshToken(res.csrf); // Update token!
-                    Swal.fire('Berjaya!', 'FAQ disimpan.', 'success');
+                    refreshToken(res.csrf);
+                    alertSuccess('FAQ baru berjaya ditambah.');
                     loadFaq(idServis);
-                }).fail(function() { Swal.fire('Ralat!', 'Gagal simpan.', 'error'); });
+                }).fail(function() { 
+                    Swal.fire({ icon: 'error', title: 'Ralat!', text: 'Gagal simpan FAQ.', customClass: {popup: 'swal-rounded'} }); 
+                });
             }
         });
     });
 
-    // 4. Edit FAQ (Repair Base64)
+    // 4. Edit FAQ (Dengan Style Baru)
     window.openEditModal = function(id, qBase64, aBase64) {
         let question = decodeURIComponent(escape(atob(qBase64)));
         let answer = decodeURIComponent(escape(atob(aBase64)));
@@ -271,20 +300,30 @@ $(document).ready(function() {
             title: 'Kemaskini FAQ',
             html: `
                 <div class="text-left mt-4">
-                    <input id="swal-eq" class="input-modern mb-4" value="${question}">
-                    <textarea id="swal-ea" class="input-modern" rows="5">${answer}</textarea>
+                    <label class="text-xs font-bold text-slate-400 uppercase">Soalan</label>
+                    <input id="swal-eq" class="input-modern mb-4 mt-1" value="${question}">
+                    <label class="text-xs font-bold text-slate-400 uppercase">Jawapan</label>
+                    <textarea id="swal-ea" class="input-modern mt-1" rows="5">${answer}</textarea>
                 </div>`,
             showCancelButton: true,
             confirmButtonText: 'Kemaskini',
-            customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-batal' },
+            cancelButtonText: 'Batal',
+            buttonsStyling: false,
+            showCloseButton: true,
+            customClass: { 
+                popup: 'swal-rounded', 
+                confirmButton: 'btn-swal-hantar', 
+                cancelButton: 'btn-swal-batal',
+                actions: 'swal2-actions'
+            },
             preConfirm: () => {
                 return { question: $('#swal-eq').val(), answer: $('#swal-ea').val() };
             }
         }).then((result) => {
             if (result.isConfirmed) {
                 $.post(`<?= base_url('faq/update') ?>/${id}`, result.value, function(res) {
-                    refreshToken(res.csrf); // Update token!
-                    Swal.fire('Berjaya!', 'FAQ dikemaskini.', 'success');
+                    refreshToken(res.csrf);
+                    alertSuccess('FAQ berjaya dikemaskini.');
                     loadFaq($('#dropdownServis').val());
                 });
             }
@@ -304,23 +343,32 @@ $(document).ready(function() {
         }
     });
 
-    // 6. Delete FAQ
+    // 6. Delete FAQ (Dengan Confirmation Style)
     window.deleteFaq = function(id) {
         Swal.fire({
             title: 'Padam FAQ?',
+            text: 'Tindakan ini akan memadam FAQ secara kekal.',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Ya, Padam',
-            customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-batal' }
+            cancelButtonText: 'Batal',
+            showCloseButton: true,
+            buttonsStyling: false,
+            customClass: { 
+                popup: 'swal-rounded', 
+                confirmButton: 'btn-swal-hantar', 
+                cancelButton: 'btn-swal-batal',
+                actions: 'swal2-actions'
+            }
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
                     url: `<?= base_url('faq/delete') ?>/${id}`,
                     method: 'DELETE',
                     success: function(res) { 
-                        refreshToken(res.csrf); // Update token!
+                        refreshToken(res.csrf);
                         loadFaq($('#dropdownServis').val());
-                        Swal.fire('Dipadam!', '', 'success');
+                        alertSuccess('FAQ telah berjaya dipadam.');
                     }
                 });
             }
