@@ -29,19 +29,27 @@
     /* HEADER LOGO */
     .brand-link { 
         border-bottom: 1px solid #f1f5f9 !important; 
-        padding: 1.5rem 1rem !important; 
+        padding: 1.2rem 1rem !important; /* Kurangkan sikit padding kalau logo tinggi */
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
-    .brand-text { 
-        color: #1e293b !important; 
-        letter-spacing: -1px; 
-        font-size: 1.5rem; 
+
+    /* Style untuk SVG logo */
+    .brand-logo-img {
+    height: 80px; /* Adjust ketinggian ikut kesesuaian logo kau */
+    width: auto;
+    max-width: 180px; /* Supaya tak langgar tepi sidebar */
+    display: block;
+    margin: 0 auto;
+    transition: transform 0.3s ease;
     }
 
     /* SCROLLABLE AREA */
     .sidebar { 
         flex: 1; 
         overflow-y: auto; 
-        padding-top: 10px; 
+        padding-top: 15px; 
     }
 
     /* MENU ITEMS STYLE */
@@ -121,11 +129,13 @@
 
 <aside class="main-sidebar elevation-0">
     <a href="<?= site_url('/') ?>" class="brand-link text-center text-decoration-none">
-        <span class="brand-text fw-bold">ICT4U Management<span class="text-primary">.</span></span>
+        <img src="<?= base_url('assets/image/ICT4ULogo.svg') ?>" 
+             alt="ICT4U Logo" 
+             class="brand-logo-img">
     </a>
 
     <div class="sidebar">
-        <nav class="mt-3">
+        <nav class="mt-4">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                 
                 <li class="nav-item">
