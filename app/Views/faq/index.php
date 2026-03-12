@@ -171,8 +171,11 @@
     </div>
 
     <div id="emptyState" class="glass-card py-20 bg-white text-center">
-        <i class="bi bi-filter text-4xl text-slate-300"></i>
-        <h5 class="text-slate-900 font-bold mb-1">Sila Pilih Servis</h5>
+        <div class="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                <i class="bi bi-filter text-4xl text-slate-300"></i>
+            </div>
+            <h5 class="text-slate-900 font-bold mb-1">Sila Pilih Servis</h5>
+            <p class="text-slate-500 font-medium">Pilih kategori servis untuk memaparkan senarai FAQ.</p>
     </div>
 
     <div id="faqArea" class="hidden">
