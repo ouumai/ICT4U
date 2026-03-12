@@ -117,9 +117,12 @@ class PerincianModulController extends BaseController
         }
 
         // 4. VALIDASI DESCRIPTION
-        if (empty($description) || $description == '&nbsp;') {
+        /* if (empty($description) || $description == '&nbsp;') {
             $errors[] = 'Description/Perincian wajib diisi.';
         }
+        */
+
+        $description = $description ?: ''; // Pastikan tidak null, walaupun form kosong
 
         // Jika ada ralat, kembali ke form dengan mesej ralat
         if (!empty($errors)) {

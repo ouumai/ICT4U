@@ -58,6 +58,55 @@
         border-radius: 12px;
         transition: 0.2s;
     }
+
+    /* 6. SweetAlert Custom Styling */
+    .swal-rounded {
+        border-radius: 2rem !important;
+        padding: 1.5rem !important;
+    }
+    
+    /* Styling for Close Button (X) */
+    .swal2-close {
+        border-radius: 50% !important;
+        margin-top: 10px !important;
+        margin-right: 10px !important;
+        transition: all 0.2s ease !important;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+    .swal2-close:hover {
+        background: transparent !important; 
+        color: #ef4444 !important; 
+    }
+
+    .swal2-actions {
+        width: 100% !important;
+        display: flex !important;
+        gap: 12px !important;
+        margin-top: 1.5rem !important;
+        padding: 0 1rem !important;
+    }
+
+    .btn-swal-hantar {
+        flex: 1 !important;
+        background: #4f46e5 !important; 
+        color: white !important; 
+        font-weight: 700 !important;
+        padding: 14px !important; 
+        border-radius: 16px !important;
+        border: none !important; 
+        order: 2;
+    }
+
+    .btn-swal-batal {
+        flex: 1 !important;
+        background: #fee2e2 !important; 
+        color: #ef4444 !important; 
+        font-weight: 700 !important;
+        padding: 14px !important; 
+        border-radius: 16px !important;
+        order: 1;
+    }
     .btn-reset:hover { background: #FEEBE7; color: #dc2626; }
 
     /* CKEditor Customization */
@@ -218,20 +267,59 @@ $(document).ready(function() {
         });
     });
 
-    // 3. Validation Logic (Elak simpan kosong)
+    // 3. Validation Logic & Confirmation Change
     $('#servisForm').on('submit', function(e) {
-        const nameVal = $('#namaservis').val().trim();
-        const descVal = editor ? editor.getData().trim() : "";
+        e.preventDefault();
 
-        if (nameVal === "" || descVal === "" || descVal === "<p>&nbsp;</p>") {
-            e.preventDefault();
+        const nameVal = $('#namaservis').val().trim();
+        const currentInfoUrl = $('#infourl').val().trim();
+        const currentMohonUrl = $('#mohonurl').val().trim();
+        
+        // Validasi Nama Servis (Wajib)
+        if (nameVal === "") {
             Swal.fire({
                 icon: 'warning',
                 title: 'Borang Tidak Lengkap',
-                text: 'Sila isi borang.',
-                confirmButtonColor: '#3b82f6'
+                text: 'Nama Servis Rasmi wajib diisi.',
+                customClass: {
+                    popup: 'swal-rounded',
+                    confirmButton: 'btn-swal-hantar'
+                },
+                buttonsStyling: false // Penting: Supaya style asal Swal tak kacau CSS Mai
             });
             return false;
+        }
+
+        const isInfoUrlChanged = (currentInfoUrl !== originalData.info);
+        const isMohonUrlChanged = (currentMohonUrl !== originalData.mohon);
+
+        if (isInfoUrlChanged || isMohonUrlChanged) {
+            Swal.fire({
+                title: 'Sahkan Perubahan Link?',
+                text: "Adakah anda pasti untuk tukar ke link yang baru?",
+                icon: 'question',
+                showCancelButton: true,
+                showCloseButton: true, // Untuk aktifkan butang (X)
+                confirmButtonText: 'Ya, Simpan!',
+                cancelButtonText: 'Batal',
+                
+                // MAPPING CSS CLASS MAI KAT SINI:
+                customClass: {
+                    popup: 'swal-rounded',
+                    confirmButton: 'btn-swal-hantar',
+                    cancelButton: 'btn-swal-batal',
+                    actions: 'swal2-actions',
+                    closeButton: 'swal2-close'
+                },
+                buttonsStyling: false // Wajib set false kalau guna custom button class
+                
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.submit();
+                }
+            });
+        } else {
+            this.submit();
         }
     });
 
