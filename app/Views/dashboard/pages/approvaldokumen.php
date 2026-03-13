@@ -70,30 +70,30 @@
     }
 
     .swal-rounded {
-    border-radius: 2rem !important;
-    padding: 1.5rem !important;
+        border-radius: 2rem !important;
+        padding: 1.5rem !important;
     }
 
     .swal2-actions {
-    display: flex !important;
-    flex-direction: row !important; 
-    align-items: center !important;
-    justify-content: center !important;
-    width: 100% !important;
-    gap: 10px !important; /* Jarak antara butang */
-    margin-top: 1.5rem !important;
+        display: flex !important;
+        flex-direction: row !important; 
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        gap: 10px !important;
+        margin-top: 1.5rem !important;
     }
 
     .btn-swal-hantar { 
-    flex: 1 !important; 
-    background: #4f46e5 !important; 
-    color: white !important; 
-    font-weight: 700 !important; 
-    padding: 14px !important; 
-    border-radius: 16px !important; 
-    border: none !important; 
-    order: 2 !important; 
-    transition: all 0.2s ease;
+        flex: 1 !important; 
+        background: #4f46e5 !important; 
+        color: white !important; 
+        font-weight: 700 !important; 
+        padding: 14px !important; 
+        border-radius: 16px !important; 
+        border: none !important; 
+        order: 2 !important; 
+        transition: all 0.2s ease;
     }
 
     .btn-swal-batal { 
@@ -103,9 +103,9 @@
         font-weight: 700 !important; 
         padding: 14px !important; 
         border-radius: 16px !important; 
+        border: none !important; 
         order: 1 !important; 
     }
-
 
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 </style>
@@ -258,7 +258,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function formatDate(str) { 
         if (!str) return '-'; 
         const d = new Date(str); 
-        // Format: 11 Mac 2026, 10:33 PG/PT
         return d.toLocaleString('ms-MY', { 
             day: '2-digit', 
             month: 'short', 
@@ -292,6 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
             text: `Adakah anda pasti untuk tukar status dokumen ini kepada ${status}?`, 
             icon: status === 'approved' ? 'question' : 'warning', 
             showCancelButton: true, 
+            showCloseButton: true, 
             confirmButtonText: `Ya, ${confirmText}!`,
             cancelButtonText: 'Batal',
             buttonsStyling: false,
@@ -299,14 +299,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 popup: 'swal-rounded',
                 confirmButton: 'btn-swal-hantar', 
                 cancelButton: 'btn-swal-batal',
-                actions: 'swal2-actions'
+                actions: 'swal2-actions',
+                closeButton: 'swal2-close'
             }
         });
         
         if (!result.isConfirmed) return;
 
         try {
-            // AMBIL TOKEN YANG FRESH DARI META TAG
             const csrfName = '<?= csrf_token() ?>';
             const csrfHash = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
@@ -321,7 +321,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const data = await res.json();
 
-            // --- PENTING: UPDATE TOKEN BARU UNTUK NEXT ACTION ---
             if (data.csrf) {
                 document.querySelector('meta[name="csrf-token"]').setAttribute('content', data.csrf);
             }
@@ -339,7 +338,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     text: data.message,
                     timer: 2000,
                     showConfirmButton: false,
-                    customClass: { popup: 'swal-rounded' }
+                    showCloseButton: true, 
+                    customClass: { popup: 'swal-rounded', closeButton: 'swal2-close' }
                 });
                 loadData(currentPage);
             } else {
@@ -347,7 +347,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     icon: 'error',
                     title: 'Gagal!',
                     text: data.message,
-                    customClass: { popup: 'swal-rounded' }
+                    showCloseButton: true, 
+                    customClass: { popup: 'swal-rounded', closeButton: 'swal2-close' }
                 });
             }
         } catch (err) { 
@@ -356,7 +357,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 icon: 'error',
                 title: 'Ralat!',
                 text: 'Sesi tamat atau ralat pelayan. Sila refresh halaman.',
-                customClass: { popup: 'swal-rounded' }
+                showCloseButton: true, 
+                customClass: { popup: 'swal-rounded', closeButton: 'swal2-close' }
             });
         }
     }

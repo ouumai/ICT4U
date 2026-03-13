@@ -66,6 +66,7 @@
         font-weight: 700 !important;
         padding: 14px !important;
         border-radius: 16px !important;
+        border: none !important;
         order: 1 !important; /* Paksa kiri */
     }
 
@@ -167,14 +168,14 @@
                             <label class="form-label fw-bold small text-slate-600">Kata Laluan Baru</label>
                             <div class="input-group">
                                 <input type="password" name="new_password" class="form-control modern-input" id="new_pw" required>
-                                <button class="btn toggle-password border-2 border-start-0 bg-light" style="border-radius: 0 14px 14px 0;" type="button" data-target="new_pw"><i class="bi bi-eye"></i></button>
+                                <button class="btn toggle-password border-2 border-start-0 bg-light" type="button" data-target="new_pw"><i class="bi bi-eye"></i></button>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-bold small text-slate-600">Sahkan Kata Laluan</label>
                             <div class="input-group">
                                 <input type="password" name="confirm_password" class="form-control modern-input" id="conf_pw" required>
-                                <button class="btn toggle-password border-2 border-start-0 bg-light" style="border-radius: 0 14px 14px 0;" type="button" data-target="conf_pw"><i class="bi bi-eye"></i></button>
+                                <button class="btn toggle-password border-2 border-start-0 bg-light" type="button" data-target="conf_pw"><i class="bi bi-eye"></i></button>
                             </div>
                         </div>
                         <div class="col-12 text-end mt-4">
@@ -200,7 +201,8 @@
                 text: '<?= session()->getFlashdata('success') ?>', 
                 timer: 2500, 
                 showConfirmButton: false,
-                customClass: { popup: 'swal-rounded' }
+                showCloseButton: true,
+                customClass: { popup: 'swal-rounded', closeButton: 'swal2-close' }
             });
         <?php endif; ?>
 
@@ -210,7 +212,8 @@
                 icon: 'error', 
                 title: 'Ralat!', 
                 text: '<?= session()->getFlashdata('error_pw') ?>',
-                customClass: { popup: 'swal-rounded' }
+                showCloseButton: true,
+                customClass: { popup: 'swal-rounded', closeButton: 'swal2-close' }
             });
         <?php endif; ?>
 
@@ -237,6 +240,7 @@
                     text: 'Pastikan maklumat anda adalah tepat sebelum disimpan.',
                     icon: 'question',
                     showCancelButton: true,
+                    showCloseButton: true,
                     confirmButtonText: 'Ya, Simpan',
                     cancelButtonText: 'Batal',
                     buttonsStyling: false,
@@ -244,7 +248,8 @@
                         popup: 'swal-rounded',
                         confirmButton: 'btn-swal-hantar', 
                         cancelButton: 'btn-swal-batal',
-                        actions: 'swal2-actions'
+                        actions: 'swal2-actions',
+                        closeButton: 'swal2-close'
                     }
                 }).then((result) => {
                     if (result.isConfirmed) {
