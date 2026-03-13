@@ -52,19 +52,17 @@
     .swal2-popup { border-radius: 28px !important; padding: 2rem !important; }
     .swal2-actions { width: 100% !important; display: flex !important; flex-direction: row !important; gap: 12px !important; margin-top: 1.5rem !important; padding: 0 1rem !important; }
     
-    /* Warna Indigo untuk Confirm/Hantar/Padam */
     .btn-swal-indigo { flex: 1 !important; background: #4f46e5 !important; color: white !important; font-weight: 700 !important; padding: 14px !important; border-radius: 16px !important; border: none !important; order: 2 !important; }
-    
-    /* Warna Merah untuk Batal */
     .btn-swal-merah { flex: 1 !important; background: #fee2e2 !important; color: #ef4444 !important; font-weight: 700 !important; padding: 14px !important; border-radius: 16px !important; border: none !important; order: 1 !important; }
 
     .swal-label-custom { display: block; font-size: 0.8rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
     .swal-input-custom { min-height: 52px; border-radius: 12px; border: 1px solid #e2e8f0; padding: 12px 15px; width: 100%; background-color: #ffffff; font-weight: 500; font-size: 0.95rem; }
 
-    /* 6. Status & Misc */
-    .status-pill { padding: 4px 12px; border-radius: 9999px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
-    .status-pending { background-color: #FEF3C7; color: #92400E; }
-    .status-approved { background-color: #DCFCE7; color: #166534; }
+    /* 6. Status Pills (WARNA-WARNI MACAM APPROVAL) */
+    .status-pill { padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; display: inline-block; }
+    .status-pending { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .status-approved { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .status-rejected { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
 </style>
 
 <div class="container-fluid py-1">
@@ -163,6 +161,7 @@ function refreshTable(idservis){
             const fileUrl = `<?= base_url('pengurusandokumen/viewFile') ?>/${d.idservis}/${d.namafail}`;
             const createdDate = d.created_at ? d.created_at : '-';
             const updatedDate = d.updated_at ? d.updated_at : createdDate;
+            const statusLabel = d.status ? d.status.toLowerCase() : 'pending';
             
             const cleanDesc = d.descdoc ? d.descdoc.replace(/<[^>]*>?/gm, '').trim() : '';
             const displayDesc = cleanDesc.length > 0 ? cleanDesc : 'Tiada nota';
@@ -187,7 +186,9 @@ function refreshTable(idservis){
                             </div>
                         </div>
                     </td>
-                    <td class="px-8 py-6 text-center"><span class="status-pill status-${d.status}">${d.status}</span></td>
+                    <td class="px-8 py-6 text-center">
+                        <span class="status-pill status-${statusLabel}">${statusLabel}</span>
+                    </td>
                     <td class="px-8 py-6 text-center">
                         <div class="flex justify-center gap-2">
                             <a href="${fileUrl}" target="_blank" class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-600 p-2 rounded-xl hover:bg-gray-600 hover:text-white transition" title="Lihat">
@@ -253,7 +254,7 @@ function showSwalEditor(data = null, idservis) {
         customClass: { 
             popup: 'swal-rounded',
             confirmButton: 'btn-swal-indigo', 
-            cancelButton: 'btn-swal-merah',   
+            cancelButton: 'btn-swal-merah', 
             closeButton: 'swal2-close',
             actions: 'swal2-actions'
         },
