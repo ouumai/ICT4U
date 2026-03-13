@@ -83,9 +83,10 @@ class ApprovalDokumenController extends BaseController
         }
 
         return $this->response->setJSON([
-            'status'  => true,
-            'message' => "Status dikemaskini ke " . strtoupper($status)
-        ]);
+        'status' => true,
+        'message' => 'Status berjaya ditukar!',
+        'csrf' => csrf_hash() 
+    ]);
     }
 
     // AJAX: Papar fail dokumen dalam browser

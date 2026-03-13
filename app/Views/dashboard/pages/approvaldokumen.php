@@ -2,6 +2,8 @@
 
 <?= $this->section('content') ?>
 
+<meta name="csrf-token" content="<?= csrf_hash() ?>">
+
 <script>document.title = "Sistem Approval Dokumen";</script>
 
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -68,9 +70,42 @@
     }
 
     .swal-rounded {
-        border-radius: 2rem !important;
-        padding: 1.5rem !important;
+    border-radius: 2rem !important;
+    padding: 1.5rem !important;
     }
+
+    .swal2-actions {
+    display: flex !important;
+    flex-direction: row !important; 
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    gap: 10px !important; /* Jarak antara butang */
+    margin-top: 1.5rem !important;
+    }
+
+    .btn-swal-hantar { 
+    flex: 1 !important; 
+    background: #4f46e5 !important; 
+    color: white !important; 
+    font-weight: 700 !important; 
+    padding: 14px !important; 
+    border-radius: 16px !important; 
+    border: none !important; 
+    order: 2 !important; 
+    transition: all 0.2s ease;
+    }
+
+    .btn-swal-batal { 
+        flex: 1 !important; 
+        background: #fee2e2 !important; 
+        color: #ef4444 !important; 
+        font-weight: 700 !important; 
+        padding: 14px !important; 
+        border-radius: 16px !important; 
+        order: 1 !important; 
+    }
+
 
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 </style>
@@ -251,51 +286,78 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.changeStatus = async function(id, status) {
         const confirmText = status.charAt(0).toUpperCase() + status.slice(1);
+        
         const result = await Swal.fire({ 
             title: `Pengesahan ${confirmText}`, 
-            text: `Pasti mahu tukar status kepada ${status}?`, 
+            text: `Adakah anda pasti untuk tukar status dokumen ini kepada ${status}?`, 
             icon: status === 'approved' ? 'question' : 'warning', 
             showCancelButton: true, 
-            cancelButtonText: 'Batal',
-            confirmButtonColor: status === 'approved' ? '#10b981' : '#ef4444', 
             confirmButtonText: `Ya, ${confirmText}!`,
-            customClass: { popup: 'swal-rounded' }
+            cancelButtonText: 'Batal',
+            buttonsStyling: false,
+            customClass: { 
+                popup: 'swal-rounded',
+                confirmButton: 'btn-swal-hantar', 
+                cancelButton: 'btn-swal-batal',
+                actions: 'swal2-actions'
+            }
         });
         
         if (!result.isConfirmed) return;
 
         try {
-            // 1. Ambil token CSRF yang fresh
+            // AMBIL TOKEN YANG FRESH DARI META TAG
             const csrfName = '<?= csrf_token() ?>';
-            const csrfHash = '<?= csrf_hash() ?>';
+            const csrfHash = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-            // 2. Masukkan token ke dalam FormData
             const formData = new FormData();
             formData.append(csrfName, csrfHash); 
 
             const res = await fetch(`<?= base_url('pengesahandokumen/changeStatus') ?>/${id}/${status}`, { 
                 method: 'POST',
                 body: formData, 
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
             
             const data = await res.json();
+
+            // --- PENTING: UPDATE TOKEN BARU UNTUK NEXT ACTION ---
+            if (data.csrf) {
+                document.querySelector('meta[name="csrf-token"]').setAttribute('content', data.csrf);
+            }
+
             if (data.status) {
                 if (status === 'approved') { 
                     lottieContainer.style.display = 'block'; 
                     successAnimation.play(); 
                     setTimeout(() => { lottieContainer.style.display = 'none'; }, 1500); 
                 }
-                Swal.fire('Berjaya!', data.message, 'success');
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berjaya!',
+                    text: data.message,
+                    timer: 2000,
+                    showConfirmButton: false,
+                    customClass: { popup: 'swal-rounded' }
+                });
                 loadData(currentPage);
             } else {
-                Swal.fire('Gagal!', data.message, 'error');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: data.message,
+                    customClass: { popup: 'swal-rounded' }
+                });
             }
         } catch (err) { 
             console.error(err);
-            Swal.fire('Ralat!', 'Gagal memproses data.', 'error');
+            Swal.fire({
+                icon: 'error',
+                title: 'Ralat!',
+                text: 'Sesi tamat atau ralat pelayan. Sila refresh halaman.',
+                customClass: { popup: 'swal-rounded' }
+            });
         }
     }
 
