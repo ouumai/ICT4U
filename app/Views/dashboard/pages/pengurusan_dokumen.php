@@ -244,7 +244,7 @@ function showSwalEditor(data = null, idservis) {
             <div>
                 <label class="swal-label-custom">Fail Dokumen (PDF Sahaja)</label>
                 <input type="file" id="swal-file" class="swal-input-custom" style="padding-top:12px" accept="application/pdf">
-                ${!isNew ? `<div class="text-xs text-rose-500 mt-1">* Biarkan kosong jika tidak mahu tukar fail</div>` : ''}
+                ${!isNew ? `<div class="text-sm text-blue-600 mt-1">* Biarkan kosong jika tidak mahu tukar fail</div>` : ''}
             </div>
         </div>`,
         width: '600px',
