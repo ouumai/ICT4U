@@ -4,13 +4,11 @@
 
 <script>document.title = "Tambahan Perincian Modul";</script>
 
+<meta name="csrf-token" content="<?= csrf_hash() ?>">
+
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
     /* 1. Global Setup */
@@ -31,7 +29,7 @@
         border-radius: 1.5rem;
     }
 
-    /* 3. Modern Input & Placeholder (Match Rujukan) */
+    /* 3. Modern Input */
     .modern-input-size {
         height: 56px !important;
         border-radius: 14px !important;
@@ -43,51 +41,40 @@
 
     .input-with-icon { padding-left: 3.5rem !important; }
 
-    #searchInput::placeholder {
-        color: #94a3b8 !important;
-        font-weight: 600;
-        opacity: 1;
-    }
-
-    .icon-search-fix {
-        position: absolute; left: 1.3rem; top: 50%; transform: translateY(-50%);
-        color: #94a3b8 !important; font-size: 1.2rem; z-index: 10;
-    }
-
-    /* 4. Table Header Styling (Match Pengesahan Dokumen) */
+    /* 4. Table Header Styling (Standardize) */
     .compact-th {
-        padding-top: 25px !important;
-        padding-bottom: 25px !important;
-        background-color: #f8fafc !important; /* bg-slate-50 */
+        padding: 25px 20px !important;
+        background-color: #f8fafc !important;
         border-bottom: 1px solid #e2e8f0;
-        
-        /* Gaya Font Header Rujukan */
-        font-size: 0.75rem !important;      /* text-xs */
-        font-weight: 700 !important;        /* font-bold */
-        text-transform: uppercase !important; /* uppercase */
-        letter-spacing: 0.05em !important;   /* tracking-wider */
-        color: #64748b !important;           /* text-slate-500 */
+        font-size: 0.75rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        color: #64748b !important;
         white-space: nowrap;
     }
 
-    /* 5. Table Action Buttons */
+    /* 5. Buttons Styling */
     .btn-action-table-large {
         width: 160px; height: 44px; display: inline-flex; align-items: center; justify-content: center;
         gap: 10px; font-size: 11px !important; font-weight: 800 !important; border-radius: 12px;
         text-transform: uppercase; transition: all 0.2s; border: 1px solid transparent;
     }
     .btn-view { background: #F1F5F9; color: #64748B; border-color: #E2E8F0; }
-    .btn-view:not(:disabled):hover { background: #E2E8F0; color: #1E293B; }
     .btn-edit { background: #EEF2FF; color: #4F46E5; border-color: #E0E7FF; }
     .btn-edit:hover { background: #4F46E5; color: white; }
 
-    /* SweetAlert Custom UI */
+    /* SweetAlert Standard UI */
+    .swal-rounded { border-radius: 2rem !important; padding: 1.5rem !important; }
     .swal2-actions { width: 100% !important; display: flex !important; flex-direction: row !important; gap: 12px !important; margin-top: 1.5rem !important; padding: 0 1rem !important; }
-    .btn-swal-hantar { flex: 1 !important; background: #3b82f6 !important; color: white !important; font-weight: 700 !important; padding: 14px !important; border-radius: 16px !important; border: none !important; font-size: 0.95rem !important; order: 2; }
-    .btn-swal-padam { flex: 1 !important; background: #fee2e2 !important; color: #ef4444 !important; font-weight: 700 !important; padding: 14px !important; border-radius: 16px !important; border: none !important; font-size: 0.95rem !important; order: 1; }
-    .swal2-popup { border-radius: 28px !important; padding: 2rem !important; }
+    
+    .btn-swal-hantar { flex: 1 !important; background: #4f46e5 !important; color: white !important; font-weight: 700 !important; padding: 14px !important; border-radius: 16px !important; border: none !important; order: 2 !important; }
+    .btn-swal-padam { flex: 1 !important; background: #fee2e2 !important; color: #ef4444 !important; font-weight: 700 !important; padding: 14px !important; border-radius: 16px !important; border: none !important; order: 1 !important; }
+    
     .swal-label-custom { display: block; font-size: 0.8rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
     .swal-input-custom { height: 52px; border-radius: 12px; border: 1px solid #e2e8f0; padding: 0 15px; width: 100%; background-color: #ffffff; font-weight: 500; font-size: 0.95rem; }
+    
+    .icon-search-fix { position: absolute; left: 1.3rem; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 1.2rem; }
 </style>
 
 <div class="container-fluid py-1">
@@ -125,7 +112,8 @@
                     <tr class="bg-slate-50">
                         <th class="px-8 compact-th">Maklumat Servis</th>
                         <th class="px-8 compact-th text-center">Pautan Luar</th>
-                        <th class="px-8 compact-th text-center">Tindakan</th> </tr>
+                        <th class="px-8 compact-th text-center">Tindakan</th>
+                    </tr>
                 </thead>
                 <tbody id="serviceTableBody" class="divide-y divide-slate-100"></tbody>
             </table>
@@ -133,15 +121,29 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 let allServis = [];
 let editor;
+let currentCsrfHash = '<?= csrf_hash() ?>';
+
+// Standard Refresh Token Function
+function refreshToken(newToken) {
+    currentCsrfHash = newToken;
+    $('meta[name="csrf-token"]').attr('content', newToken);
+}
 
 async function fetchServis(){
     try {
         const res = await fetch('<?= base_url("tambahanperincian/getAll") ?>');
         const json = await res.json();
-        if(json.status) { allServis = json.data; sortData(); }
+        if(json.status) { 
+            allServis = json.data; 
+            sortData(); 
+        }
     } catch (e) { console.error("Error:", e); }
 }
 
@@ -162,7 +164,8 @@ function renderTable(){
                     <i class="bi bi-link-45deg text-lg"></i> ${hasLinks ? 'Lihat Pautan' : 'Tiada Pautan'}
                 </button>
             </td>
-            <td class="px-8 py-6 text-center"> <button onclick="openEditor('${s.idservis}')" class="btn-action-table-large btn-edit">
+            <td class="px-8 py-6 text-center">
+                <button onclick="openEditor('${s.idservis}')" class="btn-action-table-large btn-edit">
                     <i class="bi bi-pencil-square text-lg"></i> KEMASKINI
                 </button>
             </td>
@@ -173,6 +176,7 @@ function renderTable(){
 
 function openEditor(id = null) {
     let s = id ? allServis.find(item => String(item.idservis) === String(id)) : null;
+    
     Swal.fire({
         title: id ? 'Kemaskini Perincian' : 'Tambah Perincian',
         showCloseButton: true,
@@ -191,57 +195,44 @@ function openEditor(id = null) {
         `,
         width: '640px',
         showConfirmButton: true,
-        confirmButtonText: 'Hantar',
+        confirmButtonText: 'Simpan Perubahan',
         showDenyButton: id ? true : false,
-        denyButtonText: 'Padam Servis',
+        denyButtonText: 'Padam Rekod',
         buttonsStyling: false,
-        customClass: { confirmButton: 'btn-swal-hantar', denyButton: 'btn-swal-padam', closeButton: 'swal2-close' },
-        backdrop: `rgba(15, 23, 42, 0.5) blur(8px)`,
-        
+        customClass: { 
+            popup: 'swal-rounded',
+            confirmButton: 'btn-swal-hantar', 
+            denyButton: 'btn-swal-padam', 
+            closeButton: 'swal2-close',
+            actions: 'swal2-actions'
+        },
         didOpen: () => {
-
-            if(editor){
-                editor.destroy();
-                editor = null;
-            }
-
-            ClassicEditor
-            .create(document.querySelector('#swal-description'), {
-                toolbar: [
-                    'heading','|',
-                    'bold','italic','link',
-                    'bulletedList','numberedList'
-                ]
-            })
-            .then(newEditor => {
+            if(editor) { editor.destroy(); editor = null; }
+            ClassicEditor.create(document.querySelector('#swal-description'), {
+                toolbar: ['heading','|','bold','italic','link','bulletedList','numberedList']
+            }).then(newEditor => {
                 editor = newEditor;
-
-                if(s && s.perincian){
-                    editor.setData(s.perincian.description || '');
-                }
-            })
-            .catch(error => {
-                console.error("CKEditor error:", error);
+                if(s && s.perincian) { editor.setData(s.perincian.description || ''); }
             });
         },
-
         preConfirm: () => {
-            const name = document.getElementById('swal-namaservis').value;
+            const name = document.getElementById('swal-namaservis').value.trim();
+            let description = editor ? editor.getData() : '';
 
-            if (!name) {
-                Swal.showValidationMessage('Nama Servis wajib diisi!');
-                return false;
-            }
+            if (!name) { Swal.showValidationMessage('Nama Servis wajib diisi!'); return false; }
+
+            // LOGIC PEMUTIH TAG <P>
+            const plainText = description.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, '').trim();
+            if (plainText === "") { description = ""; }
 
             return {
                 idservis: id,
                 namaservis: name,
                 infourl: document.getElementById('swal-infourl').value,
                 mohonurl: document.getElementById('swal-mohonurl').value,
-                description: editor ? editor.getData() : ''
+                description: description
             }
         }
-
     }).then((result) => {
         if (result.isConfirmed) { saveServis(result.value); } 
         else if (result.isDenied) { deleteServis(id); }
@@ -250,20 +241,44 @@ function openEditor(id = null) {
 
 async function saveServis(data){
     const fd = new FormData();
+    fd.append('<?= csrf_token() ?>', currentCsrfHash); // Hantar token terkini
     Object.keys(data).forEach(key => fd.append(key, data[key] || ''));
+
     try {
         const res = await fetch('<?= base_url("tambahanperincian/saveServis") ?>', { method:'POST', body:fd });
         const json = await res.json();
-        if(json.status){ fetchServis(); Swal.fire({ icon: 'success', title: 'Berjaya', text: 'Data disimpan!', timer: 1500, showConfirmButton: false }); }
+        
+        if(json.csrf) refreshToken(json.csrf); // Update token untuk next request
+
+        if(json.status){ 
+            fetchServis(); 
+            Swal.fire({ icon: 'success', title: 'Berjaya', text: 'Data telah dikemaskini!', timer: 1500, showConfirmButton: false, customClass: {popup: 'swal-rounded'} }); 
+        } else {
+            Swal.fire({ icon: 'error', title: 'Gagal', text: json.msg, customClass: {popup: 'swal-rounded'} });
+        }
     } catch (e) { console.error(e); }
 }
 
 async function deleteServis(id){
-    Swal.fire({ title: 'Padam rekod?', text: "Tindakan ini kekal!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'Ya, Padam', cancelButtonText: 'Batal' }).then(async (result) => {
+    Swal.fire({ 
+        title: 'Padam rekod?', 
+        text: "Tindakan ini tidak boleh diundur!", 
+        icon: 'warning', 
+        showCancelButton: true, 
+        confirmButtonText: 'Ya, Padam', 
+        cancelButtonText: 'Batal',
+        buttonsStyling: false,
+        customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-padam', cancelButton: 'btn-swal-hantar', actions: 'swal2-actions' } 
+    }).then(async (result) => {
         if (result.isConfirmed) {
-            const fd = new FormData(); fd.append('idservis', id);
-            await fetch('<?= base_url("tambahanperincian/deleteServis") ?>', { method:'POST', body:fd });
-            fetchServis(); Swal.fire('Dipadam!', 'Rekod dibuang.', 'success');
+            const fd = new FormData(); 
+            fd.append('<?= csrf_token() ?>', currentCsrfHash);
+            fd.append('idservis', id);
+            const res = await fetch('<?= base_url("tambahanperincian/deleteServis") ?>', { method:'POST', body:fd });
+            const json = await res.json();
+            if(json.csrf) refreshToken(json.csrf);
+            fetchServis(); 
+            Swal.fire({ icon: 'success', title: 'Dipadam!', text: 'Rekod berjaya dibuang.', timer: 1500, showConfirmButton: false, customClass: {popup: 'swal-rounded'} });
         }
     });
 }
@@ -278,6 +293,7 @@ function showLinks(id) {
                 <div><p class="swal-label-custom" style="font-size: 0.9rem;">URL Informasi</p>${s.infourl ? `<a href="${s.infourl}" target="_blank" class="text-blue-600 break-all text-lg underline font-semibold">${s.infourl}</a>` : '<span class="text-slate-400 text-base italic">Tiada pautan disediakan</span>'}</div>
                 <div><p class="swal-label-custom" style="font-size: 0.9rem;">URL Permohonan</p>${s.mohonurl ? `<a href="${s.mohonurl}" target="_blank" class="text-blue-600 break-all text-lg underline font-semibold">${s.mohonurl}</a>` : '<span class="text-slate-400 text-base italic">Tiada pautan disediakan</span>'}</div>
             </div>`,
+        customClass: { popup: 'swal-rounded' },
         backdrop: `rgba(15, 23, 42, 0.5) blur(8px)`
     });
 }

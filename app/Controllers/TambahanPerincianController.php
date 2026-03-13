@@ -41,7 +41,8 @@ class TambahanPerincianController extends BaseController
         if (!$servis) {
             return $this->response->setJSON([
                 'status'  => false,
-                'message' => 'Servis tidak dijumpai'
+                'message' => 'Servis tidak dijumpai',
+                'csrf'    => csrf_hash() // Sentiasa hantar token baru
             ]);
         }
 
@@ -52,7 +53,8 @@ class TambahanPerincianController extends BaseController
         return $this->response->setJSON([
             'status'      => true,
             'servis'      => $servis,
-            'perincian'   => $desc ?? null
+            'perincian'   => $desc ?? null,
+            'csrf'        => csrf_hash()
         ]);
     }
 
@@ -69,26 +71,26 @@ class TambahanPerincianController extends BaseController
         $mohonurl    = trim($post['mohonurl'] ?? '');
         $description = $post['description'] ?? '';
 
+        // Validation Ringkas
         if ($namaservis === '') {
             return $this->response->setJSON([
                 'status'  => false,
-                'message' => 'Nama servis diperlukan'
+                'message' => 'Nama servis diperlukan',
+                'csrf'    => csrf_hash() // Token kena ada walaupun gagal
             ]);
         }
 
-        // SAVE / UPDATE SERVIS
+        // Logic Save / Update Servis
+        $dataServis = [
+            'namaservis' => $namaservis,
+            'infourl'    => $infourl === '' ? null : $infourl, // Set null jika kosong
+            'mohonurl'   => $mohonurl === '' ? null : $mohonurl  // Set null jika kosong
+        ];
+
         if ($idservis) {
-            $this->servisModel->update($idservis, [
-                'namaservis' => $namaservis,
-                'infourl'    => $infourl,
-                'mohonurl'   => $mohonurl
-            ]);
+            $this->servisModel->update($idservis, $dataServis);
         } else {
-            $this->servisModel->insert([
-                'namaservis' => $namaservis,
-                'infourl'    => $infourl,
-                'mohonurl'   => $mohonurl
-            ]);
+            $this->servisModel->insert($dataServis);
             $idservis = $this->servisModel->getInsertID();
         }
 
@@ -103,14 +105,10 @@ class TambahanPerincianController extends BaseController
             ]);
         }
 
-        $servis = $this->servisModel->find($idservis);
-        $perincian = $this->perincianModel->where('idservis', $idservis)->first();
-
         return $this->response->setJSON([
             'status'    => true,
             'message'   => 'Servis berjaya disimpan',
-            'servis'    => $servis,
-            'perincian' => $perincian
+            'csrf'      => csrf_hash() // Token baru untuk next request
         ]);
     }
 
@@ -124,7 +122,8 @@ class TambahanPerincianController extends BaseController
         if (!$idservis) {
             return $this->response->setJSON([
                 'status'  => false,
-                'message' => 'ID servis tidak sah'
+                'message' => 'ID servis tidak sah',
+                'csrf'    => csrf_hash()
             ]);
         }
 
@@ -133,7 +132,8 @@ class TambahanPerincianController extends BaseController
 
         return $this->response->setJSON([
             'status'  => true,
-            'message' => 'Servis berjaya dipadam'
+            'message' => 'Servis berjaya dipadam',
+            'csrf'    => csrf_hash()
         ]);
     }
 
@@ -145,13 +145,9 @@ class TambahanPerincianController extends BaseController
         $data = $this->servisModel->orderBy('namaservis', 'ASC')->findAll();
 
         foreach ($data as &$s) {
-            // Find description for this specific service
             $desc = $this->perincianModel->where('idservis', $s['idservis'])->first();
-            
             $s['infourl']   = $s['infourl'] ?? '';
             $s['mohonurl']  = $s['mohonurl'] ?? '';
-            
-            // Use the null coalescing operator to prevent errors if $desc is null
             $s['perincian'] = [
                 'description' => $desc['description'] ?? ''
             ];
@@ -159,7 +155,8 @@ class TambahanPerincianController extends BaseController
 
         return $this->response->setJSON([
             'status' => true,
-            'data'   => $data
+            'data'   => $data,
+            'csrf'   => csrf_hash()
         ]);
     }
 }
