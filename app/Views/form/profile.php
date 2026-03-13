@@ -33,6 +33,42 @@
         overflow: hidden; 
     }
 
+    /* SweetAlert Rounded & Button Style (Standard Modul ICT4U) */
+    .swal-rounded {
+        border-radius: 2rem !important;
+        padding: 1.5rem !important;
+    }
+
+    .swal2-actions {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 12px !important;
+        margin-top: 1.5rem !important;
+        padding: 0 1rem !important;
+    }
+
+    .btn-swal-hantar {
+        flex: 1 !important;
+        background: #4f46e5 !important;
+        color: white !important;
+        font-weight: 700 !important;
+        padding: 14px !important;
+        border-radius: 16px !important;
+        border: none !important;
+        order: 2 !important; /* Paksa kanan */
+    }
+
+    .btn-swal-batal {
+        flex: 1 !important;
+        background: #fee2e2 !important;
+        color: #ef4444 !important;
+        font-weight: 700 !important;
+        padding: 14px !important;
+        border-radius: 16px !important;
+        order: 1 !important; /* Paksa kiri */
+    }
+
     .profile-header-bg { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); height: 150px; }
     .avatar-wrapper { position: relative; display: inline-block; margin-top: -55px; margin-left: 30px; }
     .avatar-box { width: 110px; height: 110px; background: white; border: 4px solid white; border-radius: 28px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; color: #4f46e5; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
@@ -124,21 +160,21 @@
                             <label class="form-label fw-bold small text-slate-600">Kata Laluan Lama</label>
                             <div class="input-group">
                                 <input type="password" name="current_password" class="form-control modern-input" id="old_pw" required>
-                                <button class="btn toggle-password border-2 border-start-0 bg-light" type="button" data-target="old_pw"><i class="bi bi-eye"></i></button>
+                                <button class="btn toggle-password border-2 border-start-0 bg-light" style="border-radius: 0 14px 14px 0;" type="button" data-target="old_pw"><i class="bi bi-eye"></i></button>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-bold small text-slate-600">Kata Laluan Baru</label>
                             <div class="input-group">
                                 <input type="password" name="new_password" class="form-control modern-input" id="new_pw" required>
-                                <button class="btn toggle-password border-2 border-start-0 bg-light" type="button" data-target="new_pw"><i class="bi bi-eye"></i></button>
+                                <button class="btn toggle-password border-2 border-start-0 bg-light" style="border-radius: 0 14px 14px 0;" type="button" data-target="new_pw"><i class="bi bi-eye"></i></button>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-bold small text-slate-600">Sahkan Kata Laluan</label>
                             <div class="input-group">
                                 <input type="password" name="confirm_password" class="form-control modern-input" id="conf_pw" required>
-                                <button class="btn toggle-password border-2 border-start-0 bg-light" type="button" data-target="conf_pw"><i class="bi bi-eye"></i></button>
+                                <button class="btn toggle-password border-2 border-start-0 bg-light" style="border-radius: 0 14px 14px 0;" type="button" data-target="conf_pw"><i class="bi bi-eye"></i></button>
                             </div>
                         </div>
                         <div class="col-12 text-end mt-4">
@@ -156,14 +192,29 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // 1. Alert Sukses (Flashdata)
         <?php if(session()->getFlashdata('success')): ?>
-            Swal.fire({ icon: 'success', title: 'Berjaya!', text: '<?= session()->getFlashdata('success') ?>', timer: 2500, showConfirmButton: false });
+            Swal.fire({ 
+                icon: 'success', 
+                title: 'Berjaya!', 
+                text: '<?= session()->getFlashdata('success') ?>', 
+                timer: 2500, 
+                showConfirmButton: false,
+                customClass: { popup: 'swal-rounded' }
+            });
         <?php endif; ?>
 
+        // 2. Alert Ralat (Flashdata)
         <?php if(session()->getFlashdata('error_pw')): ?>
-            Swal.fire({ icon: 'error', title: 'Ralat!', text: '<?= session()->getFlashdata('error_pw') ?>' });
+            Swal.fire({ 
+                icon: 'error', 
+                title: 'Ralat!', 
+                text: '<?= session()->getFlashdata('error_pw') ?>',
+                customClass: { popup: 'swal-rounded' }
+            });
         <?php endif; ?>
 
+        // 3. Image Preview Logic
         const profileInput = document.getElementById('profile_pic');
         const previewBox = document.getElementById('imagePreview');
 
@@ -176,27 +227,37 @@
             }
         };
 
+        // 4. Form Submission Validation (Match Perincian Modul)
         document.querySelectorAll('.profile-form').forEach(form => {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
+                
                 Swal.fire({
-                    title: 'Kemaskini maklumat?',
+                    title: 'Kemaskini Maklumat?',
+                    text: 'Pastikan maklumat anda adalah tepat sebelum disimpan.',
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonText: 'Ya, Simpan',
                     cancelButtonText: 'Batal',
-                    confirmButtonColor: '#4f46e5'
+                    buttonsStyling: false,
+                    customClass: { 
+                        popup: 'swal-rounded',
+                        confirmButton: 'btn-swal-hantar', 
+                        cancelButton: 'btn-swal-batal',
+                        actions: 'swal2-actions'
+                    }
                 }).then((result) => {
                     if (result.isConfirmed) {
                         const btn = this.querySelector('.btn-submit');
                         btn.disabled = true;
-                        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>';
+                        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Menyimpan...';
                         this.submit();
                     }
                 });
             });
         });
 
+        // 5. Password Toggle Logic
         document.querySelectorAll('.toggle-password').forEach(button => {
             button.addEventListener('click', function() {
                 const input = document.getElementById(this.getAttribute('data-target'));
@@ -207,9 +268,12 @@
             });
         });
 
-        // Password matching logic
-        const newPw = document.getElementById('new_pw'), confPw = document.getElementById('conf_pw'), 
-              err = document.getElementById('pw-error'), btn = document.getElementById('btn-submit-pw');
+        // 6. Password Matching Logic
+        const newPw = document.getElementById('new_pw'), 
+              confPw = document.getElementById('conf_pw'), 
+              err = document.getElementById('pw-error'), 
+              btn = document.getElementById('btn-submit-pw');
+
         function checkMatch() {
             if (confPw.value.length > 0) {
                 const match = newPw.value === confPw.value;
@@ -222,4 +286,5 @@
         confPw.addEventListener('input', checkMatch);
     });
 </script>
+
 <?= $this->endSection() ?>
