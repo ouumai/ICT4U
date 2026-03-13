@@ -67,6 +67,11 @@
         -webkit-text-stroke: 1.2px #ef4444;
     }
 
+    .swal-rounded {
+        border-radius: 2rem !important;
+        padding: 1.5rem !important;
+    }
+
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 
@@ -253,7 +258,11 @@ document.addEventListener('DOMContentLoaded', () => {
         showCancelButton: true, 
         cancelButtonText: 'Batal',
         confirmButtonColor: status === 'approved' ? '#10b981' : '#ef4444', 
-        confirmButtonText: `Ya, ${confirmText}!` 
+        confirmButtonText: `Ya, ${confirmText}!`,
+        // TAMBAH LINE DI BAWAH INI
+        customClass: {
+            popup: 'swal-rounded'
+        }
     });
     
     if (!result.isConfirmed) return;
