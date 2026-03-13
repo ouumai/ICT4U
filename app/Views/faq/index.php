@@ -204,7 +204,6 @@ $(document).ready(function() {
             text: msg,
             showConfirmButton: false,
             timer: 2000,
-            timerProgressBar: true,
             customClass: { popup: 'swal-rounded' }
         });
     }
