@@ -4,6 +4,8 @@
 
 <script>document.title = "Pengurusan Dokumen Modul";</script>
 
+<meta name="csrf-token" content="<?= csrf_hash() ?>">
+
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
@@ -19,16 +21,16 @@
         display: none !important;
     }
 
-    /* 2. Card Styling */
+    /* 3. Card Styling */
     .glass-card {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
         border: 1px solid #e2e8f0;
-        border-radius: 1.5rem; /* rounded-3xl */
+        border-radius: 1.5rem;
     }
 
-    /* 3. Table Header Design */
+    /* 4. Table Header Design */
     .compact-th {
         padding: 25px 20px !important;
         background-color: #f8fafc !important;
@@ -40,50 +42,17 @@
         color: #64748b !important;
     }
 
-    /* 4. Modern Action Buttons (Match Gambar Mai) */
-    .btn-tindakan-moden {
-        width: 48px;
-        height: 48px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 14px;
-        transition: all 0.2s ease-in-out;
-        border: none;
-        cursor: pointer;
-    }
-
-    .btn-tindakan-moden i {
-        font-size: 1.35rem !important;
-        transition: transform 0.2s ease-in-out;
-    }
-
-    .btn-tindakan-moden:hover i {
-        transform: scale(1.25);
-    }
-
     #btnTambahModal:disabled {
         cursor: not-allowed !important;
-        pointer-events: auto !important;
         opacity: 0.6;
     }
-
-    /* Button Colors: Kelabu, Purple, Merah */
-    .btn-lihat { background-color: #F1F5F9; color: #64748B; } /* Slate */
-    .btn-lihat:hover { background-color: #E2E8F0; color: #1E293B; }
-
-    .btn-kemaskini { background-color: #EEF2FF; color: #4F46E5; } /* Indigo */
-    .btn-kemaskini:hover { background-color: #E0E7FF; color: #3730A3; }
-
-    .btn-buang { background-color: #FFF1F2; color: #E11D48; } /* Rose */
-    .btn-buang:hover { background-color: #FFE4E6; color: #9F1239; }
 
     /* 5. SweetAlert UI Design */
     .swal2-popup { border-radius: 28px !important; padding: 2rem !important; }
     .swal2-actions { width: 100% !important; display: flex !important; flex-direction: row !important; gap: 12px !important; margin-top: 1.5rem !important; padding: 0 1rem !important; }
     
     .btn-swal-hantar { flex: 1 !important; background: #3b82f6 !important; color: white !important; font-weight: 700 !important; padding: 14px !important; border-radius: 16px !important; border: none !important; font-size: 0.95rem !important; order: 2; }
-    .btn-swal-padam { flex: 1 !important; background: #fee2e2 !important; color: #ef4444 !important; font-weight: 700 !important; padding: 14px !important; border-radius: 16px !important; border: none !important; font-size: 0.95rem !important; order: 1; }
+    .btn-swal-batal { flex: 1 !important; background: #fee2e2 !important; color: #ef4444 !important; font-weight: 700 !important; padding: 14px !important; border-radius: 16px !important; border: none !important; font-size: 0.95rem !important; order: 1; }
     
     .swal-label-custom { display: block; font-size: 0.8rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
     .swal-input-custom { min-height: 52px; border-radius: 12px; border: 1px solid #e2e8f0; padding: 12px 15px; width: 100%; background-color: #ffffff; font-weight: 500; font-size: 0.95rem; }
@@ -92,15 +61,6 @@
     .status-pill { padding: 4px 12px; border-radius: 9999px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
     .status-pending { background-color: #FEF3C7; color: #92400E; }
     .status-approved { background-color: #DCFCE7; color: #166534; }
-
-    /* Style untuk nota halus dalam pop-up */
-    .file-reminder-text {
-        font-size: 8px !important; 
-        color: #94a3b8; 
-        margin-top: 4px; 
-        font-style: italic; 
-        opacity: 0.8;
-    }
 </style>
 
 <div class="container-fluid py-1">
@@ -151,12 +111,17 @@
 
 <script>
 let editorInstance = null;
+let currentCsrfHash = '<?= csrf_hash() ?>';
 
-$.ajaxSetup({
-    headers: {
-        'X-CSRF-TOKEN': '<?= csrf_hash() ?>'
-    }
-});
+// Fungsi untuk refresh token
+function refreshToken(newToken) {
+    currentCsrfHash = newToken;
+    $('meta[name="csrf-token"]').attr('content', newToken);
+    $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': currentCsrfHash } });
+}
+
+// Setup awal AJAX
+$.ajaxSetup({ headers: { 'X-CSRF-TOKEN': currentCsrfHash } });
 
 // 1. Dropdown listener
 $('#dropdownServis').change(function(){
@@ -174,8 +139,8 @@ function refreshTable(idservis){
     $('#btnTambahModal').prop('disabled', false);
     $('#dokumenArea').html('<div class="text-center py-20 text-slate-400">Memproses data...</div>');
     
-    // Guna base_url untuk elak 404
-    $.get('<?= base_url('dokumen/getDokumen') ?>/' + idservis, function(res){
+    $.get('<?= base_url('pengurusandokumen/getDokumen') ?>/' + idservis, function(res){
+        if(res.csrf) refreshToken(res.csrf);
         var items = res.items;
         if(!items || items.length === 0){
             $('#dokumenArea').html(`<div class="p-20 text-center"><div class="bg-red-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm"><i class="bi bi-folder-x text-4xl text-red-500"></i></div><h5 class="text-slate-900 font-bold mb-1">Tiada Fail Dijumpai</h5><p class="text-slate-500 font-medium">Tiada dokumen yang dimuat naik untuk servis ini.</p></div>`);
@@ -195,70 +160,65 @@ function refreshTable(idservis){
                 <tbody class="divide-y divide-slate-100">`;
         
         items.forEach(d => {
-        const fileUrl = `<?= base_url('dokumen/viewFile') ?>/${d.idservis}/${d.namafail}`;
-        const createdDate = d.created_at ? d.created_at : '-';
-        const updatedDate = d.updated_at ? d.updated_at : createdDate;
+            const fileUrl = `<?= base_url('pengurusandokumen/viewFile') ?>/${d.idservis}/${d.namafail}`;
+            const createdDate = d.created_at ? d.created_at : '-';
+            const updatedDate = d.updated_at ? d.updated_at : createdDate;
+            
+            // Buang substring supaya dia tunjuk semua text yang ada
+            const cleanDesc = d.descdoc ? d.descdoc.replace(/<[^>]*>?/gm, '').trim() : '';
+            const displayDesc = cleanDesc.length > 0 ? cleanDesc : 'Tiada nota';
 
-        html += `
-            <tr class="hover:bg-slate-50/50 transition-colors">
-                <td class="px-8 py-6 text-center">
-                    <div class="w-12 h-12 rounded-xl bg-red-50 text-red-600 flex items-center justify-center mx-auto shadow-sm">
-                        <i class="bi bi-file-earmark-pdf-fill text-2xl"></i>
-                    </div>
-                </td>
-                <td class="px-8 py-6">
-                    <div class="font-bold text-slate-800 text-[14px]">${d.nama}</div>
-                    <div class="text-xs text-slate-400 mt-1">${d.descdoc ? d.descdoc.replace(/<[^>]*>?/gm, '').substring(0, 50) + '...' : 'Tiada nota'}</div>
-                    
-                    <div class="mt-2 space-y-0.5">
-                        <div class="text-xs text-slate-400 font-medium flex items-center gap-1">
-                            <i class="bi bi-plus-circle"></i> Dicipta: ${createdDate}
+            html += `
+                <tr class="hover:bg-slate-50/50 transition-colors">
+                    <td class="px-8 py-6 text-center">
+                        <div class="w-12 h-12 rounded-xl bg-red-50 text-red-600 flex items-center justify-center mx-auto shadow-sm">
+                            <i class="bi bi-file-earmark-pdf-fill text-2xl"></i>
                         </div>
-                        <div class="text-xs text-blue-500 font-bold flex items-center gap-1">
-                            <i class="bi bi-pencil-square"></i> Kemaskini: ${updatedDate}
+                    </td>
+                    <td class="px-8 py-6">
+                        <div class="font-bold text-slate-800 text-[14px]">${d.nama}</div>
+                        <div class="text-xs text-slate-400 mt-1">${displayDesc}</div>
+                        
+                        <div class="mt-2 space-y-0.5">
+                            <div class="text-xs text-slate-400 font-medium flex items-center gap-1">
+                                <i class="bi bi-plus-circle"></i> Dicipta: ${createdDate}
+                            </div>
+                            <div class="text-xs text-blue-500 font-bold flex items-center gap-1">
+                                <i class="bi bi-pencil-square"></i> Kemaskini: ${updatedDate}
+                            </div>
                         </div>
-                    </div>
-                </td>
-                <td class="px-8 py-6 text-center"><span class="status-pill status-${d.status}">${d.status}</span></td>
-                <td class="px-8 py-6 text-center">
-                    <div class="flex justify-center gap-2">
-                        <a href="${fileUrl}" target="_blank" class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-600 p-2 rounded-xl hover:bg-gray-600 hover:text-white transition" title="Lihat">
-                            <i class="bi bi-eye-fill"></i>
-                        </a>
-                        <button onclick="openDokumenEditor(${d.iddoc})" class="w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 p-2 rounded-xl hover:bg-indigo-600 hover:text-white transition" title="Edit">
-                            <i class="bi bi-pencil-square"></i>
-                        </button>
-                        <button onclick="hapusDokumen(${d.iddoc})" class="w-10 h-10 flex items-center justify-center bg-red-50 text-red-600 p-2 rounded-xl hover:bg-red-600 hover:text-white transition" title="Padam">
-                            <i class="bi bi-trash3-fill"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>`;
-    });
+                    </td>
+                    <td class="px-8 py-6 text-center"><span class="status-pill status-${d.status}">${d.status}</span></td>
+                    <td class="px-8 py-6 text-center">
+                        <div class="flex justify-center gap-2">
+                            <a href="${fileUrl}" target="_blank" class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-600 p-2 rounded-xl hover:bg-gray-600 hover:text-white transition" title="Lihat">
+                                <i class="bi bi-eye-fill"></i>
+                            </a>
+                            <button onclick="openDokumenEditor(${d.iddoc})" class="w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 p-2 rounded-xl hover:bg-indigo-600 hover:text-white transition" title="Edit">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <button onclick="hapusDokumen(${d.iddoc})" class="w-10 h-10 flex items-center justify-center bg-red-50 text-red-600 p-2 rounded-xl hover:bg-red-600 hover:text-white transition" title="Padam">
+                                <i class="bi bi-trash3-fill"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+        });
         
         html += '</tbody></table></div>';
         $('#dokumenArea').html(html);
-    }).fail(function(){
-        $('#dokumenArea').html('<div class="p-10 text-center text-red-500">Ralat memuatkan data. Sila periksa sambungan atau route.</div>');
     });
 }
 
 // 3. Open Editor (Create/Edit)
 function openDokumenEditor(iddoc = null) {
     const idservis = $('#dropdownServis').val();
-    if(!idservis) { 
-        Swal.fire('Sila pilih servis dahulu'); 
-        return; 
-    }
+    if(!idservis) { Swal.fire('Info', 'Sila pilih servis dahulu', 'info'); return; }
 
     if(iddoc) {
-        // Bahagian Kemaskini - Guna route getDokumenDetail
-        $.get('<?= base_url('dokumen/getDokumenDetail') ?>/' + iddoc, function(res) {
-            if(res.status) {
-                showSwalEditor(res.data, idservis);
-            } else {
-                Swal.fire('Ralat', 'Gagal mengambil data dokumen', 'error');
-            }
+        $.get('<?= base_url('pengurusandokumen/getDokumenDetail') ?>/' + iddoc, function(res) {
+            if(res.csrf) refreshToken(res.csrf);
+            if(res.status) showSwalEditor(res.data, idservis);
         });
     } else {
         showSwalEditor(null, idservis);
@@ -289,43 +249,40 @@ function showSwalEditor(data = null, idservis) {
             </div>
         </div>`,
         width: '600px',
-        showConfirmButton: true,
-        confirmButtonText: 'Hantar',
+        confirmButtonText: 'Simpan Perubahan',
         buttonsStyling: false,
-        customClass: { confirmButton: 'btn-swal-hantar', closeButton: 'swal2-close' },
-        backdrop: `rgba(15,23,42,0.5) blur(8px)`,
+        customClass: { confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-batal', closeButton: 'swal2-close' },
         didOpen: () => {
             if (editorInstance) { editorInstance.destroy(); }
             ClassicEditor.create(document.querySelector('#swal-descdoc'))
-                .then(newEditor => { editorInstance = newEditor; })
-                .catch(err => console.error(err));
+                .then(newEditor => { editorInstance = newEditor; });
         },
-
         preConfirm: () => {
-        const idservis = $('#dropdownServis').val();
-        const nama = document.getElementById('swal-nama').value;
-        const fileInput = document.getElementById('swal-file');
-        
-        // 1. Ambil Nama & Hash Token CSRF dari CI4
-        const csrfName = '<?= csrf_token() ?>';
-        const csrfHash = '<?= csrf_hash() ?>';
+            const nama = document.getElementById('swal-nama').value.trim();
+            let description = editorInstance ? editorInstance.getData() : '';
+            const fileInput = document.getElementById('swal-file');
 
-        const fd = new FormData();
-        // 2. Masukkan Token ke dalam FormData (WAJIB)
-        fd.append(csrfName, csrfHash); 
-        
-        fd.append('idservis', idservis);
-        fd.append('nama', nama);
-        fd.append('descdoc', editorInstance ? editorInstance.getData() : '');
-        if (fileInput.files[0]) fd.append('file', fileInput.files[0]);
-        
-        return fd;
-    }
+            if (!nama) { Swal.showValidationMessage('Nama Dokumen wajib diisi.'); return false; }
 
+            // Buang tag HTML & &nbsp; untuk check isi sebenar
+            const plainText = description.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, '').trim();
+            if (plainText === "") { description = ""; }
+
+            const fd = new FormData();
+            fd.append('<?= csrf_token() ?>', currentCsrfHash); 
+            fd.append('idservis', idservis);
+            fd.append('nama', nama);
+            fd.append('descdoc', description);
+            
+            if (fileInput.files[0]) { fd.append('file', fileInput.files[0]); }
+            
+            return { formData: fd, isFileChanged: !!fileInput.files[0] };
+        }
     }).then((result) => {
         if (result.isConfirmed) {
-        const url = isNew ? '<?= base_url('dokumen/tambah') ?>' : '<?= base_url('dokumen/kemaskini') ?>/' + data.iddoc;
-            saveDokumen(url, result.value);
+            const { formData } = result.value;
+            const url = isNew ? '<?= base_url('pengurusandokumen/tambah') ?>' : '<?= base_url('pengurusandokumen/kemaskini') ?>/' + data.iddoc;
+            saveDokumen(url, formData);
         }
     });
 }
@@ -333,13 +290,24 @@ function showSwalEditor(data = null, idservis) {
 // 5. Save Function
 function saveDokumen(url, formData) {
     $.ajax({
-        url: url, type: 'POST', data: formData, processData: false, contentType: false,
+        url: url,
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
         success: function(res) {
+            if(res.csrf) refreshToken(res.csrf); // Update token selepas POST
+
             if(res.status) {
-                Swal.fire({ icon: 'success', title: 'Berjaya', text: res.msg || 'Data disimpan!', timer: 1500, showConfirmButton: false });
+                Swal.fire({ icon: 'success', title: 'Berjaya', timer: 1500, showConfirmButton: false });
                 refreshTable($('#dropdownServis').val());
             } else {
-                Swal.fire('Ralat', res.msg || 'Gagal menyimpan fail', 'error');
+                Swal.fire('Gagal', res.msg, 'error');
+            }
+        },
+        error: function(xhr) {
+            if (xhr.status === 403) {
+                Swal.fire('Sesi Tamat', 'Sila refresh page (CSRF Error)', 'error').then(() => location.reload());
             }
         }
     });
@@ -347,45 +315,23 @@ function saveDokumen(url, formData) {
 
 // 6. Delete Function
 window.hapusDokumen = function(id) {
-    // Ambil token CSRF untuk keselamatan
-    const csrfName = '<?= csrf_token() ?>';
-    const csrfHash = '<?= csrf_hash() ?>';
-
     Swal.fire({
         title: 'Hapus Dokumen?',
         text: "Fail fizikal dan rekod pangkalan data akan dipadam sepenuhnya!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Ya, Padam',
-        cancelButtonText: 'Batal',
-        customClass: {
-            confirmButton: 'btn-swal-hantar', // Guna class yang Mai dah design
-            cancelButton: 'btn-swal-padam'
-        },
-        buttonsStyling: false
+        buttonsStyling: false,
+        customClass: { confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-padam' }
     }).then((result) => {
         if(result.isConfirmed) {
-            // Kita bina data untuk dihantar
-            const dataPadam = {};
-            dataPadam[csrfName] = csrfHash;
-
-            // Buat request POST ke Controller
-            $.post('<?= base_url('dokumen/hapus') ?>/' + id, dataPadam, function(res) {
+            const dataPadam = { [ '<?= csrf_token() ?>' ]: currentCsrfHash };
+            $.post('<?= base_url('pengurusandokumen/hapus') ?>/' + id, dataPadam, function(res) {
+                if(res.csrf) refreshToken(res.csrf);
                 if(res.status) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berjaya',
-                        text: res.msg,
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                    // Refresh table ikut servis yang tengah dipilih
+                    Swal.fire({ icon: 'success', title: 'Berjaya dipadam', timer: 1500, showConfirmButton: false });
                     refreshTable($('#dropdownServis').val());
-                } else {
-                    Swal.fire('Ralat!', res.msg, 'error');
                 }
-            }).fail(function() {
-                Swal.fire('Ralat!', 'Gagal menghubungi pelayan (Check CSRF/Route)', 'error');
             });
         }
     });

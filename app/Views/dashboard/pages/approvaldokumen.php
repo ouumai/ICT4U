@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const status = filterStatus.value;
         tbody.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-slate-400">Memuatkan data...</td></tr>';
         try {
-            const res = await fetch(`<?= base_url('approvaldokumen/getAll') ?>?status=${status}&page=${page}`);
+            const res = await fetch(`<?= url_to('pengesahan_dokumen') ?>/getAll?status=${status}&page=${page}`);
             const result = await res.json();
             if (result.data && result.data.length > 0) {
                 populateTable(result.data, result.pagination);
@@ -238,11 +238,11 @@ document.addEventListener('DOMContentLoaded', () => {
         viewModal.classList.remove('hidden');
         dokumenDetails.innerHTML = '<div class="text-center p-10">Memuatkan...</div>';
         try {
-            const res = await fetch(`<?= base_url('approvaldokumen/getDokumen') ?>/${id}`);
+            const res = await fetch(`<?= base_url('pengesahandokumen/getDokumen') ?>/${id}`);
             const json = await res.json();
             if (json.status) {
                 const d = json.data;
-                const fileUrl = `<?= base_url('dokumen/viewFile') ?>/${d.idservis}/${d.namafail}`;
+                const fileUrl = `<?= base_url('pengesahandokumen/viewFile') ?>/${d.idservis}/${d.namafail}`;
                 let fileHTML = d.mime.includes('image') ? `<img src="${fileUrl}" class="w-full rounded-2xl shadow-lg border" />` : (d.mime === 'application/pdf' ? `<iframe src="${fileUrl}" width="100%" height="450px" class="rounded-2xl border"></iframe>` : `<div class="p-8 border-2 border-dashed rounded-2xl text-center"><a href="${fileUrl}" target="_blank" class="text-indigo-600 font-bold underline">Muat Turun Fail</a></div>`);
                 dokumenDetails.innerHTML = `<div class="grid grid-cols-2 gap-4 mb-6"><div class="bg-slate-50 p-4 rounded-2xl"><span class="text-xs text-slate-400 font-bold uppercase">Nama Dokumen</span><p class="font-bold text-slate-700 mt-1">${d.nama}</p></div><div class="bg-slate-50 p-4 rounded-2xl"><span class="text-xs text-slate-400 font-bold uppercase">Status Semasa</span><div class="mt-2"><span class="status-pill status-${d.status}">${d.status}</span></div></div></div><div class="mb-6"><span class="text-xs text-slate-400 font-bold uppercase">Catatan</span><p class="text-slate-600 mt-1">${d.descdoc || 'Tiada catatan.'}</p></div>${fileHTML}`;
             }
@@ -250,57 +250,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.changeStatus = async function(id, status) {
-    const confirmText = status.charAt(0).toUpperCase() + status.slice(1);
-    const result = await Swal.fire({ 
-        title: `Pengesahan ${confirmText}`, 
-        text: `Pasti mahu tukar status kepada ${status}?`, 
-        icon: status === 'approved' ? 'question' : 'warning', 
-        showCancelButton: true, 
-        cancelButtonText: 'Batal',
-        confirmButtonColor: status === 'approved' ? '#10b981' : '#ef4444', 
-        confirmButtonText: `Ya, ${confirmText}!`,
-        // TAMBAH LINE DI BAWAH INI
-        customClass: {
-            popup: 'swal-rounded'
-        }
-    });
-    
-    if (!result.isConfirmed) return;
-
-    try {
-        // AMBIL TOKEN CSRF
-        const csrfName = '<?= csrf_token() ?>';
-        const csrfHash = '<?= csrf_hash() ?>';
-
-        // Guna FormData supaya CI4 senang baca
-        const formData = new FormData();
-        formData.append(csrfName, csrfHash);
-
-        const res = await fetch(`<?= base_url('approvaldokumen/changeStatus') ?>/${id}/${status}`, { 
-            method: 'POST',
-            body: formData, // Hantar sebagai body
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
+        const confirmText = status.charAt(0).toUpperCase() + status.slice(1);
+        const result = await Swal.fire({ 
+            title: `Pengesahan ${confirmText}`, 
+            text: `Pasti mahu tukar status kepada ${status}?`, 
+            icon: status === 'approved' ? 'question' : 'warning', 
+            showCancelButton: true, 
+            cancelButtonText: 'Batal',
+            confirmButtonColor: status === 'approved' ? '#10b981' : '#ef4444', 
+            confirmButtonText: `Ya, ${confirmText}!`,
+            customClass: { popup: 'swal-rounded' }
         });
         
-        const data = await res.json();
-        if (data.status) {
-            if (status === 'approved') { 
-                lottieContainer.style.display = 'block'; 
-                successAnimation.play(); 
-                setTimeout(() => { lottieContainer.style.display = 'none'; }, 1500); 
+        if (!result.isConfirmed) return;
+
+        try {
+            // 1. Ambil token CSRF yang fresh
+            const csrfName = '<?= csrf_token() ?>';
+            const csrfHash = '<?= csrf_hash() ?>';
+
+            // 2. Masukkan token ke dalam FormData
+            const formData = new FormData();
+            formData.append(csrfName, csrfHash); 
+
+            const res = await fetch(`<?= base_url('pengesahandokumen/changeStatus') ?>/${id}/${status}`, { 
+                method: 'POST',
+                body: formData, 
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            const data = await res.json();
+            if (data.status) {
+                if (status === 'approved') { 
+                    lottieContainer.style.display = 'block'; 
+                    successAnimation.play(); 
+                    setTimeout(() => { lottieContainer.style.display = 'none'; }, 1500); 
+                }
+                Swal.fire('Berjaya!', data.message, 'success');
+                loadData(currentPage);
+            } else {
+                Swal.fire('Gagal!', data.message, 'error');
             }
-            Swal.fire('Berjaya!', data.message, 'success');
-            loadData(currentPage);
-        } else {
-            Swal.fire('Gagal!', data.message, 'error');
+        } catch (err) { 
+            console.error(err);
+            Swal.fire('Ralat!', 'Gagal memproses data.', 'error');
         }
-    } catch (err) { 
-        console.error(err);
-        Swal.fire('Ralat!', 'Gagal memproses data.', 'error');
     }
-}
 
     tbody.addEventListener('click', e => {
         const btn = e.target.closest('.btn-action');

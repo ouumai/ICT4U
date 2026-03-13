@@ -4,13 +4,10 @@
     
     // Safety check: elak error kalau URL pendek
     $seg1 = $segments[0] ?? ''; 
-    $seg2 = $segments[1] ?? '';
-    $seg3 = $segments[2] ?? '';
 
     // LOGIC NAV BAR:
-    // Detect kalau URL ada perkataan 'approvaldokumen' atau 'dokumen'
-    // Contoh URL: localhost/ict4us/dashboard/loadPage/approvaldokumen
-    $isDokumenActive = ($seg3 === 'approvaldokumen' || $seg3 === 'dokumen');
+    $isDokumenActive = ($seg1 === 'pengesahandokumen' || $seg1 === 'pengurusandokumen');
+    $isTambahanActive = ($seg1 === 'tambahanperincian');
 ?>
 
 <style>
@@ -122,7 +119,7 @@
 </style>
 
 <aside class="main-sidebar elevation-0">
-    <a href="<?= site_url('/') ?>" class="brand-link text-center text-decoration-none">
+    <a href="<?= url_to('dashboard') ?>" class="brand-link text-center text-decoration-none">
         <img src="<?= base_url('assets/image/ICT4ULogo.svg') ?>" 
              alt="ICT4U Logo" 
              class="brand-logo-img">
@@ -133,8 +130,8 @@
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                 
                 <li class="nav-item">
-                    <a href="<?= site_url('/') ?>" 
-                       class="nav-link <?= ($seg1 == '' || ($seg1 == 'dashboard' && $seg2 == '')) ? 'active' : '' ?>">
+                    <a href="<?= url_to('dashboard') ?>" 
+                       class="nav-link <?= ($seg1 === 'dashboard' || $seg1 === '') ? 'active' : '' ?>">
                         <div class="nav-link-content">
                             <i class="nav-icon bi bi-grid-fill"></i>
                             <p class="mb-0">Dashboard</p>
@@ -153,8 +150,8 @@
                     
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="<?= base_url('dashboard/loadPage/approvaldokumen') ?>" 
-                               class="nav-link <?= $seg3 === 'approvaldokumen' ? 'active' : '' ?>">
+                            <a href="<?= url_to('pengesahan_dokumen') ?>" 
+                            class="nav-link <?= ($seg1 === 'pengesahandokumen') ? 'active' : '' ?>">
                                 <div class="nav-link-content">
                                     <i class="nav-icon bi bi-check-circle"></i>
                                     <p class="mb-0">Pengesahan Dokumen</p>
@@ -162,8 +159,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="<?= base_url('dashboard/loadPage/dokumen') ?>" 
-                               class="nav-link <?= $seg3 === 'dokumen' ? 'active' : '' ?>">
+                            <a href="<?= url_to('pengurusan_dokumen') ?>" 
+                            class="nav-link <?= ($seg1 === 'pengurusandokumen') ? 'active' : '' ?>">
                                 <div class="nav-link-content">
                                     <i class="nav-icon bi bi-files"></i>
                                     <p class="mb-0">Pengurusan Dokumen</p>
@@ -174,7 +171,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="<?= site_url('perincianmodul') ?>" 
+                    <a href="<?= url_to('perincian_modul') ?>" 
                        class="nav-link <?= $seg1 === 'perincianmodul' ? 'active' : '' ?>">
                         <div class="nav-link-content">
                             <i class="nav-icon bi bi-collection-fill"></i>
@@ -184,8 +181,8 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="<?= site_url('dashboard/TambahanPerincian') ?>" 
-                       class="nav-link <?= $seg2 === 'TambahanPerincian' ? 'active' : '' ?>">
+                    <a href="<?= url_to('tambahan_perincian') ?>" 
+                       class="nav-link <?= $seg1 === 'tambahanperincian' ? 'active' : '' ?>">
                         <div class="nav-link-content">
                             <i class="nav-icon bi bi-folder-plus"></i>
                             <p class="mb-0">Tambahan Perincian</p>
@@ -194,7 +191,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="<?= site_url('faq/1') ?>" class="nav-link <?= $seg1 === 'faq' ? 'active' : '' ?>">
+                    <a href="<?= url_to('faq') ?>" class="nav-link <?= $seg1 === 'faq' ? 'active' : '' ?>">
                         <div class="nav-link-content">
                             <i class="nav-icon bi bi-question-diamond-fill"></i>
                             <p class="mb-0">FAQ</p>
@@ -203,7 +200,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="<?= base_url('profile') ?>" class="nav-link <?= $seg1 === 'profile' ? 'active' : '' ?>">
+                    <a href="<?= url_to('profile') ?>" class="nav-link <?= $seg1 === 'profile' ? 'active' : '' ?>">
                         <div class="nav-link-content">
                             <i class="nav-icon bi bi-person-bounding-box"></i>
                             <p class="mb-0">My Profile</p>
@@ -212,7 +209,7 @@
                 </li>
 
                 <li class="nav-item mt-4">
-                    <a href="<?= site_url('logout') ?>" class="nav-link logout-btn">
+                    <a href="<?= base_url('logout') ?>" class="nav-link logout-btn">
                         <div class="nav-link-content">
                             <i class="nav-icon bi bi-box-arrow-left"></i>
                             <p class="mb-0">Sign Out</p>
@@ -223,5 +220,4 @@
             </ul>
         </nav>
     </div>
-
 </aside>

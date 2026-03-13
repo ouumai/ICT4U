@@ -14,7 +14,7 @@ class DokumenModel extends Model
     
     // Allowed fields for insert/update
     protected $allowedFields = [
-        'idservis',      // Kolom utama untuk servis
+        'idservis',      // column utama untuk servis
         'nama',          // Nama dokumen
         'namafail',      // Nama file
         'mime',          // MIME type
@@ -48,10 +48,11 @@ class DokumenModel extends Model
     // =========================
 
     protected $validationRules = [
-        'idservis' => 'required|numeric', // Tambah ni untuk pastikan ID servis sentiasa ada
-        'nama'     => 'required|string|max_length[255]',
-        'namafail' => 'permit_empty', // Biarkan kosong dulu sebab kita handle kat Controller
-        'status'   => 'permit_empty|in_list[pending,approved,rejected]'
+    'idservis' => 'required|numeric',
+    'nama'     => 'required|string|max_length[255]',
+    'descdoc'  => 'permit_empty', // benarkan kosong
+    'namafail' => 'permit_empty',
+    'status'   => 'permit_empty|in_list[pending,approved,rejected]'
     ];
 
     protected $validationMessages = [
@@ -61,7 +62,6 @@ class DokumenModel extends Model
         ],
         'nama' => [
             'required' => 'Tajuk dokumen wajib diisi.'
-        ]
-        // Buang mesej required untuk namafail & mime sebab kita guna permit_empty
+        ] 
     ];
 }

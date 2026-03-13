@@ -139,7 +139,7 @@ let editor;
 
 async function fetchServis(){
     try {
-        const res = await fetch('<?= base_url("dashboard/TambahanPerincian/getAll") ?>');
+        const res = await fetch('<?= base_url("tambahanperincian/getAll") ?>');
         const json = await res.json();
         if(json.status) { allServis = json.data; sortData(); }
     } catch (e) { console.error("Error:", e); }
@@ -252,7 +252,7 @@ async function saveServis(data){
     const fd = new FormData();
     Object.keys(data).forEach(key => fd.append(key, data[key] || ''));
     try {
-        const res = await fetch('<?= base_url("dashboard/TambahanPerincian/saveServis") ?>', { method:'POST', body:fd });
+        const res = await fetch('<?= base_url("tambahanperincian/saveServis") ?>', { method:'POST', body:fd });
         const json = await res.json();
         if(json.status){ fetchServis(); Swal.fire({ icon: 'success', title: 'Berjaya', text: 'Data disimpan!', timer: 1500, showConfirmButton: false }); }
     } catch (e) { console.error(e); }
@@ -262,7 +262,7 @@ async function deleteServis(id){
     Swal.fire({ title: 'Padam rekod?', text: "Tindakan ini kekal!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'Ya, Padam', cancelButtonText: 'Batal' }).then(async (result) => {
         if (result.isConfirmed) {
             const fd = new FormData(); fd.append('idservis', id);
-            await fetch('<?= base_url("dashboard/TambahanPerincian/deleteServis") ?>', { method:'POST', body:fd });
+            await fetch('<?= base_url("tambahanperincian/deleteServis") ?>', { method:'POST', body:fd });
             fetchServis(); Swal.fire('Dipadam!', 'Rekod dibuang.', 'success');
         }
     });

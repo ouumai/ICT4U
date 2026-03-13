@@ -64,7 +64,6 @@ class ApprovalDokumenController extends BaseController
         $db = \Config\Database::connect();
         $db->transStart();
 
-        // Gunakan fungsi saveStatus dalam model Mai untuk lebih clean
         $this->approvalModel->saveStatus($iddoc, [
             'status'      => $status,
             'approved_by' => $userId,
@@ -96,18 +95,29 @@ class ApprovalDokumenController extends BaseController
         if(!$dokumen) return $this->response->setJSON(['status'=>false,'message'=>'Dokumen tidak dijumpai']);
         return $this->response->setJSON(['status'=>true,'data'=>$dokumen]);
     }
+
     // Show file in browser
     public function viewFile($idservis, $filename)
     {
-        $path = WRITEPATH . "uploads/dokumen/{$idservis}/{$filename}";
-        if (!file_exists($path)) {
-            return $this->response->setStatusCode(404, 'File not found');
+        // Cuba path dengan ID Servis dulu
+        $pathWithSubfolder = WRITEPATH . "uploads/dokumen/{$idservis}/{$filename}";
+        
+        // Cuba path tanpa ID Servis
+        $pathDirect = WRITEPATH . "uploads/dokumen/{$filename}";
+
+        // Check mana satu yang wujud
+        if (file_exists($pathWithSubfolder)) {
+            $path = $pathWithSubfolder;
+        } elseif (file_exists($pathDirect)) {
+            $path = $pathDirect;
+        } else {
+            return $this->response->setStatusCode(404, 'File not found at: ' . $pathWithSubfolder);
         }
 
         $mime = mime_content_type($path);
         return $this->response
             ->setHeader('Content-Type', $mime)
-            ->setHeader('Content-Disposition', 'inline; filename="'.$filename.'"')
+            ->setHeader('Content-Disposition', 'inline; filename="' . $filename . '"')
             ->setBody(file_get_contents($path));
     }
 }
