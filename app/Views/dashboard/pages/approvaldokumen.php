@@ -251,6 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
         text: `Pasti mahu tukar status kepada ${status}?`, 
         icon: status === 'approved' ? 'question' : 'warning', 
         showCancelButton: true, 
+        cancelButtonText: 'Batal',
         confirmButtonColor: status === 'approved' ? '#10b981' : '#ef4444', 
         confirmButtonText: `Ya, ${confirmText}!` 
     });
