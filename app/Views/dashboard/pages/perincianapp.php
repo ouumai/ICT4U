@@ -356,8 +356,9 @@ $(document).ready(function() {
             text: "Data perincian akan dikosongkan.",
             icon: 'warning',
             showCancelButton: true,
+            cancelButtonText: 'Batal',
             confirmButtonText: 'Ya, Kosongkan',
-            customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-batal', cancelButton: 'btn-swal-hantar' },
+            customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-batal' },
             buttonsStyling: false
         }).then((result) => {
             if (result.isConfirmed && editor) {
