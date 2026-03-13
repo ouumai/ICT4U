@@ -47,13 +47,17 @@
         opacity: 0.6;
     }
 
-    /* 5. SweetAlert UI Design */
+    /* 5. SweetAlert UI Design (Standard ICT4U) */
+    .swal-rounded { border-radius: 2rem !important; padding: 1.5rem !important; }
     .swal2-popup { border-radius: 28px !important; padding: 2rem !important; }
     .swal2-actions { width: 100% !important; display: flex !important; flex-direction: row !important; gap: 12px !important; margin-top: 1.5rem !important; padding: 0 1rem !important; }
     
-    .btn-swal-hantar { flex: 1 !important; background: #3b82f6 !important; color: white !important; font-weight: 700 !important; padding: 14px !important; border-radius: 16px !important; border: none !important; font-size: 0.95rem !important; order: 2; }
-    .btn-swal-batal { flex: 1 !important; background: #fee2e2 !important; color: #ef4444 !important; font-weight: 700 !important; padding: 14px !important; border-radius: 16px !important; border: none !important; font-size: 0.95rem !important; order: 1; }
+    /* Warna Indigo untuk Confirm/Hantar/Padam */
+    .btn-swal-indigo { flex: 1 !important; background: #4f46e5 !important; color: white !important; font-weight: 700 !important; padding: 14px !important; border-radius: 16px !important; border: none !important; order: 2 !important; }
     
+    /* Warna Merah untuk Batal */
+    .btn-swal-merah { flex: 1 !important; background: #fee2e2 !important; color: #ef4444 !important; font-weight: 700 !important; padding: 14px !important; border-radius: 16px !important; border: none !important; order: 1 !important; }
+
     .swal-label-custom { display: block; font-size: 0.8rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
     .swal-input-custom { min-height: 52px; border-radius: 12px; border: 1px solid #e2e8f0; padding: 12px 15px; width: 100%; background-color: #ffffff; font-weight: 500; font-size: 0.95rem; }
 
@@ -113,22 +117,18 @@
 let editorInstance = null;
 let currentCsrfHash = '<?= csrf_hash() ?>';
 
-// Fungsi untuk refresh token
 function refreshToken(newToken) {
     currentCsrfHash = newToken;
     $('meta[name="csrf-token"]').attr('content', newToken);
     $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': currentCsrfHash } });
 }
 
-// Setup awal AJAX
 $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': currentCsrfHash } });
 
-// 1. Dropdown listener
 $('#dropdownServis').change(function(){
     refreshTable($(this).val());
 });
 
-// 2. Refresh Table Function
 function refreshTable(idservis){
     if(!idservis){
         $('#dokumenArea').html(`<div class="text-center py-20"><div class="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm"><i class="bi bi-filter text-4xl text-slate-300"></i></div><h5 class="text-slate-900 font-bold mb-1">Sila Pilih Servis</h5><p class="text-slate-500 font-medium">Pilih kategori servis di atas untuk memaparkan senarai dokumen.</p></div>`);
@@ -164,7 +164,6 @@ function refreshTable(idservis){
             const createdDate = d.created_at ? d.created_at : '-';
             const updatedDate = d.updated_at ? d.updated_at : createdDate;
             
-            // Buang substring supaya dia tunjuk semua text yang ada
             const cleanDesc = d.descdoc ? d.descdoc.replace(/<[^>]*>?/gm, '').trim() : '';
             const displayDesc = cleanDesc.length > 0 ? cleanDesc : 'Tiada nota';
 
@@ -175,7 +174,7 @@ function refreshTable(idservis){
                             <i class="bi bi-file-earmark-pdf-fill text-2xl"></i>
                         </div>
                     </td>
-                    <td class="px-8 py-6">
+                    <td class="px-8 py-6" style="max-width: 400px; word-wrap: break-word; white-space: normal;">
                         <div class="font-bold text-slate-800 text-[14px]">${d.nama}</div>
                         <div class="text-xs text-slate-400 mt-1">${displayDesc}</div>
                         
@@ -210,7 +209,6 @@ function refreshTable(idservis){
     });
 }
 
-// 3. Open Editor (Create/Edit)
 function openDokumenEditor(iddoc = null) {
     const idservis = $('#dropdownServis').val();
     if(!idservis) { Swal.fire('Info', 'Sila pilih servis dahulu', 'info'); return; }
@@ -225,13 +223,13 @@ function openDokumenEditor(iddoc = null) {
     }
 }
 
-// 4. Show SweetAlert Editor
 function showSwalEditor(data = null, idservis) {
     const isNew = !data;
     
     Swal.fire({
         title: isNew ? 'Muat Naik Dokumen Baru' : 'Kemaskini Dokumen',
         showCloseButton: true,
+        showCancelButton: true,
         html: `
         <div class="text-left space-y-4 p-2 mt-4">
             <div>
@@ -249,9 +247,16 @@ function showSwalEditor(data = null, idservis) {
             </div>
         </div>`,
         width: '600px',
-        confirmButtonText: 'Simpan Perubahan',
+        confirmButtonText: 'Simpan',
+        cancelButtonText: 'Batal',
         buttonsStyling: false,
-        customClass: { confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-batal', closeButton: 'swal2-close' },
+        customClass: { 
+            popup: 'swal-rounded',
+            confirmButton: 'btn-swal-indigo', 
+            cancelButton: 'btn-swal-merah',   
+            closeButton: 'swal2-close',
+            actions: 'swal2-actions'
+        },
         didOpen: () => {
             if (editorInstance) { editorInstance.destroy(); }
             ClassicEditor.create(document.querySelector('#swal-descdoc'))
@@ -262,9 +267,7 @@ function showSwalEditor(data = null, idservis) {
             let description = editorInstance ? editorInstance.getData() : '';
             const fileInput = document.getElementById('swal-file');
 
-            if (!nama) { Swal.showValidationMessage('Nama Dokumen wajib diisi.'); return false; }
-
-            // Buang tag HTML & &nbsp; untuk check isi sebenar
+            if (!nama) { Swal.showValidationMessage('Tajuk Dokumen wajib diisi.'); return false; }
             const plainText = description.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, '').trim();
             if (plainText === "") { description = ""; }
 
@@ -275,8 +278,7 @@ function showSwalEditor(data = null, idservis) {
             fd.append('descdoc', description);
             
             if (fileInput.files[0]) { fd.append('file', fileInput.files[0]); }
-            
-            return { formData: fd, isFileChanged: !!fileInput.files[0] };
+            return { formData: fd };
         }
     }).then((result) => {
         if (result.isConfirmed) {
@@ -287,7 +289,6 @@ function showSwalEditor(data = null, idservis) {
     });
 }
 
-// 5. Save Function
 function saveDokumen(url, formData) {
     $.ajax({
         url: url,
@@ -296,40 +297,41 @@ function saveDokumen(url, formData) {
         processData: false,
         contentType: false,
         success: function(res) {
-            if(res.csrf) refreshToken(res.csrf); // Update token selepas POST
-
+            if(res.csrf) refreshToken(res.csrf); 
             if(res.status) {
-                Swal.fire({ icon: 'success', title: 'Berjaya', timer: 1500, showConfirmButton: false });
+                Swal.fire({ icon: 'success', title: 'Berjaya', timer: 1500, showConfirmButton: false, customClass: {popup: 'swal-rounded'} });
                 refreshTable($('#dropdownServis').val());
             } else {
-                Swal.fire('Gagal', res.msg, 'error');
-            }
-        },
-        error: function(xhr) {
-            if (xhr.status === 403) {
-                Swal.fire('Sesi Tamat', 'Sila refresh page (CSRF Error)', 'error').then(() => location.reload());
+                Swal.fire({ icon: 'error', title: 'Gagal', text: res.msg, customClass: {popup: 'swal-rounded'} });
             }
         }
     });
 }
 
-// 6. Delete Function
 window.hapusDokumen = function(id) {
     Swal.fire({
         title: 'Hapus Dokumen?',
-        text: "Fail fizikal dan rekod pangkalan data akan dipadam sepenuhnya!",
+        text: "Tindakan ini tidak boleh diundur. Adakah anda pasti?",
         icon: 'warning',
+        showCloseButton: true,
         showCancelButton: true,
         confirmButtonText: 'Ya, Padam',
+        cancelButtonText: 'Batal',
         buttonsStyling: false,
-        customClass: { confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-padam' }
+        customClass: { 
+            popup: 'swal-rounded',
+            confirmButton: 'btn-swal-indigo', 
+            cancelButton: 'btn-swal-merah',   
+            actions: 'swal2-actions',
+            closeButton: 'swal2-close'
+        }
     }).then((result) => {
         if(result.isConfirmed) {
             const dataPadam = { [ '<?= csrf_token() ?>' ]: currentCsrfHash };
             $.post('<?= base_url('pengurusandokumen/hapus') ?>/' + id, dataPadam, function(res) {
                 if(res.csrf) refreshToken(res.csrf);
                 if(res.status) {
-                    Swal.fire({ icon: 'success', title: 'Berjaya dipadam', timer: 1500, showConfirmButton: false });
+                    Swal.fire({ icon: 'success', title: 'Dipadam!', text: 'Rekod berjaya dibuang.', timer: 1500, showConfirmButton: false, customClass: {popup: 'swal-rounded'} });
                     refreshTable($('#dropdownServis').val());
                 }
             });
