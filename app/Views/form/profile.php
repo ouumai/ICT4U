@@ -201,7 +201,7 @@
                 text: '<?= session()->getFlashdata('success') ?>', 
                 timer: 2500, 
                 showConfirmButton: false,
-                showCloseButton: true,
+                showCloseButton: false,
                 customClass: { popup: 'swal-rounded', closeButton: 'swal2-close' }
             });
         <?php endif; ?>
