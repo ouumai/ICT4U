@@ -66,25 +66,29 @@ class TambahanPerincianController extends BaseController
         $post = $this->request->getPost();
 
         $idservis    = $post['idservis'] ?? null;
-        $namaservis  = trim($post['namaservis'] ?? '');
+        
+        // Kita bersihkan tag HTML pada nama servis dan description
+        $namaservis  = trim(strip_tags($post['namaservis'] ?? ''));
         $infourl     = trim($post['infourl'] ?? '');
         $mohonurl    = trim($post['mohonurl'] ?? '');
-        $description = $post['description'] ?? '';
+        
+        // Di sini punca <p> tag tu. Kita guna strip_tags untuk buang semua tag HTML.
+        $description = trim(strip_tags($post['description'] ?? ''));
 
         // Validation Ringkas
         if ($namaservis === '') {
             return $this->response->setJSON([
                 'status'  => false,
                 'message' => 'Nama servis diperlukan',
-                'csrf'    => csrf_hash() // Token kena ada walaupun gagal
+                'csrf'    => csrf_hash()
             ]);
         }
 
         // Logic Save / Update Servis
         $dataServis = [
             'namaservis' => $namaservis,
-            'infourl'    => $infourl === '' ? null : $infourl, // Set null jika kosong
-            'mohonurl'   => $mohonurl === '' ? null : $mohonurl  // Set null jika kosong
+            'infourl'    => $infourl === '' ? null : $infourl,
+            'mohonurl'   => $mohonurl === '' ? null : $mohonurl
         ];
 
         if ($idservis) {
@@ -97,6 +101,7 @@ class TambahanPerincianController extends BaseController
         // SAVE / UPDATE PERINCIAN
         $exist = $this->perincianModel->where('idservis', $idservis)->first();
         if ($exist) {
+            // Simpan description yang dah bersih dari tag <p>
             $this->perincianModel->update($exist['id'], ['description' => $description]);
         } else {
             $this->perincianModel->insert([
@@ -108,10 +113,9 @@ class TambahanPerincianController extends BaseController
         return $this->response->setJSON([
             'status'    => true,
             'message'   => 'Servis berjaya disimpan',
-            'csrf'      => csrf_hash() // Token baru untuk next request
+            'csrf'      => csrf_hash()
         ]);
     }
-
     /**
      * DELETE SERVIS + DESCRIPTION
      */
