@@ -92,10 +92,18 @@ class PerincianModulController extends BaseController
         }
 
         // 2. VALIDASI NAMA SERVIS
+        // 2. VALIDASI NAMA SERVIS
         $keyboardRegex = '/^[\x20-\x7E]*$/'; 
-        
+
         if (empty($namaservis)) {
-            $errors[] = 'Nama servis wajib diisi.';
+            // Kalau nama servis kosong (sebab user ter-reset), 
+            // kita tarik balik nama asal dari DB guna $idservis supaya validasi tak fail
+            $current = $this->servisModel->find($idservis);
+            if ($current) {
+                $namaservis = $current['namaservis']; 
+            } else {
+                $errors[] = 'Nama servis wajib diisi.';
+            }
         } elseif (mb_strlen($namaservis) > 145) {
             $errors[] = 'Nama servis tidak boleh melebihi 145 aksara.';
         } elseif (!preg_match($keyboardRegex, $namaservis)) {
@@ -126,21 +134,22 @@ class PerincianModulController extends BaseController
 
         // ===== PROSES KEMASKINI DATABASE =====
         try {
-            // A. Update Table Servis (Nama & URL)
-            $this->servisModel->update($idservis, [
-                'namaservis' => $namaservis,
-                'infourl'    => $infourl ?: null,
-                'mohonurl'   => $mohonurl ?: null
-            ]);
+            // A. Update Table Servis (Hanya jika namaservis tidak kosong)
+            if (!empty($namaservis)) {
+                $this->servisModel->update($idservis, [
+                    'namaservis' => $namaservis,
+                    'infourl'    => $infourl ?: null,
+                    'mohonurl'   => $mohonurl ?: null
+                ]);
+            }
 
-            // B. Update/Insert Table Perincian (Description)
-            // Guna model yang point ke table aict4u103dperincianmodul
+            // B. Update/Insert Table Perincian (INI BAHAGIAN UNTUK CLEAR DESCRIPTION)
             $existingDesc = $this->descModel->where('idservis', $idservis)->first();
             
             if ($existingDesc) {
-                // PENTING: Guna key 'id' mengikut PerincianModulModel
+                // Kita paksa update description kepada nilai yang dihantar (walaupun kosong '')
                 $this->descModel->update($existingDesc['id'], [ 
-                    'description' => $description
+                    'description' => $description // Jika reset, $description akan jadi ''
                 ]);
             } else {
                 $this->descModel->insert([
@@ -149,14 +158,11 @@ class PerincianModulController extends BaseController
                 ]);
             }
 
-            // Set flashdata success untuk trigger SweetAlert hijau kat View
             session()->setFlashdata('success', 'Maklumat servis berjaya dikemaskini.');
 
         } catch (\Exception $e) {
-            // Jika ada ralat database (contoh: iddesc vs id), dia akan keluar pop-up merah
             return redirect()->back()->with('error', 'Ralat Sistem: ' . $e->getMessage());
         }
-
         // Redirect balik ke index supaya page refresh dan baca flashdata
         return redirect()->to('/perincianmodul');
     }

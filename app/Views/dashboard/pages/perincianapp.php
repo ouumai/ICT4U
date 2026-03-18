@@ -348,9 +348,14 @@ $(document).ready(function() {
     });
 
     // ==========================================
-    // 5. RESET BUTTON
+    // 5. RESET BUTTON 
     // ==========================================
     $('#btnReset').click(function() {
+        const idservis = $('#idservis').val();
+        const namaservis = $('#namaservis').val();
+
+        if (!idservis) return;
+
         Swal.fire({
             title: 'Reset Semula?',
             text: "Data perincian akan dikosongkan.",
@@ -358,11 +363,18 @@ $(document).ready(function() {
             showCancelButton: true,
             cancelButtonText: 'Batal',
             confirmButtonText: 'Ya, Kosongkan',
-            customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-batal' },
+            customClass: { 
+                popup: 'swal-rounded', 
+                confirmButton: 'btn-swal-hantar', 
+                cancelButton: 'btn-swal-batal',
+                actions: 'swal2-actions'
+            },
             buttonsStyling: false
         }).then((result) => {
-            if (result.isConfirmed && editor) {
-                editor.setData(''); 
+            if (result.isConfirmed) {
+                if (editor) editor.setData(''); 
+                $('#description').val(''); 
+                $('#servisForm').submit(); 
             }
         });
     });
