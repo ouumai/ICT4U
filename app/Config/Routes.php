@@ -11,6 +11,8 @@ use CodeIgniter\Router\RouteCollection;
 // Daftarkan semua route automatic Shield (Login, Register, dsb)
 service('auth')->routes($routes);
 
+$routes->get('test-mail', 'Home::testEmail');
+
 /**
  * Route Reset Password (Public)
  */
