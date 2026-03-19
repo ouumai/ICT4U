@@ -154,6 +154,19 @@
         padding: 2px 8px !important;
         border-radius: 12px !important;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+        animation: none !important; 
+        animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    }
+
+    @keyframes slideDown {
+        from {
+            transform: translateY(-150%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
     }
 
     .swal-toast-custom .swal2-title {
@@ -174,6 +187,15 @@
         height: auto !important;
         display: flex !important;
         align-items: center !important;
+    }
+
+    .animate__fadeOutUp {
+    animation: fadeOutUp 0.10s forwards !important;
+    }
+
+    @keyframes fadeOutUp {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(-20px); }
     }
 
 </style>
@@ -459,8 +481,12 @@ $(document).ready(function() {
             timer: 2000,
             timerProgressBar: false,
             width: 'auto',
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutUp' 
+            },
             customClass: {
                 popup: 'swal-toast-custom',
+                timerProgressBar: 'swal-progress-custom' 
             }
         });
 
