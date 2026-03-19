@@ -109,7 +109,7 @@ class Auth extends BaseController
         $email = \Config\Services::email();
         
         // PENGIRIM: Akaun n.umairahsabri@gmail.com
-        $email->setFrom('n.umairahsabri@gmail.com', 'ICT4U Management System');
+        $email->setFrom('noreply@ict4u.com', 'ICT4U Management System');
         
         // PENERIMA: Emel user yang tengah tukar password
         $email->setTo($penerimaEmail); 
