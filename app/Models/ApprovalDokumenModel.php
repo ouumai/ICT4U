@@ -19,9 +19,7 @@ class ApprovalDokumenModel extends Model
     protected $createdField     = 'created_at';
     protected $updatedField     = 'updated_at';
 
-    /**
-     * Mengambil data approval berserta maklumat dokumen menggunakan JOIN
-     */
+    // Mengambil data approval berserta maklumat dokumen menggunakan JOIN
     public function getApprovalWithDoc($iddoc = null)
     {
         // Gunakan alias 'app' dan 'doc' supaya query lebih pendek dan structured

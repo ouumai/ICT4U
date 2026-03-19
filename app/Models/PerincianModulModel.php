@@ -30,9 +30,7 @@ class PerincianModulModel extends Model
     protected $useSoftDeletes = true;
     protected $deletedField   = 'deleted_at';
 
-    /**
-     * Dapatkan perincian berdasarkan ID servis
-     */
+    // Dapatkan perincian berdasarkan ID servis
     public function getByServis($idservis)
     {
         // Guna first() jika satu servis hanya ada satu perincian
@@ -40,9 +38,8 @@ class PerincianModulModel extends Model
         return $this->where('idservis', $idservis)->first();
     }
 
-    /**
-     * Join dengan table servis untuk dapatkan maklumat penuh
-     */
+    // Join dengan table servis untuk dapatkan maklumat penuh
+
     public function getWithServis($id)
     {
         return $this->select('aict4u103dperincianmodul.*, aict4u103dservis.namaservis')

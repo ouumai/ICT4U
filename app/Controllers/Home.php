@@ -19,8 +19,8 @@ class Home extends BaseController
         
         $message = "
             <div style='font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;'>
-                <h2 style='color: #333;'>Hello Mai!</h2>
-                <p>Kalau kau baca ni kat dashboard Mailtrap, maknanya config <b>Email.php</b> kau dah mantap.</p>
+                <h2 style='color: #333;'>Hello Umairah Sabri!</h2>
+                <p>Kalau anda baca ni kat dashboard Mailtrap, maknanya config <b>Email.php</b> anda dah berjaya.</p>
                 <p>Projek <b>ICT4U</b> dah ready untuk feature email!</p>
             </div>
         ";

@@ -19,8 +19,7 @@ class PerincianModulController extends BaseController
         $this->descModel = new \App\Models\PerincianModulModel();
     }
 
-    /** * Papar halaman utama 
-     */
+    // Papar halaman utama 
     public function index()
     {
         // Mengambil semua servis
@@ -33,8 +32,8 @@ class PerincianModulController extends BaseController
         ]);
     }
 
-    /** * Ambil data servis + description melalui AJAX (untuk Reset & Populate Form)
-     */
+    // Ambil data servis + description melalui AJAX (untuk Reset & Populate Form)
+
     public function getServis($idservis)
     {
         $servis = $this->servisModel->find($idservis);
@@ -48,8 +47,6 @@ class PerincianModulController extends BaseController
 
         // Ambil description dari table modul_desc (menggunakan idservis sebagai foreign key)
         $desc = $this->descModel->where('idservis', $idservis)->first();
-        
-        // Optional: Jika anda perlukan data status dokumen (seperti dalam kod asal anda)
         $dokumenModel = model('App\Models\ApprovalDokumenModel');
         $dokumen = $dokumenModel->where('id', $idservis)->findAll();
 
@@ -73,10 +70,7 @@ class PerincianModulController extends BaseController
         ]);
     }
 
-/** * Simpan atau Kemaskini data (Action dari Form)
-     */
-    /** * Simpan atau Kemaskini data (Action dari Form)
-     */
+    // Simpan atau Kemaskini data (Action dari Form)
     public function save()
     {
         $idservis    = $this->request->getPost('idservis');
@@ -91,7 +85,6 @@ class PerincianModulController extends BaseController
             $errors[] = 'ID Servis tidak sah atau tidak dipilih.';
         }
 
-        // 2. VALIDASI NAMA SERVIS
         // 2. VALIDASI NAMA SERVIS
         $keyboardRegex = '/^[\x20-\x7E]*$/'; 
 
@@ -167,8 +160,7 @@ class PerincianModulController extends BaseController
         return redirect()->to('/perincianmodul');
     }
 
-    /** * Padam servis (Jika perlu)
-     */
+    // Padam servis 
     public function delete($idservis)
     {
         if (!$idservis || !$this->servisModel->find($idservis)) {

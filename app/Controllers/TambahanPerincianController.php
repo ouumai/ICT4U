@@ -18,9 +18,8 @@ class TambahanPerincianController extends BaseController
         helper(['form', 'url']);
     }
 
-    /**
-     * MAIN PAGE
-     */
+    // MAIN PAGE
+
     public function index()
     {
         return view('dashboard/pages/TambahanPerincian', [
@@ -31,9 +30,7 @@ class TambahanPerincianController extends BaseController
         ]);
     }
 
-    /**
-     * GET SINGLE SERVIS + DESCRIPTION
-     */
+    // GET SINGLE SERVIS + DESCRIPTION
     public function getServis($id)
     {
         $servis = $this->servisModel->find($id);
@@ -58,21 +55,19 @@ class TambahanPerincianController extends BaseController
         ]);
     }
 
-    /**
-     * SAVE / UPDATE SERVIS + DESCRIPTION
-     */
+    // SAVE or  UPDATE SERVIS + DESCRIPTION
     public function saveServis()
     {
         $post = $this->request->getPost();
 
         $idservis    = $post['idservis'] ?? null;
         
-        // Kita bersihkan tag HTML pada nama servis dan description
+        // bersihkan tag HTML pada nama servis dan description
         $namaservis  = trim(strip_tags($post['namaservis'] ?? ''));
         $infourl     = trim($post['infourl'] ?? '');
         $mohonurl    = trim($post['mohonurl'] ?? '');
         
-        // Di sini punca <p> tag tu. Kita guna strip_tags untuk buang semua tag HTML.
+        // guna strip_tags untuk buang semua tag HTML.
         $description = trim(strip_tags($post['description'] ?? ''));
 
         // Validation Ringkas
@@ -116,9 +111,8 @@ class TambahanPerincianController extends BaseController
             'csrf'      => csrf_hash()
         ]);
     }
-    /**
-     * DELETE SERVIS + DESCRIPTION
-     */
+    
+    // DELETE SERVIS + DESCRIPTION
     public function deleteServis()
     {
         $idservis = $this->request->getPost('idservis');
@@ -141,9 +135,8 @@ class TambahanPerincianController extends BaseController
         ]);
     }
 
-    /**
-     * GET ALL SERVIS + DESCRIPTION
-     */
+    // GET ALL SERVIS + DESCRIPTION
+
     public function getAll()
     {
         $data = $this->servisModel->orderBy('namaservis', 'ASC')->findAll();

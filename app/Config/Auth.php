@@ -28,7 +28,6 @@ class Auth extends ShieldAuth
      * --------------------------------------------------------------------
      * View files
      * --------------------------------------------------------------------
-     * Dah betulkan path login & register supaya panggil fail dalam folder Views.
      */
     public array $views = [
         'login'                       => 'auth/login',         

@@ -94,7 +94,6 @@ class Auth extends BaseController
         if ($userModel->save($user)) {
             
             // --- TRIGGER EMEL NOTIFIKASI DI SINI ---
-            // Kita guna $user->email supaya hantar kat "orang tu" (penerima dinamik)
             $this->sendSecurityAlert($user->email, $user->username);
 
             return redirect()->back()->with('success', 'Kata laluan berjaya dikemaskini & emel notifikasi telah dihantar.');
@@ -108,10 +107,8 @@ class Auth extends BaseController
     {
         $email = \Config\Services::email();
         
-        // PENGIRIM: Akaun n.umairahsabri@gmail.com
         $email->setFrom('no-reply@ict4u.com', 'ICT4U Management System');
         
-        // PENERIMA: Emel user yang tengah tukar password
         $email->setTo($penerimaEmail); 
         $email->setSubject('Sekuriti ICT4U: Kata Laluan Dikemaskini');
         
@@ -126,14 +123,13 @@ class Auth extends BaseController
         return $email->send();
     }
 
-    // --- RESET PASSWORD & LOGIN ATTEMPT (Kekalkan yang asal) ---
+    // --- RESET PASSWORD & LOGIN ATTEMPT  ---
     public function forgotStep1() { return view('form/forgot_password'); }
 
     public function processStep1()
     {
         $email = $this->request->getPost('email');
         
-        // Kita panggil UserModel untuk cari fullname user tersebut
         $userModel = new \App\Models\UserModel();
         $userData = $userModel->where('email', $email)->first();
 
@@ -146,7 +142,6 @@ class Auth extends BaseController
         // Set data untuk dihantar ke emel
         $emailData = [
             'token'    => $token,
-            // Pastikan ambil 'fullname' dari hasil carian database tadi
             'fullname' => $userData['fullname'] ?? $userData['username'] ?? 'User'
         ];
 

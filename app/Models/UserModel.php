@@ -9,7 +9,6 @@ class UserModel extends ShieldUserModel
     protected $table          = 'users';
     protected $primaryKey     = 'id';
     
-    // Kemaskini allowedFields: Ikut column dalam database Mai + profile_pic
     protected $allowedFields  = [
         'fullname', 
         'status', 
