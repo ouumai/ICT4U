@@ -195,8 +195,6 @@ class UserController extends BaseController
     {
         $email = \Config\Services::email();
         
-        // Mesti sama dengan SMTPUser di .env
-        $email->setFrom('n.umairahsabri@gmail.com', 'ICT4U Security');
         $email->setTo($penerimaEmail); 
         $email->setSubject('Sekuriti ICT4U: Password Dikemaskini');
         
