@@ -120,7 +120,62 @@
     .hidden { display: none; }
 
     /* Tailwind Conflict Fixes */
-.text-slate-500 { color: #64748b; }
+    .text-slate-500 { color: #64748b; }
+
+    /* ruang hujung untuk icon */
+    .input-modern.pr-12 {
+        padding-right: 3.5rem !important;
+    }
+
+    /* Container icon dalam textbox */
+    .relative.group .absolute {
+        right: 0.8rem;
+        top: 50%;
+        transform: translateY(-50%); /* Tarik naik balik 50% dari tinggi icon */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        height: auto;
+        z-index: 10;
+        line-height: 0; /* Buang extra spacing icon */
+    }
+
+    /* Hover effect */
+    .relative.group:hover .bi-clipboard {
+        color: #4f46e5;
+        transform: scale(1.1);
+    }
+
+    .swal-toast-custom {
+        display: flex !important;
+        align-items: center !important;
+        flex-direction: row !important;
+        padding: 2px 8px !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .swal-toast-custom .swal2-title {
+        margin: 0 0 0 10px !important;
+        padding: 0 !important;
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
+        color: #334155 !important;
+        white-space: nowrap !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    .swal-toast-custom .swal2-icon {
+        margin: 0 !important;
+        border: none !important;
+        width: auto !important;
+        height: auto !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
 </style>
 
 <div class="container-fluid py-1">
@@ -178,15 +233,27 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Info URL (HTTP/HTTPS/FTP)</label>
-                        <input type="url" id="infourl" name="infourl" class="input-modern" placeholder="https://...">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Mohon URL (HTTP/HTTPS/FTP)</label>
-                        <input type="url" id="mohonurl" name="mohonurl" class="input-modern" placeholder="https://...">
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">URL Info (HTTP/HTTPS/FTP)</label>
+                    <div class="relative group">
+                        <input type="url" id="infourl" name="infourl" class="input-modern pr-12" placeholder="https://...">
+                        <button type="button" onclick="copyToClipboard('infourl')" class="absolute" title="Salin Link">
+                            <i class="bi bi-clipboard text-lg"></i>
+                        </button>
                     </div>
                 </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">URL Mohon (HTTP/HTTPS/FTP)</label>
+                    <div class="relative group">
+                        <input type="url" id="mohonurl" name="mohonurl" class="input-modern pr-12" placeholder="https://...">
+                        <button type="button" onclick="copyToClipboard('mohonurl')" class="absolute" title="Salin Link">
+                            <i class="bi bi-clipboard text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
 
                 <div>
                     <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Description / Perincian</label>
@@ -378,6 +445,45 @@ $(document).ready(function() {
             }
         });
     });
+
+
+    window.copyToClipboard = function(inputId) {
+        const copyText = document.getElementById(inputId);
+        const value = copyText.value.trim();
+
+        // 1. Setup Toast
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: false,
+            width: 'auto',
+            customClass: {
+                popup: 'swal-toast-custom',
+            }
+        });
+
+        // 2. JIKA KOSONG (GAGAL)
+        if (!value) {
+            Toast.fire({
+                iconHtml: '<i class="bi bi-exclamation-circle text-red-500" style="font-size: 1.1rem;"></i>',
+                title: 'Gagal! Tiada link untuk disalin.',
+                background: '#fff5f5'
+            });
+            return;
+        }
+
+        // 3. JIKA ADA LINK (BERJAYA)
+        navigator.clipboard.writeText(value).then(() => {
+            Toast.fire({
+                iconHtml: '<i class="bi bi-check2-circle text-green-500" style="font-size: 1.1rem;"></i>',
+                title: 'Berjaya! Link telah disalin.',
+                background: '#f0fff4'
+            });
+        });
+    }
+
 });
 </script>
 
