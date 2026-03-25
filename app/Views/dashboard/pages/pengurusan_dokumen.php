@@ -9,6 +9,7 @@
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
 
 <style>
     /* 1. Global Setup & Typography */
@@ -63,6 +64,117 @@
     .status-pending { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
     .status-approved { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
     .status-rejected { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+    /* ==========================================
+       TOM SELECT - DROPDOWN INPUT UI (MAGIC)
+    ========================================== */
+    .servis-select-wrapper {
+        position: relative;
+        z-index: 60;
+        width: 100%;
+    }
+
+    /* Kotak Utama (Tempat user klik) */
+    .TS-Compact .ts-wrapper.single .ts-control {
+        min-height: 48px !important;
+        padding: 0 2.5rem 0 1rem !important; /* Elak teks langgar arrow */
+        border-radius: 0.75rem !important;
+        border: 1px solid #e2e8f0 !important;
+        background: #ffffff !important;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+        display: flex;
+        align-items: center;
+        cursor: pointer !important;
+        transition: all 0.2s ease;
+    }
+
+    /* Kotak Menyala Indigo bila diklik */
+    .TS-Compact .ts-wrapper.focus .ts-control,
+    .TS-Compact .ts-wrapper.dropdown-active .ts-control {
+        border-color: #4f46e5 !important;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15) !important;
+    }
+
+    /* Text Pilihan */
+    .TS-Compact .ts-wrapper.single .ts-control > .item,
+    .TS-Compact .ts-control > input::placeholder {
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        color: #475569 !important;
+    }
+
+    /* Bunuh terus arrow default Tom Select */
+    .TS-Compact .ts-wrapper.single::after,
+    .TS-Compact .ts-control::after {
+        display: none !important;
+        content: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+
+    /* Container Dropdown Menu */
+    .TS-Compact .ts-dropdown {
+        border-radius: 0.75rem !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+        margin-top: 8px !important;
+        overflow: hidden;
+        z-index: 9999;
+    }
+
+    /* Kotak Search Dalam Dropdown */
+    .TS-Compact .dropdown-input-wrap {
+        padding: 10px !important; 
+        border-bottom: 1px solid #e2e8f0 !important; 
+        background: #ffffff !important;
+    }
+
+    .TS-Compact .dropdown-input {
+        width: 100% !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 0.5rem !important;
+        padding: 0.6rem 1rem !important;
+        font-size: 0.95rem !important;
+        color: #475569 !important;
+        outline: none !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+
+    .TS-Compact .dropdown-input:focus {
+        border-color: #4f46e5 !important; 
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1) !important;
+    }
+
+    /* Tema Indigo Hover */
+    .TS-Compact .ts-dropdown-content {
+        padding: 4px !important; 
+    }
+
+    .TS-Compact .ts-dropdown .option {
+        padding: 0.6rem 1rem !important;
+        font-size: 0.95rem !important;
+        color: #334155 !important;
+        border-radius: 0.5rem !important;
+        margin-bottom: 2px !important;
+        transition: all 0.2s ease;
+    }
+
+    .TS-Compact .ts-dropdown .active,
+    .TS-Compact .ts-dropdown .option:hover {
+        background-color: #e0e7ff !important; 
+        color: #3730a3 !important; 
+        font-weight: 700 !important;
+    }
+
+    /* Sorok Placeholder Dari Dropdown List */
+    .TS-Compact .ts-dropdown .option[data-value=""] {
+        display: none !important;
+    }
+
+    /* Animasi Arrow Pusing 180 Darjah */
+    .ts-wrapper.dropdown-active ~ .custom-arrow {
+        transform: translateY(-50%) rotate(180deg) !important;
+    }
 </style>
 
 <div class="container-fluid py-1">
@@ -76,27 +188,27 @@
                 <p class="text-slate-500 font-medium mb-0">Kemaskini dan urus fail mengikut servis</p>
             </div>
         </div>
-        <button id="btnTambahModal" onclick="openDokumenEditor()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-xl font-bold transition flex items-center shadow-lg disabled:opacity-50" disabled>
+        <button id="btnTambahModal" onclick="openDokumenEditor()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-xl font-bold transition flex items-center shadow-lg disabled:opacity-50 mt-4 md:mt-0" disabled>
             <i class="bi bi-cloud-plus-fill me-2"></i> Muat Naik Dokumen
         </button>
     </div>
 
-    <div class="glass-card p-6 mb-8 max-w-md">
-        <label class="swal-label-custom flex items-center gap-2">
-            <i class="bi bi-tag-fill"></i> Pilih Kategori Servis
+    <div class="glass-card p-4 mb-6 max-w-sm relative z-50 shadow-sm">
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-normal mb-2 flex items-center gap-2">
+            <i class="bi bi-tag-fill text-slate-700"></i> Kategori Servis
         </label>
-        <div class="relative">
-            <select id="dropdownServis" class="w-full appearance-none bg-white border border-slate-200 p-3.5 rounded-xl focus:outline-none font-semibold text-slate-700 cursor-pointer">
-                <option value="">Sila Pilih Servis...</option>
+        <div class="servis-select-wrapper TS-Compact relative">
+            <select id="dropdownServis" class="w-full appearance-none">
+                <option value="">-- Sila Pilih Servis --</option>
                 <?php foreach($servis as $s): ?>
                     <option value="<?= esc($s['idservis']) ?>"><?= esc($s['namaservis']) ?></option>
                 <?php endforeach; ?>
             </select>
-            <i class="bi bi-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+            <i class="custom-arrow bi bi-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none transition-transform duration-200" style="z-index: 100;"></i>
         </div>
     </div>
 
-    <div id="dokumenArea" class="glass-card overflow-hidden bg-white">
+    <div id="dokumenArea" class="glass-card overflow-hidden bg-white relative z-10">
         <div class="text-center py-20">
             <div class="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
                 <i class="bi bi-filter text-4xl text-slate-300"></i>
@@ -110,10 +222,44 @@
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.ckeditor.com/ckeditor5/38.1.0/classic/ckeditor.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
 <script>
 let editorInstance = null;
 let currentCsrfHash = '<?= csrf_hash() ?>';
+
+$(document).ready(function() {
+    // ==========================================
+    // INIT TOM SELECT (MAGIC SEBIJIK PERINCIAN)
+    // ==========================================
+    const dropdownServis = new TomSelect('#dropdownServis', {
+        allowEmptyOption: true,
+        create: false,
+        maxItems: 1,
+        searchField: ['text'],
+        placeholder: 'Cari nama servis...',
+        plugins: ['dropdown_input'], 
+        
+        onInitialize: function() {
+            this.wrapper.classList.toggle('dropdown-active', this.isOpen);
+        },
+        onDropdownOpen: function() {
+            this.wrapper.classList.add('dropdown-active');
+            setTimeout(() => {
+                const searchInput = this.dropdown.querySelector('.dropdown-input');
+                if(searchInput) searchInput.focus();
+            }, 50);
+        },
+        onDropdownClose: function() {
+            this.wrapper.classList.remove('dropdown-active');
+        }
+    });
+
+    // Pindah event listener ke sini lepas init
+    $('#dropdownServis').change(function(){
+        refreshTable($(this).val());
+    });
+});
 
 function refreshToken(newToken) {
     currentCsrfHash = newToken;
@@ -123,10 +269,6 @@ function refreshToken(newToken) {
 
 $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': currentCsrfHash } });
 
-$('#dropdownServis').change(function(){
-    refreshTable($(this).val());
-});
-
 function refreshTable(idservis){
     if(!idservis){
         $('#dokumenArea').html(`<div class="text-center py-20"><div class="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm"><i class="bi bi-filter text-4xl text-slate-300"></i></div><h5 class="text-slate-900 font-bold mb-1">Sila Pilih Servis</h5><p class="text-slate-500 font-medium">Pilih kategori servis di atas untuk memaparkan senarai dokumen.</p></div>`);
@@ -135,7 +277,7 @@ function refreshTable(idservis){
     }
     
     $('#btnTambahModal').prop('disabled', false);
-    $('#dokumenArea').html('<div class="text-center py-20 text-slate-400">Memproses data...</div>');
+    $('#dokumenArea').html('<div class="text-center py-20 text-slate-400 font-bold">Memproses data...</div>');
     
     $.get('<?= base_url('pengurusandokumen/getDokumen') ?>/' + idservis, function(res){
         if(res.csrf) refreshToken(res.csrf);
@@ -278,7 +420,7 @@ function showSwalEditor(data = null, idservis) {
             fd.append('nama', nama);
             fd.append('descdoc', description);
             
-            if (fileInput.files[0]) { fd.append('file', fileInput.files[0]); }
+            if (fileInput.files) { fd.append('file', fileInput.files); }
             return { formData: fd };
         }
     }).then((result) => {
