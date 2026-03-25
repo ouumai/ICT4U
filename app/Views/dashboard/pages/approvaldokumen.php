@@ -4,7 +4,7 @@
 
 <meta name="csrf-token" content="<?= csrf_hash() ?>">
 
-<script>document.title = "Sistem Approval Dokumen";</script>
+<script>document.title = "Sistem Pengesahan Dokumen";</script>
 
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">

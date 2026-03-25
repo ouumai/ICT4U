@@ -2,7 +2,7 @@
 
 <?= $this->section('content') ?>
 
-<script>document.title = "Pengurusan FAQ Modul";</script>
+<script>document.title = "FAQ";</script>
 
 <meta name="csrf-token" content="<?= csrf_hash() ?>">
 
@@ -199,7 +199,7 @@
                 <i class="bi bi-question-diamond-fill text-3xl text-indigo-500"></i>
             </div>
             <div>
-                <h1 class="text-3xl font-extrabold text-slate-900 mb-1">Pengurusan FAQ Modul</h1>
+                <h1 class="text-3xl font-extrabold text-slate-900 mb-1">FAQ</h1>
                 <p class="text-gray-500 font-medium mb-0">Uruskan soalan lazim mengikut kategori servis sistem</p>
             </div>
         </div>

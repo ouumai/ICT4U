@@ -299,7 +299,7 @@
                 <i class="bi bi-collection-fill text-3xl text-indigo-500"></i>
             </div>
             <div>
-                <h1 class="text-3xl font-extrabold text-slate-900 mb-1">Sistem Perincian Modul</h1>
+                <h1 class="text-3xl font-extrabold text-slate-900 mb-1">Perincian Modul</h1>
                 <p class="text-slate-500 font-medium mb-0">Kemaskini maklumat dan penerangan servis rasmi</p>
             </div>
         </div>

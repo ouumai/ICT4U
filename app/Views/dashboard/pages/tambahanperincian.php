@@ -2,7 +2,7 @@
 
 <?= $this->section('content') ?>
 
-<script>document.title = "Tambahan Perincian Modul";</script>
+<script>document.title = "Sistem Tambahan Perincian";</script>
 
 <meta name="csrf-token" content="<?= csrf_hash() ?>">
 
@@ -82,7 +82,7 @@
         <div class="flex items-center gap-4">
             <div class="bg-indigo-50 p-3 rounded-2xl"><i class="bi bi-folder-plus text-3xl text-indigo-600"></i></div>
             <div>
-                <h1 class="text-3xl font-extrabold text-slate-900 mb-1">Tambahan Perincian Modul</h1>
+                <h1 class="text-3xl font-extrabold text-slate-900 mb-1">Tambahan Perincian</h1>
                 <p class="text-gray-500 font-medium mb-0">Urus pautan maklumat dan perincian servis tambahan</p>
             </div>
         </div>

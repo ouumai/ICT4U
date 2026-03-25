@@ -2,7 +2,7 @@
 
 <?= $this->section('content') ?>
 
-<script>document.title = "Pengurusan Dokumen Modul";</script>
+<script>document.title = "Sistem Pengurusan Dokumen";</script>
 
 <meta name="csrf-token" content="<?= csrf_hash() ?>">
 
@@ -184,7 +184,7 @@
                 <i class="bi bi-files text-3xl text-indigo-600"></i>
             </div>
             <div>
-                <h1 class="text-3xl font-extrabold text-slate-900 mb-1">Pengurusan Dokumen Modul</h1>
+                <h1 class="text-3xl font-extrabold text-slate-900 mb-1">Pengurusan Dokumen</h1>
                 <p class="text-slate-500 font-medium mb-0">Kemaskini dan urus fail mengikut servis</p>
             </div>
         </div>
