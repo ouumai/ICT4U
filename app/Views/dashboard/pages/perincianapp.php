@@ -314,46 +314,68 @@
     }
 
     /* ==========================================
-     COMPACT STYLE (IKUT FAQ)
+     COMPACT STYLE (IKUT FAQ) - DITAMBAH
     ========================================== */
 
-    /* 1. Kecilkan Container Dropdown */
+    /* Override Tom Select Utama bagi nipis */
+    .TS-Compact .ts-wrapper,
+    .TS-Compact .ts-wrapper.single {
+        border-radius: 0.75rem !important;
+        padding: 0 !important;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+
+    /* Kecilkan Container Dropdown & PAKSA SEBARIS */
     .TS-Compact .ts-wrapper.single .ts-control,
     .TS-Compact .ts-control {
-        min-height: 42px !important; /* FAQ guna lebih kurang saiz ni */
-        padding: 0 0.75rem !important;
-        font-size: 0.9rem !important; /* Text lebih kecil sikit macam FAQ */
-        font-weight: 500 !important;
-        border-radius: 0.75rem !important; /* Rounding lebih halus */
-        display: flex;
-        align-items: center;
+        min-height: 48px !important;
+        padding: 0 0.85rem !important;
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        display: flex !important;        /* Wajib ada */
+        flex-wrap: nowrap !important;    /* Paksa tak jatuh bawah */
+        align-items: center !important;  /* Centerkan menegak */
     }
 
-    /* 2. Adjust Item yang dah dipilih */
+    /* Adjust Item yang dah dipilih */
     .TS-Compact .ts-wrapper.single .ts-control > .item {
-        font-size: 0.9rem !important;
-        margin: 0 !important;
+        font-size: 0.95rem !important;
+        margin: 0 8px 0 0 !important; 
         padding: 0 !important;
-        line-height: 42px !important;
+        line-height: 48px !important; 
+        color: #475569 !important;
+        width: auto !important; 
+        display: inline-block !important;
+        white-space: nowrap !important;  /* Elak text berterabur */
+        flex-shrink: 0 !important;       /* Jangan bagi text ni kempis */
     }
 
-    /* 3. Adjust Input masa tengah taip search */
+    /* Adjust Input (CURSOR) masa tengah taip search */
     .TS-Compact .ts-control > input {
-        font-size: 0.9rem !important;
-        display: flex !important;
-        align-items: center !important;
+        font-size: 0.95rem !important;
+        line-height: 48px !important;
+        width: auto !important;          /* INI UBAT DIA: Buang 100% tu */
+        flex-grow: 1 !important;         /* Biar dia makan sisa ruang kosong */
+        min-width: 0 !important;         /* Elak input terkeluar border */
     }
 
-    /* 4. Kecilkan sikit icon arrow */
+    .TS-Compact .ts-control > input::placeholder {
+        font-weight: 600 !important;
+        color: #475569 !important;
+    }
+
+    /* Kecilkan sikit icon arrow */
     .TS-Compact .ts-wrapper.single::after {
         right: 1rem !important;
-        font-size: 0.8rem !important;
+        font-size: 0.85rem !important;
+        color: #94a3b8 !important;
     }
 
-    /* 5. Dropdown List pun kena kecil sikit text dia */
+    /* Dropdown List pun kena kecil sikit text dia */
     .TS-Compact .ts-dropdown .option {
-        padding: 0.5rem 0.75rem !important;
-        font-size: 0.9rem !important;
+        padding: 0.75rem 1rem !important;
+        font-size: 0.95rem !important;
     }
 
 </style>
@@ -372,10 +394,10 @@
     </div>
 
     <div class="glass-card p-4 mb-6 max-w-sm relative z-30 shadow-sm">
-        <div class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+        <div class="block text-xs font-bold text-slate-700 uppercase tracking-normal mb-2 flex items-center gap-2">
             <i class="bi bi-tag-fill text-slate-700"></i> Kategori Servis
         </div>
-        <div class="servis-select-wrapper">
+        <div class="servis-select-wrapper TS-Compact">
             <select id="dropdownServis" class="w-full appearance-none bg-white border border-slate-200 p-3 rounded-xl focus:outline-none font-semibold text-slate-600 cursor-pointer shadow-sm">
                 <option value="">-- Sila Pilih Servis --</option>
                 <?php foreach($servisList as $s): ?>
@@ -467,33 +489,32 @@ $(document).ready(function() {
         searchField: ['text'],
         placeholder: '-- Sila Pilih Servis --',
         controlInput: '<input type="text" autocomplete="off" size="1">',
-        onType: function(str) {
-            if (shouldClearSelectedServis && this.items.length && str.length > 0) {
-                shouldClearSelectedServis = false;
-                this.clear(true);
-                this.setTextboxValue(str);
-                this.refreshOptions(false);
-            }
-        },
+        
         onInitialize: function() {
+            const ts = this; // Simpan reference Tom Select
+            
             this.wrapper.classList.toggle('dropdown-active', this.isOpen);
             this.wrapper.addEventListener('click', () => {
                 this.focus();
                 this.open();
             });
+
+            // ==========================================
+            // MAGIC INSTANT CLEAR (GUNA KEYDOWN)
+            // ==========================================
+            this.control_input.addEventListener('keydown', function(e) {
+                if (ts.items.length > 0 && e.key.length === 1) {
+                    ts.clear(false); 
+                }
+            });
         },
+        
         onDropdownOpen: function() {
             this.wrapper.classList.add('dropdown-active');
             this.focus();
         },
         onDropdownClose: function() {
             this.wrapper.classList.remove('dropdown-active');
-        },
-        onChange: function() {
-            shouldClearSelectedServis = true;
-        },
-        onBlur: function() {
-            shouldClearSelectedServis = true;
         }
     });
 
