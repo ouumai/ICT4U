@@ -7,10 +7,12 @@
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
 <style>
     /* 1. Global Font */
@@ -198,6 +200,162 @@
         to { opacity: 0; transform: translateY(-20px); }
     }
 
+    .servis-select-wrapper {
+        position: relative;
+        z-index: 60;
+    }
+
+    .servis-select-wrapper .ts-wrapper,
+    .servis-select-wrapper .ts-wrapper.single {
+        position: relative;
+        z-index: 60;
+        border: 1px solid #d9e2ec;
+        border-radius: 1rem;
+        background: #ffffff;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+        padding: 0.2rem 0.95rem;
+    }
+
+    .servis-select-wrapper .ts-wrapper.single .ts-control,
+    .servis-select-wrapper .ts-control {
+        min-height: 54px;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+        font-weight: 600;
+        color: #334155;
+        display: flex;
+        align-items: center;
+        text-align: left;
+        cursor: text;
+    }
+
+    .servis-select-wrapper .ts-wrapper.focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+
+    .servis-select-wrapper .ts-dropdown {
+        border: 1px solid #e2e8f0;
+        border-radius: 0.75rem;
+        overflow: hidden;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08);
+        z-index: 9999;
+    }
+
+    .servis-select-wrapper .ts-dropdown-content {
+        max-height: 220px;
+        overflow-y: auto;
+    }
+
+    .servis-select-wrapper .ts-dropdown .option,
+    .servis-select-wrapper .ts-dropdown .create {
+        padding: 0.75rem 1rem;
+        font-weight: 500;
+        color: #334155;
+        text-align: left;
+    }
+
+    .servis-select-wrapper .ts-dropdown .active {
+        background: #eef2ff;
+        color: #3730a3;
+    }
+
+    .servis-select-wrapper .ts-control > input {
+        font-weight: 500;
+        text-align: left;
+        line-height: 1.4;
+        width: 100% !important;
+        color: #334155;
+    }
+
+    .servis-select-wrapper .ts-wrapper.single .ts-control > .item {
+        background: transparent;
+        border: 0;
+        padding: 0;
+        margin: 0;
+        color: #475569;
+        font-weight: 600;
+        width: 100%;
+        text-align: left;
+        line-height: 1.4;
+        transform: translateY(1px);
+    }
+
+    .servis-select-wrapper .ts-wrapper.single .ts-control > input {
+        margin: 0;
+        padding: 0;
+        min-width: 0;
+        text-align: left;
+    }
+
+    .servis-select-wrapper .ts-control > input::placeholder {
+        color: #334155;
+        opacity: 1;
+        font-weight: 600;
+    }
+
+    .servis-select-wrapper .ts-wrapper.single::after {
+        content: "\F282";
+        font-family: "bootstrap-icons";
+        position: absolute;
+        right: 1.1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1rem;
+        color: #334155;
+        pointer-events: none;
+    }
+
+    .servis-select-wrapper .ts-wrapper.single.dropdown-active::after {
+        transform: translateY(-50%) rotate(180deg);
+    }
+
+    /* ==========================================
+     COMPACT STYLE (IKUT FAQ)
+    ========================================== */
+
+    /* 1. Kecilkan Container Dropdown */
+    .TS-Compact .ts-wrapper.single .ts-control,
+    .TS-Compact .ts-control {
+        min-height: 42px !important; /* FAQ guna lebih kurang saiz ni */
+        padding: 0 0.75rem !important;
+        font-size: 0.9rem !important; /* Text lebih kecil sikit macam FAQ */
+        font-weight: 500 !important;
+        border-radius: 0.75rem !important; /* Rounding lebih halus */
+        display: flex;
+        align-items: center;
+    }
+
+    /* 2. Adjust Item yang dah dipilih */
+    .TS-Compact .ts-wrapper.single .ts-control > .item {
+        font-size: 0.9rem !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 42px !important;
+    }
+
+    /* 3. Adjust Input masa tengah taip search */
+    .TS-Compact .ts-control > input {
+        font-size: 0.9rem !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    /* 4. Kecilkan sikit icon arrow */
+    .TS-Compact .ts-wrapper.single::after {
+        right: 1rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* 5. Dropdown List pun kena kecil sikit text dia */
+    .TS-Compact .ts-dropdown .option {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.9rem !important;
+    }
+
 </style>
 
 <div class="container-fluid py-1">
@@ -213,11 +371,11 @@
         </div>
     </div>
 
-    <div class="glass-card p-6 mb-8 max-w-md">
-        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-            <i class="bi bi-tag-fill text-black-400"></i> Pilih Servis Utama
-        </label>
-        <div class="relative">
+    <div class="glass-card p-4 mb-6 max-w-sm relative z-30 shadow-sm">
+        <div class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <i class="bi bi-tag-fill text-slate-700"></i> Kategori Servis
+        </div>
+        <div class="servis-select-wrapper">
             <select id="dropdownServis" class="w-full appearance-none bg-white border border-slate-200 p-3 rounded-xl focus:outline-none font-semibold text-slate-600 cursor-pointer shadow-sm">
                 <option value="">-- Sila Pilih Servis --</option>
                 <?php foreach($servisList as $s): ?>
@@ -229,11 +387,10 @@
                     </option>
                 <?php endforeach; ?>
             </select>
-            <i class="bi bi-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none"></i>
         </div>
     </div>
 
-    <div id="emptyState" class="glass-card py-20 bg-white">
+    <div id="emptyState" class="glass-card py-20 bg-white relative z-10">
         <div class="text-center">
             <div class="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4">
                 <i class="bi bi-filter text-4xl text-slate-300"></i>
@@ -244,7 +401,7 @@
     </div>
 
     <div id="formArea" class="hidden">
-        <div class="glass-card p-8 bg-white">
+        <div class="glass-card p-8 bg-white relative z-10">
             <form id="servisForm" action="<?= site_url('perincianmodul/save') ?>" method="POST" class="space-y-8">
                 <?= csrf_field() ?>
                 <input type="hidden" name="idservis" id="idservis">
@@ -300,6 +457,45 @@
 $(document).ready(function() {
     let editor;
     let originalData = { name: '', info: '', mohon: '', desc: '' };
+    let shouldClearSelectedServis = true;
+
+    const dropdownServis = new TomSelect('#dropdownServis', {
+        allowEmptyOption: true,
+        create: false,
+        maxItems: 1,
+        openOnFocus: true,
+        searchField: ['text'],
+        placeholder: '-- Sila Pilih Servis --',
+        controlInput: '<input type="text" autocomplete="off" size="1">',
+        onType: function(str) {
+            if (shouldClearSelectedServis && this.items.length && str.length > 0) {
+                shouldClearSelectedServis = false;
+                this.clear(true);
+                this.setTextboxValue(str);
+                this.refreshOptions(false);
+            }
+        },
+        onInitialize: function() {
+            this.wrapper.classList.toggle('dropdown-active', this.isOpen);
+            this.wrapper.addEventListener('click', () => {
+                this.focus();
+                this.open();
+            });
+        },
+        onDropdownOpen: function() {
+            this.wrapper.classList.add('dropdown-active');
+            this.focus();
+        },
+        onDropdownClose: function() {
+            this.wrapper.classList.remove('dropdown-active');
+        },
+        onChange: function() {
+            shouldClearSelectedServis = true;
+        },
+        onBlur: function() {
+            shouldClearSelectedServis = true;
+        }
+    });
 
     // ==========================================
     // 1. SUCCESS / ERROR HANDLING (FLASH DATA)
@@ -353,6 +549,7 @@ $(document).ready(function() {
         if (!id) {
             $('#formArea').addClass('hidden');
             $('#emptyState').removeClass('hidden');
+            shouldClearSelectedServis = true;
             return;
         }
 
@@ -381,6 +578,8 @@ $(document).ready(function() {
                 desc: descContent
             };
         });
+
+        shouldClearSelectedServis = true;
     });
 
     // ==========================================
