@@ -136,45 +136,71 @@
         transform: scale(1.1);
     }
 
+    /* Toast Custom Styling - Sebaris & Kemas */
     .swal-toast-custom {
         display: flex !important;
         align-items: center !important;
-        flex-direction: row !important;
-        padding: 2px 8px !important;
-        border-radius: 12px !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-        animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+        padding: 12px 20px !important;
+        border-radius: 16px !important;
+        background: #ffffff !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+        width: auto !important; /* Biar dia ikut panjang text tapi sebaris */
+        min-width: 250px !important;
+        max-width: fit-content !important;
+        animation: slideDownCustom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
     }
 
-    @keyframes slideDown {
-        from { transform: translateY(-150%); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
+    .swal-toast-success {
+        background: #dcfce7 !important;
     }
 
+    .swal-toast-custom.swal-toast-success .swal2-title {
+        color: #166534 !important;
+    }
+
+    .swal-toast-error {
+        background: #fee2e2 !important;
+    }
+
+    .swal-toast-custom.swal-toast-error .swal2-title {
+        color: #991b1b !important;
+    }
+
+    /* Paksa Tulisan Sebaris */
     .swal-toast-custom .swal2-title {
-        margin: 0 0 0 10px !important;
+        margin: 0 !important;
         padding: 0 !important;
-        font-size: 0.85rem !important;
+        font-size: 0.9rem !important;
         font-weight: 600 !important;
-        color: #334155 !important;
-        white-space: nowrap !important;
-        display: flex !important;
-        align-items: center !important;
+        color: #1e293b !important;
+        white-space: nowrap !important; /* Kunci tulisan sebaris */
+        display: block !important;
     }
 
     .swal-toast-custom .swal2-icon {
-        margin: 0 !important;
-        border: none !important;
-        width: auto !important;
-        height: auto !important;
+        margin: 0 12px 0 0 !important;
+        width: 22px !important;
+        height: 22px !important;
         display: flex !important;
         align-items: center !important;
+        justify-content: center !important;
+        border: none !important;
     }
 
-    .animate__fadeOutUp { animation: fadeOutUp 0.10s forwards !important; }
-    @keyframes fadeOutUp {
-        from { opacity: 1; transform: translateY(0); }
-        to { opacity: 0; transform: translateY(-20px); }
+    /* Animation Push Down (Masuk dari atas) */
+    @keyframes slideDownCustom {
+        0% { transform: translateY(-100%); opacity: 0; }
+        100% { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Animation Keluar (Push Up balik) */
+    .animate-out-up {
+        animation: slideUpCustom 0.4s ease-in forwards !important;
+    }
+
+    @keyframes slideUpCustom {
+        0% { transform: translateY(0); opacity: 1; }
+        100% { transform: translateY(-100%); opacity: 0; }
     }
 
     /* ==========================================
@@ -542,18 +568,52 @@ $(document).ready(function() {
         const value = copyText.value.trim();
 
         const Toast = Swal.mixin({
-            toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, timerProgressBar: false, width: 'auto',
-            hideClass: { popup: 'animate__animated animate__fadeOutUp' },
-            customClass: { popup: 'swal-toast-custom', timerProgressBar: 'swal-progress-custom' }
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            showClass: {
+                popup: '' // Kita dah handle guna animation kat CSS tadi
+            },
+            hideClass: {
+                popup: 'animate-out-up' // Animation tolak naik atas balik bila hilang
+            },
+            customClass: {
+                popup: 'swal-toast-custom'
+            }
         });
 
+        const showToast = ({ type, iconHtml, title }) => {
+            Toast.fire({
+                title,
+                iconHtml,
+                customClass: {
+                    popup: `swal-toast-custom ${type === 'success' ? 'swal-toast-success' : 'swal-toast-error'}`
+                }
+            });
+        };
+
         if (!value) {
-            Toast.fire({ iconHtml: '<i class="bi bi-exclamation-circle text-red-500" style="font-size: 1.1rem;"></i>', title: 'Gagal! Tiada link untuk disalin.', background: '#fff5f5' });
+            showToast({
+                type: 'error',
+                iconHtml: '<i class="bi bi-exclamation-circle-fill" style="font-size: 1.2rem; color: #dc2626;"></i>',
+                title: 'Tiada link untuk disalin'
+            });
             return;
         }
 
         navigator.clipboard.writeText(value).then(() => {
-            Toast.fire({ iconHtml: '<i class="bi bi-check2-circle text-green-500" style="font-size: 1.1rem;"></i>', title: 'Berjaya! Link telah disalin.', background: '#f0fff4' });
+            showToast({
+                type: 'success',
+                iconHtml: '<i class="bi bi-check-circle-fill" style="font-size: 1.2rem; color: #16a34a;"></i>',
+                title: 'Link berjaya disalin'
+            });
+        }).catch(() => {
+            showToast({
+                type: 'error',
+                iconHtml: '<i class="bi bi-exclamation-circle-fill" style="font-size: 1.2rem; color: #dc2626;"></i>',
+                title: 'Link gagal disalin'
+            });
         });
     }
 });
