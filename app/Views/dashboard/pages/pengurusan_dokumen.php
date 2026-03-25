@@ -185,7 +185,7 @@
             </div>
             <div>
                 <h1 class="text-3xl font-extrabold text-slate-900 mb-1">Pengurusan Dokumen</h1>
-                <p class="text-slate-500 font-medium mb-0">Kemaskini dan urus fail mengikut servis</p>
+                <p class="text-gray-500 font-medium mb-0">Kemaskini dan urus fail mengikut servis</p>
             </div>
         </div>
         <button id="btnTambahModal" onclick="openDokumenEditor()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-xl font-bold transition flex items-center shadow-lg disabled:opacity-50 mt-4 md:mt-0" disabled>
