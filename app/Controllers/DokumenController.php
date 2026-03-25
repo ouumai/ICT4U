@@ -22,6 +22,18 @@ class DokumenController extends BaseController
         date_default_timezone_set('Asia/Kuala_Lumpur');
     }
 
+    private function isPdfFile($file): bool
+    {
+        if (!$file || !$file->isValid()) {
+            return false;
+        }
+
+        $allowedMimeTypes = ['application/pdf', 'application/x-pdf'];
+        $extension = strtolower($file->getClientExtension() ?? '');
+
+        return $extension === 'pdf' && in_array($file->getMimeType(), $allowedMimeTypes, true);
+    }
+
     public function index()
     {
         $data['servis'] = $this->servisModel->orderBy('namaservis', 'ASC')->findAll();
@@ -85,6 +97,10 @@ class DokumenController extends BaseController
             return $this->response->setJSON(['status' => false, 'msg' => 'Fail tidak sah.', 'csrf' => csrf_hash()]);
         }
 
+        if (!$this->isPdfFile($file)) {
+            return $this->response->setJSON(['status' => false, 'msg' => 'Hanya fail PDF dibenarkan.', 'csrf' => csrf_hash()]);
+        }
+
         $newName = time() . '_' . $file->getRandomName();
         $uploadPath = WRITEPATH . "uploads/dokumen/{$idservis}/";
         
@@ -126,6 +142,10 @@ class DokumenController extends BaseController
 
             $file = $this->request->getFile('file');
             if ($file && $file->isValid() && !$file->hasMoved()) {
+                if (!$this->isPdfFile($file)) {
+                    return $this->response->setJSON(['status' => false, 'msg' => 'Hanya fail PDF dibenarkan.', 'csrf' => csrf_hash()]);
+                }
+
                 // Logic ganti fail...
                 $idservis = $this->request->getPost('idservis');
                 $uploadPath = WRITEPATH . "uploads/dokumen/{$idservis}/";

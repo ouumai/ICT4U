@@ -420,7 +420,9 @@ function showSwalEditor(data = null, idservis) {
             fd.append('nama', nama);
             fd.append('descdoc', description);
             
-            if (fileInput.files) { fd.append('file', fileInput.files); }
+            if (fileInput.files && fileInput.files.length > 0) {
+                fd.append('file', fileInput.files[0]);
+            }
             return { formData: fd };
         }
     }).then((result) => {
@@ -442,7 +444,14 @@ function saveDokumen(url, formData) {
         success: function(res) {
             if(res.csrf) refreshToken(res.csrf); 
             if(res.status) {
-                Swal.fire({ icon: 'success', title: 'Berjaya', timer: 1500, showConfirmButton: false, customClass: {popup: 'swal-rounded'} });
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berjaya',
+                    text: res.msg || 'Dokumen berjaya disimpan.',
+                    timer: 1800,
+                    showConfirmButton: false,
+                    customClass: {popup: 'swal-rounded'}
+                });
                 refreshTable($('#dropdownServis').val());
             } else {
                 Swal.fire({ icon: 'error', title: 'Gagal', text: res.msg, customClass: {popup: 'swal-rounded'} });
