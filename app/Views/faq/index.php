@@ -9,6 +9,7 @@
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
 
 <style>
     /* 1. Global Font */
@@ -79,6 +80,116 @@
 
     .hidden { display: none !important; }
     .input-with-icon { padding-left: 3rem !important; }
+
+    /* ==========================================
+       TOM SELECT - DROPDOWN INPUT UI (MAGIC)
+    ========================================== */
+    .servis-select-wrapper {
+        position: relative;
+        z-index: 60;
+        width: 100%;
+    }
+
+    /* Kotak Utama (Tempat user klik) */
+    .TS-Compact .ts-wrapper.single .ts-control {
+        min-height: 48px !important;
+        padding: 0 1.2rem 0 1rem !important;
+        border-radius: 0.75rem !important;
+        border: 1px solid #e2e8f0 !important;
+        background: #ffffff !important;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+        display: flex;
+        align-items: center;
+        cursor: pointer !important;
+        transition: all 0.2s ease;
+    }
+
+    /* Kotak Menyala Indigo bila diklik */
+    .TS-Compact .ts-wrapper.focus .ts-control,
+    .TS-Compact .ts-wrapper.dropdown-active .ts-control {
+        border-color: #4f46e5 !important;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15) !important;
+    }
+
+    /* Text Pilihan */
+    .TS-Compact .ts-wrapper.single .ts-control > .item,
+    .TS-Compact .ts-control > input::placeholder {
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        color: #475569 !important;
+    }
+
+    /* Bunuh terus arrow default Tom Select */
+    .TS-Compact .ts-wrapper::after,
+    .TS-Compact .ts-control::after {
+        display: none !important;
+        content: none !important;
+    }
+
+    /* Container Dropdown Menu */
+    .TS-Compact .ts-dropdown {
+        border-radius: 0.75rem !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+        margin-top: 8px !important;
+        overflow: hidden;
+        z-index: 9999;
+    }
+
+    /* Kotak Search Dalam Dropdown */
+    .TS-Compact .dropdown-input-wrap {
+        padding: 10px !important; 
+        border-bottom: 1px solid #e2e8f0 !important; 
+        background: #ffffff !important;
+    }
+
+    .TS-Compact .dropdown-input {
+        width: 100% !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 0.5rem !important;
+        padding: 0.6rem 1rem !important;
+        font-size: 0.95rem !important;
+        color: #475569 !important;
+        outline: none !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+
+    .TS-Compact .dropdown-input:focus {
+        border-color: #4f46e5 !important; 
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1) !important;
+    }
+
+    /* Tema Indigo Hover */
+    .TS-Compact .ts-dropdown-content {
+        padding: 4px !important; 
+    }
+
+    .TS-Compact .ts-dropdown .option {
+        padding: 0.6rem 1rem !important;
+        font-size: 0.95rem !important;
+        color: #334155 !important;
+        border-radius: 0.5rem !important;
+        margin-bottom: 2px !important;
+        transition: all 0.2s ease;
+    }
+
+    .TS-Compact .ts-dropdown .active,
+    .TS-Compact .ts-dropdown .option:hover {
+        background-color: #e0e7ff !important; 
+        color: #3730a3 !important; 
+        font-weight: 700 !important;
+    }
+
+    /* Sorok Placeholder Dari Dropdown List */
+    .TS-Compact .ts-dropdown .option[data-value=""] {
+        display: none !important;
+    }
+
+    /* Animasi Arrow Pusing 180 Darjah */
+    .ts-wrapper.dropdown-active ~ .custom-arrow {
+        transform: translateY(-50%) rotate(180deg) !important;
+    }
+
 </style>
 
 <div class="container-fluid py-1">
@@ -101,18 +212,18 @@
 
     <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-8">
         <div class="md:col-span-4">
-            <div class="glass-card p-6 h-full">
+            <div class="glass-card p-6 h-full relative z-50">
                 <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
                     <i class="bi bi-tag-fill text-black-400"></i> Kategori Servis
                 </label>
-                <div class="relative">
-                    <select id="dropdownServis" class="w-full appearance-none bg-white border border-slate-200 p-3 rounded-xl focus:outline-none font-semibold text-slate-600 cursor-pointer shadow-sm">
+                <div class="servis-select-wrapper TS-Compact relative">
+                    <select id="dropdownServis" autocomplete="off" name="idservis_pilih" class="w-full appearance-none">
                         <option value="">-- Sila Pilih Servis --</option>
                         <?php foreach($servisList as $s): ?>
                             <option value="<?= esc($s['idservis']) ?>"><?= esc($s['namaservis']) ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <i class="bi bi-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                    <i class="custom-arrow bi bi-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none transition-transform duration-200" style="z-index: 100;"></i>
                 </div>
             </div>
         </div>
@@ -145,10 +256,37 @@
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
 <script>
 $(document).ready(function() {
     
+    // ==========================================
+    // INIT TOM SELECT (MAGIC SEBIJIK PERINCIAN)
+    // ==========================================
+    const dropdownServis = new TomSelect('#dropdownServis', {
+        allowEmptyOption: true,
+        create: false,
+        maxItems: 1,
+        searchField: ['text'],
+        placeholder: 'Cari nama servis...',
+        plugins: ['dropdown_input'], 
+        
+        onInitialize: function() {
+            this.wrapper.classList.toggle('dropdown-active', this.isOpen);
+        },
+        onDropdownOpen: function() {
+            this.wrapper.classList.add('dropdown-active');
+            setTimeout(() => {
+                const searchInput = this.dropdown.querySelector('.dropdown-input');
+                if(searchInput) searchInput.focus();
+            }, 50);
+        },
+        onDropdownClose: function() {
+            this.wrapper.classList.remove('dropdown-active');
+        }
+    });
+
     function refreshToken(newToken) {
         if(newToken) {
             $('meta[name="csrf-token"]').attr('content', newToken);
@@ -218,7 +356,6 @@ $(document).ready(function() {
                 $(this).hide();
             }
         });
-
 
         const visibleCount = $('.accordion-item:visible').length;
         if (visibleCount === 0) {
