@@ -55,6 +55,19 @@
             padding: 2rem 1.5rem !important;
         }
 
+        @media (min-width: 992px) {
+            body.sidebar-collapse .main-header,
+            body.sidebar-collapse .content-wrapper,
+            body.sidebar-collapse .main-footer {
+                margin-left: 78px !important;
+            }
+
+            body.sidebar-collapse .main-sidebar:hover {
+                z-index: 1045 !important;
+                box-shadow: 18px 0 40px rgba(15, 23, 42, 0.08);
+            }
+        }
+
         /* Premium Card Styling */
         .card {
             border: none !important;

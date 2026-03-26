@@ -30,6 +30,8 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        min-height: 128px;
+        transition: padding 0.3s ease, min-height 0.3s ease;
     }
 
     .brand-logo-img {
@@ -116,6 +118,114 @@
     }
     .nav-link.active .nav-arrow { color: #BF7ABB !important; }
     .nav-item.menu-open .nav-link .nav-arrow { transform: rotate(180deg) !important; }
+
+    /* COLLAPSED SIDEBAR - ICON ONLY */
+    body.sidebar-collapse .main-sidebar {
+        width: 78px !important;
+        min-width: 78px !important;
+        overflow: hidden;
+        z-index: 1036 !important;
+    }
+
+    body.sidebar-collapse .brand-link {
+        padding: 1rem 0.5rem !important;
+        min-height: 72px;
+    }
+
+    body.sidebar-collapse .brand-logo-img {
+        opacity: 0;
+        visibility: hidden;
+        width: 0;
+        height: 0;
+        max-width: 0;
+        transform: scale(0.8);
+    }
+
+    body.sidebar-collapse .sidebar {
+        padding-top: 18px !important;
+    }
+
+    body.sidebar-collapse .nav-sidebar > .nav-item {
+        width: 100%;
+    }
+
+    body.sidebar-collapse .nav-pills .nav-link {
+        margin: 6px 10px !important;
+        padding: 12px !important;
+        justify-content: center !important;
+        min-height: 48px;
+    }
+
+    body.sidebar-collapse .nav-link-content {
+        justify-content: center !important;
+        width: 100%;
+    }
+
+    body.sidebar-collapse .nav-pills .nav-link p,
+    body.sidebar-collapse .nav-arrow,
+    body.sidebar-collapse .nav-treeview {
+        display: none !important;
+    }
+
+    body.sidebar-collapse .nav-pills .nav-link i.nav-icon {
+        margin-right: 0 !important;
+        font-size: 1.2rem;
+    }
+
+    body.sidebar-collapse .nav-link.logout-btn {
+        padding: 12px !important;
+    }
+
+    body.sidebar-collapse .main-sidebar:hover .nav-pills .nav-link {
+        justify-content: space-between !important;
+    }
+
+    body.sidebar-collapse .main-sidebar:hover {
+        width: 270px !important;
+        z-index: 1055 !important;
+        overflow: visible !important;
+    }
+
+    body.sidebar-collapse .main-sidebar:hover .brand-link {
+        border-bottom: 1px solid #f1f5f9 !important;
+        padding: 1.5rem 1rem !important;
+        min-height: 128px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    body.sidebar-collapse .main-sidebar:hover .brand-logo-img {
+        opacity: 1;
+        visibility: visible;
+        display: block;
+        margin: 0 auto;
+        width: auto;
+        height: 80px;
+        max-width: 180px;
+        transform: scale(1);
+    }
+
+    body.sidebar-collapse .main-sidebar:hover .sidebar {
+        padding-top: 30px !important;
+    }
+
+    body.sidebar-collapse .main-sidebar:hover .nav-link-content {
+        justify-content: flex-start !important;
+    }
+
+    body.sidebar-collapse .main-sidebar:hover .nav-pills .nav-link p,
+    body.sidebar-collapse .main-sidebar:hover .nav-arrow {
+        display: block !important;
+    }
+
+    body.sidebar-collapse .main-sidebar:hover .nav-item.menu-open > .nav-treeview {
+        display: block !important;
+    }
+
+    body.sidebar-collapse .main-sidebar:hover .nav-pills .nav-link i.nav-icon {
+        margin-right: 12px !important;
+    }
 </style>
 
 <aside class="main-sidebar elevation-0">
