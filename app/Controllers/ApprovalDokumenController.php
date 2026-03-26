@@ -38,11 +38,19 @@ class ApprovalDokumenController extends BaseController
         $limit  = 50;
         $offset = ($page-1)*$limit;
 
-        $builder = $this->dokumenModel;
-        if($status!=='all') $builder = $builder->where('status',$status);
+        $builder = $this->dokumenModel
+            ->select('aict4u106mdoc.*, aict4u103dservis.namaservis')
+            ->join('aict4u103dservis', 'aict4u103dservis.idservis = aict4u106mdoc.idservis', 'left');
+
+        if ($status !== 'all') {
+            $builder->where('aict4u106mdoc.status', $status);
+        }
+
         $total = $builder->countAllResults(false);
 
-        $dokumen = $builder->orderBy('created_at','DESC')->findAll($limit,$offset);
+        $dokumen = $builder
+            ->orderBy('aict4u106mdoc.created_at', 'DESC')
+            ->findAll($limit, $offset);
 
         return $this->response->setJSON([
             'status'=>true,
@@ -92,7 +100,11 @@ class ApprovalDokumenController extends BaseController
     // AJAX: Papar fail dokumen dalam browser
     public function getDokumen(int $iddoc)
     {
-        $dokumen = $this->dokumenModel->find($iddoc);
+        $dokumen = $this->dokumenModel
+            ->select('aict4u106mdoc.*, aict4u103dservis.namaservis')
+            ->join('aict4u103dservis', 'aict4u103dservis.idservis = aict4u106mdoc.idservis', 'left')
+            ->find($iddoc);
+
         if(!$dokumen) return $this->response->setJSON(['status'=>false,'message'=>'Dokumen tidak dijumpai']);
         return $this->response->setJSON(['status'=>true,'data'=>$dokumen]);
     }

@@ -263,6 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="flex items-center justify-between cursor-pointer group" onclick="showDokumenModal('${d.iddoc}')">
                         <div>
                             <div class="font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">${d.nama}</div>
+                            <div class="text-sm text-slate-500 mt-1">Jenis Servis: ${d.namaservis || '-'}</div>
                             <div class="text-[11px] text-slate-400 mt-0.5">ID: #${d.iddoc}</div>
                         </div>
                         <i class="bi bi-chevron-down text-slate-300 group-hover:text-indigo-600 transition-colors"></i>
@@ -322,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     : (d.mime === 'application/pdf'
                         ? `<div class="file-preview-wrapper"><iframe src="${fileUrl}" class="file-preview-frame"></iframe></div>`
                         : `<div class="p-8 border-2 border-dashed rounded-2xl text-center"><a href="${fileUrl}" target="_blank" class="text-indigo-600 font-bold underline">Muat Turun Fail</a></div>`);
-                dokumenDetails.innerHTML = `<div class="grid grid-cols-2 gap-4 mb-6"><div class="bg-slate-50 p-4 rounded-2xl"><span class="text-xs text-slate-400 font-bold uppercase">Nama Dokumen</span><p class="font-bold text-slate-700 mt-1">${d.nama}</p></div><div class="bg-slate-50 p-4 rounded-2xl"><span class="text-xs text-slate-400 font-bold uppercase">Status Semasa</span><div class="mt-2"><span class="status-pill status-${d.status}">${d.status}</span></div></div></div><div class="mb-6"><span class="text-xs text-slate-400 font-bold uppercase">Catatan</span><p class="text-slate-600 mt-1">${d.descdoc || 'Tiada catatan.'}</p></div>${fileHTML}`;
+                dokumenDetails.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"><div class="bg-slate-50 p-4 rounded-2xl"><span class="text-xs text-slate-400 font-bold uppercase">Nama Dokumen</span><p class="font-bold text-slate-700 mt-1">${d.nama}</p></div><div class="bg-slate-50 p-4 rounded-2xl"><span class="text-xs text-slate-400 font-bold uppercase">Jenis Servis</span><p class="font-bold text-slate-700 mt-1">${d.namaservis || '-'}</p></div><div class="bg-slate-50 p-4 rounded-2xl md:col-span-2"><span class="text-xs text-slate-400 font-bold uppercase">Status Semasa</span><div class="mt-2"><span class="status-pill status-${d.status}">${d.status}</span></div></div></div><div class="mb-6"><span class="text-xs text-slate-400 font-bold uppercase">Catatan</span><p class="text-slate-600 mt-1">${d.descdoc || 'Tiada catatan.'}</p></div>${fileHTML}`;
             }
         } catch (err) { console.error(err); }
     }
