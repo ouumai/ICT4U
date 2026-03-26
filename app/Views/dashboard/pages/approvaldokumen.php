@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div>
                             <div class="font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">${d.nama}</div>
                             <div class="text-sm text-slate-500 mt-1">Jenis Servis: ${d.namaservis || '-'}</div>
-                            <div class="text-[11px] text-slate-400 mt-0.5">ID: #${d.iddoc}</div>
+                            <div class="text-slate-400 mt-0.5" style="font-size: 13px; line-height: 1.2;">ID: #${d.iddoc}</div>
                         </div>
                         <i class="bi bi-chevron-down text-slate-300 group-hover:text-indigo-600 transition-colors"></i>
                     </div>
