@@ -107,6 +107,46 @@
         order: 1 !important; 
     }
 
+    .modal-container {
+        width: min(90vw, 960px);
+        height: min(85vh, 760px);
+        min-width: 640px;
+        min-height: 520px;
+        max-width: 96vw;
+        max-height: 92vh;
+        display: flex;
+        flex-direction: column;
+        resize: both;
+        overflow: hidden;
+    }
+
+    #dokumenDetails {
+        flex: 1;
+        overflow: auto;
+    }
+
+    .file-preview-frame {
+        width: 100%;
+        height: 100%;
+        min-height: 450px;
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+    }
+
+    .file-preview-wrapper {
+        height: clamp(420px, 58vh, 720px);
+    }
+
+    @media (max-width: 768px) {
+        .modal-container {
+            width: 100%;
+            height: 88vh;
+            min-width: 0;
+            min-height: 0;
+            resize: none;
+        }
+    }
+
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 
@@ -164,12 +204,12 @@
 </div>
 
 <div id="viewModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4" style="z-index: 9999;">
-    <div class="modal-container bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl animate-[slideUp_0.3s_ease-out]">
+    <div class="modal-container bg-white rounded-3xl shadow-2xl animate-[slideUp_0.3s_ease-out]">
         <div class="bg-slate-50 p-5 flex justify-between items-center border-b">
             <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2 m-0">Perincian Dokumen</h2>
             <button id="closeViewModal" title="Tutup"><i class="bi bi-x-lg" style="font-size: 1.3rem;"></i></button>
         </div>
-        <div id="dokumenDetails" class="p-8 max-h-96 overflow-y-auto"></div>
+        <div id="dokumenDetails" class="p-8"></div>
     </div>
 </div>
 
@@ -277,7 +317,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (json.status) {
                 const d = json.data;
                 const fileUrl = `<?= base_url('pengesahandokumen/viewFile') ?>/${d.idservis}/${d.namafail}`;
-                let fileHTML = d.mime.includes('image') ? `<img src="${fileUrl}" class="w-full rounded-2xl shadow-lg border" />` : (d.mime === 'application/pdf' ? `<iframe src="${fileUrl}" width="100%" height="450px" class="rounded-2xl border"></iframe>` : `<div class="p-8 border-2 border-dashed rounded-2xl text-center"><a href="${fileUrl}" target="_blank" class="text-indigo-600 font-bold underline">Muat Turun Fail</a></div>`);
+                let fileHTML = d.mime.includes('image')
+                    ? `<img src="${fileUrl}" class="w-full rounded-2xl shadow-lg border" />`
+                    : (d.mime === 'application/pdf'
+                        ? `<div class="file-preview-wrapper"><iframe src="${fileUrl}" class="file-preview-frame"></iframe></div>`
+                        : `<div class="p-8 border-2 border-dashed rounded-2xl text-center"><a href="${fileUrl}" target="_blank" class="text-indigo-600 font-bold underline">Muat Turun Fail</a></div>`);
                 dokumenDetails.innerHTML = `<div class="grid grid-cols-2 gap-4 mb-6"><div class="bg-slate-50 p-4 rounded-2xl"><span class="text-xs text-slate-400 font-bold uppercase">Nama Dokumen</span><p class="font-bold text-slate-700 mt-1">${d.nama}</p></div><div class="bg-slate-50 p-4 rounded-2xl"><span class="text-xs text-slate-400 font-bold uppercase">Status Semasa</span><div class="mt-2"><span class="status-pill status-${d.status}">${d.status}</span></div></div></div><div class="mb-6"><span class="text-xs text-slate-400 font-bold uppercase">Catatan</span><p class="text-slate-600 mt-1">${d.descdoc || 'Tiada catatan.'}</p></div>${fileHTML}`;
             }
         } catch (err) { console.error(err); }
