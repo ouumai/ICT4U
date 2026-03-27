@@ -84,6 +84,21 @@ class ApprovalDokumenController extends BaseController
             'updated_at' => $now
         ]);
 
+        $dokumen = $this->dokumenModel->find($iddoc);
+        if ($dokumen) {
+            $this->writeAuditLog(
+                'update_status',
+                'dokumen',
+                $iddoc,
+                'Tukar Status Dokumen ' . $dokumen['nama'],
+                [
+                    'Status: ' . ucfirst($this->auditValue($dokumen['status'])) . ' -> ' . ucfirst($status),
+                    'Tarikh Tindakan: ' . $now,
+                ],
+                'Status untuk Dokumen "' . $this->auditValue($dokumen['nama']) . '" telah ditukar kepada ' . ucfirst($status) . '.'
+            );
+        }
+
         $db->transComplete();
 
         if ($db->transStatus() === false) {

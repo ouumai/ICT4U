@@ -51,6 +51,19 @@ class FaqController extends BaseController
         ];
 
         if ($this->faqModel->insert($data)) {
+            $faqId = $this->faqModel->getInsertID();
+            $this->writeAuditLog(
+                'create',
+                'faq',
+                $faqId,
+                'Tambah FAQ Baharu',
+                [
+                    'Soalan: ' . $this->auditValue($data['question']),
+                    'Servis ID: ' . $this->auditValue($data['idservis']),
+                ],
+                'FAQ baharu telah ditambah untuk rujukan pengguna.'
+            );
+
             return $this->respondCreated(['success' => true, 'csrf' => csrf_hash()]);
         }
         return $this->fail('Gagal simpan data.');
@@ -59,12 +72,27 @@ class FaqController extends BaseController
     // Kemaskini Soalan Sedia Ada
     public function update($id)
     {
+        $existingFaq = $this->faqModel->find($id);
         $data = [
             'question' => strip_tags($this->request->getPost('question')),
             'answer'   => $this->request->getPost('answer'),
         ];
 
         if ($this->faqModel->update($id, $data)) {
+            $changes = $this->diffChanges($existingFaq ?? [], array_merge($existingFaq ?? [], $data), [
+                'question' => 'Soalan',
+                'answer'   => 'Jawapan',
+            ]);
+
+            $this->writeAuditLog(
+                'update',
+                'faq',
+                $id,
+                'Kemaskini FAQ',
+                $changes,
+                'Maklumat FAQ telah dikemaskini.'
+            );
+
             return $this->respond(['success' => true, 'csrf' => csrf_hash()]);
         }
         return $this->fail('Gagal kemaskini data.');
@@ -73,7 +101,17 @@ class FaqController extends BaseController
     // Padam Soalan
     public function delete($id)
     {
+        $faq = $this->faqModel->find($id);
         if ($this->faqModel->delete($id)) {
+            $this->writeAuditLog(
+                'delete',
+                'faq',
+                $id,
+                'Padam FAQ',
+                ['Soalan: ' . $this->auditValue($faq['question'] ?? null)],
+                'FAQ yang dipilih telah dipadam daripada sistem.'
+            );
+
             return $this->respondDeleted(['success' => true, 'csrf' => csrf_hash()]);
         }
         return $this->fail('Gagal padam data.');

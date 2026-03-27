@@ -79,6 +79,8 @@ class PerincianModulController extends BaseController
         $mohonurl    = trim($this->request->getPost('mohonurl'));
         $description = trim(strip_tags($this->request->getPost('description')));
         $errors = [];
+        $currentServis = $idservis ? $this->servisModel->find($idservis) : null;
+        $currentDesc = $idservis ? $this->descModel->where('idservis', $idservis)->first() : null;
 
         // 1. VALIDASI ID SERVIS
         if (!$idservis || !$this->servisModel->find($idservis)) {
@@ -153,6 +155,32 @@ class PerincianModulController extends BaseController
 
             session()->setFlashdata('success', 'Maklumat servis berjaya dikemaskini.');
 
+            $changes = array_merge(
+                $this->diffChanges($currentServis ?? [], [
+                    'namaservis' => $namaservis,
+                    'infourl'    => $infourl ?: null,
+                    'mohonurl'   => $mohonurl ?: null,
+                ], [
+                    'namaservis' => 'Nama servis',
+                    'infourl'    => 'Info URL',
+                    'mohonurl'   => 'Mohon URL',
+                ]),
+                $this->diffChanges(
+                    ['description' => $currentDesc['description'] ?? null],
+                    ['description' => $description],
+                    ['description' => 'Perincian modul']
+                )
+            );
+
+            $this->writeAuditLog(
+                'update',
+                'servis',
+                $idservis,
+                'Kemaskini Servis ' . $namaservis,
+                $changes,
+                'Maklumat untuk Servis "' . $this->auditValue($namaservis) . '" telah dikemaskini.'
+            );
+
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Ralat Sistem: ' . $e->getMessage());
         }
@@ -163,13 +191,23 @@ class PerincianModulController extends BaseController
     // Padam servis 
     public function delete($idservis)
     {
-        if (!$idservis || !$this->servisModel->find($idservis)) {
+        $servis = $idservis ? $this->servisModel->find($idservis) : null;
+        if (!$idservis || !$servis) {
             return redirect()->back()->with('error', 'Servis tidak ditemui.');
         }
 
         // Padam servis & description (Jika model guna SoftDelete, ia akan ikut rules model)
         $this->servisModel->delete($idservis);
         $this->descModel->where('idservis', $idservis)->delete();
+
+        $this->writeAuditLog(
+            'delete',
+            'servis',
+            $idservis,
+            'Padam Servis ' . $servis['namaservis'],
+            ['Nama Servis: ' . $this->auditValue($servis['namaservis'])],
+            'Servis "' . $this->auditValue($servis['namaservis']) . '" telah dipadam daripada sistem.'
+        );
 
         return redirect()->back()->with('success', 'Servis berjaya dipadam.');
     }

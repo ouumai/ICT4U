@@ -61,6 +61,8 @@ class TambahanPerincianController extends BaseController
         $post = $this->request->getPost();
 
         $idservis    = $post['idservis'] ?? null;
+        $existingServis = $idservis ? $this->servisModel->find($idservis) : null;
+        $existingPerincian = $idservis ? $this->perincianModel->where('idservis', $idservis)->first() : null;
         
         // bersihkan tag HTML pada nama servis dan description
         $namaservis  = trim(strip_tags($post['namaservis'] ?? ''));
@@ -105,6 +107,30 @@ class TambahanPerincianController extends BaseController
             ]);
         }
 
+        $changes = array_merge(
+            $this->diffChanges($existingServis ?? [], $dataServis, [
+                'namaservis' => 'Nama servis',
+                'infourl'    => 'Info URL',
+                'mohonurl'   => 'Mohon URL',
+            ]),
+            $this->diffChanges(
+                ['description' => $existingPerincian['description'] ?? null],
+                ['description' => $description],
+                ['description' => 'Perincian modul']
+            )
+        );
+
+        $this->writeAuditLog(
+            $existingServis ? 'update' : 'create',
+            'servis',
+            $idservis,
+            ($existingServis ? 'Kemaskini Servis ' : 'Tambah Servis ') . $namaservis,
+            $changes,
+            $existingServis
+                ? 'Maklumat untuk Servis "' . $this->auditValue($namaservis) . '" telah dikemaskini.'
+                : 'Servis baharu "' . $this->auditValue($namaservis) . '" telah ditambah ke dalam sistem.'
+        );
+
         return $this->response->setJSON([
             'status'    => true,
             'message'   => 'Servis berjaya disimpan',
@@ -116,6 +142,7 @@ class TambahanPerincianController extends BaseController
     public function deleteServis()
     {
         $idservis = $this->request->getPost('idservis');
+        $servis = $idservis ? $this->servisModel->find($idservis) : null;
 
         if (!$idservis) {
             return $this->response->setJSON([
@@ -127,6 +154,17 @@ class TambahanPerincianController extends BaseController
 
         $this->servisModel->delete($idservis);
         $this->perincianModel->where('idservis', $idservis)->delete();
+
+        if ($servis) {
+            $this->writeAuditLog(
+                'delete',
+                'servis',
+                $idservis,
+                'Padam Servis ' . $servis['namaservis'],
+                ['Nama Servis: ' . $this->auditValue($servis['namaservis'])],
+                'Servis "' . $this->auditValue($servis['namaservis']) . '" telah dipadam daripada sistem.'
+            );
+        }
 
         return $this->response->setJSON([
             'status'  => true,

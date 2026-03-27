@@ -117,6 +117,20 @@ class DokumenController extends BaseController
             ];
 
             if ($this->dokumenModel->insert($data)) {
+                $documentId = $this->dokumenModel->getInsertID();
+                $this->writeAuditLog(
+                    'create',
+                    'dokumen',
+                    $documentId,
+                    "Tambah Dokumen {$nama}",
+                    [
+                        'Servis ID: ' . $this->auditValue($idservis),
+                        'Nama Dokumen: ' . $this->auditValue($nama),
+                        'Status Awal: Pending',
+                    ],
+                    'Dokumen baharu "' . $this->auditValue($nama) . '" telah ditambah ke dalam sistem.'
+                );
+
                 return $this->response->setJSON(['status' => true, 'msg' => 'Dokumen berjaya dimuat naik!', 'csrf' => csrf_hash()]);
             } else {
                 return $this->response->setJSON(['status' => false, 'msg' => 'Gagal simpan rekod.', 'csrf' => csrf_hash()]);
@@ -161,6 +175,23 @@ class DokumenController extends BaseController
             }
 
             if ($this->dokumenModel->update($iddoc, $updateData)) {
+                $changes = $this->diffChanges($dokumen, array_merge($dokumen, $updateData), [
+                    'nama' => 'Nama dokumen',
+                    'descdoc' => 'Penerangan',
+                    'status' => 'Status',
+                    'namafail' => 'Fail PDF',
+                    'mime' => 'Jenis fail',
+                ]);
+
+                $this->writeAuditLog(
+                    'update',
+                    'dokumen',
+                    $iddoc,
+                    'Kemaskini Dokumen ' . ($updateData['nama'] ?? $dokumen['nama']),
+                    $changes,
+                    'Maklumat untuk Dokumen "' . $this->auditValue($updateData['nama'] ?? $dokumen['nama']) . '" telah dikemaskini.'
+                );
+
                 return $this->response->setJSON(['status' => true, 'msg' => 'Dokumen berjaya dikemaskini.', 'csrf' => csrf_hash()]);
             }
 
@@ -181,6 +212,18 @@ class DokumenController extends BaseController
             if (!empty($dokumen['namafail']) && file_exists($filePath)) unlink($filePath);
 
             if ($this->dokumenModel->delete($iddoc, true)) {
+                $this->writeAuditLog(
+                    'delete',
+                    'dokumen',
+                    $iddoc,
+                    'Padam Dokumen ' . $dokumen['nama'],
+                    [
+                        'Nama Dokumen: ' . $this->auditValue($dokumen['nama']),
+                        'Status Terakhir: ' . $this->auditValue($dokumen['status'] ?? null),
+                    ],
+                    'Dokumen "' . $this->auditValue($dokumen['nama']) . '" telah dipadam daripada sistem.'
+                );
+
                 return $this->response->setJSON(['status' => true, 'msg' => 'Berjaya dipadam.', 'csrf' => csrf_hash()]);
             }
 

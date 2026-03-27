@@ -91,6 +91,21 @@ class UserController extends BaseController
         ];
 
         $this->userModel->insert($data);
+        $newUserId = $this->userModel->getInsertID();
+
+        $this->writeAuditLog(
+            'create',
+            'user',
+            $newUserId,
+            'Tambah Pengguna ' . $data['fullname'],
+            [
+                'Nama: ' . $this->auditValue($data['fullname']),
+                'Emel: ' . $this->auditValue($data['email']),
+                'Peranan: ' . $this->auditValue($data['role']),
+                'Status: ' . $this->auditValue($data['status']),
+            ],
+            'Pengguna baharu "' . $this->auditValue($data['fullname']) . '" telah ditambah ke dalam sistem.'
+        );
 
         return $this->response->setJSON([
             'status' => true,
@@ -144,6 +159,26 @@ class UserController extends BaseController
                 $this->sendSecurityAlert($data['email'], $data['fullname']);
             }
 
+            $changes = $this->diffChanges($user, array_merge($user, $data), [
+                'fullname' => 'Nama penuh',
+                'email'    => 'Emel',
+                'role'     => 'Peranan',
+                'status'   => 'Status',
+            ]);
+
+            if ($passwordUpdated) {
+                $changes[] = 'Kata laluan: dikemaskini';
+            }
+
+            $this->writeAuditLog(
+                'update',
+                'user',
+                $id,
+                'Kemaskini Pengguna ' . $data['fullname'],
+                $changes,
+                'Maklumat untuk Pengguna "' . $this->auditValue($data['fullname']) . '" telah dikemaskini.'
+            );
+
             return $this->response->setJSON([
                 'status' => true,
                 'message' => 'User berjaya dikemaskini',
@@ -181,6 +216,15 @@ class UserController extends BaseController
         if ($this->userModel->save($user)) {
             // Trigger email notifikasi dinamik
             $this->sendSecurityAlert($user->email, $user->fullname ?? $user->username);
+
+            $this->writeAuditLog(
+                'update_password',
+                'user',
+                $user->id,
+                'Kemaskini Kata Laluan Pengguna ' . ($user->fullname ?? $user->username),
+                ['Tarikh Kemaskini Kata Laluan: ' . date('d M Y, H:i:s')],
+                'Kata laluan untuk Pengguna "' . $this->auditValue($user->fullname ?? $user->username) . '" telah dikemaskini.'
+            );
 
             return redirect()->to(base_url('profile'))->with('success', 'Kata laluan berjaya dikemaskini.');
         }
@@ -221,6 +265,18 @@ class UserController extends BaseController
         }
 
         $this->userModel->delete($id);
+
+        $this->writeAuditLog(
+            'delete',
+            'user',
+            $id,
+            'Padam Pengguna ' . ($user['fullname'] ?? ('#' . $id)),
+            [
+                'Nama: ' . $this->auditValue($user['fullname'] ?? null),
+                'Emel: ' . $this->auditValue($user['email'] ?? null),
+            ],
+            'Pengguna "' . $this->auditValue($user['fullname'] ?? ('#' . $id)) . '" telah dipadam daripada sistem.'
+        );
 
         return $this->response->setJSON([
             'status' => true,

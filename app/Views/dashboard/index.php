@@ -60,6 +60,57 @@
         padding: 2.5rem;
     }
 
+    .activity-card {
+        border-radius: 30px;
+        border: 1px solid #e2e8f0;
+        background: white;
+        padding: 2rem;
+        height: 100%;
+    }
+
+    .activity-list {
+        max-height: 430px;
+        overflow-y: auto;
+        padding-right: 6px;
+    }
+
+    .activity-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem 1rem;
+        border: 1px solid #e0e7ff;
+        background: linear-gradient(135deg, #f8faff 0%, #eef2ff 100%);
+        border-radius: 22px;
+        margin-bottom: 1rem;
+        box-shadow: 0 10px 25px -18px rgba(79, 70, 229, 0.35);
+    }
+
+    .activity-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .activity-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 16px;
+        background: #eef2ff;
+        color: #4f46e5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .activity-empty {
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        border-radius: 22px;
+        padding: 2rem;
+        text-align: center;
+        color: #64748b;
+    }
+
     /* Date Stamp Style - Ikut style grey yang Mai nak */
     .date-stamp {
         background: rgba(255, 255, 255, 0.5);
@@ -184,7 +235,47 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-7"></div>
+        <div class="col-lg-7 mt-4 mt-lg-0">
+            <div class="activity-card shadow-sm">
+                <div class="mb-4">
+                    <div>
+                        <h5 class="fw-800 mb-1 text-dark">Aktiviti Terkini</h5>
+                        <p class="text-slate-500 mb-0">Senarai perubahan terkini yang dibuat oleh pengguna.</p>
+                    </div>
+                </div>
+
+                <?php if (!empty($recentActivities)): ?>
+                    <div class="activity-list">
+                        <?php foreach ($recentActivities as $activity): ?>
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="bi bi-pencil-square"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex flex-column flex-md-row align-items-md-start justify-content-md-between gap-2 mb-2">
+                                        <div>
+                                            <h6 class="fw-700 text-dark mb-1"><?= esc($activity['subject'] ?? 'Aktiviti Sistem') ?></h6>
+                                            <p class="text-slate-500 mb-0 small">
+                                                Oleh <?= esc($activity['username'] ?? 'Pengguna Sistem') ?>
+                                            </p>
+                                        </div>
+                                        <span class="badge rounded-pill bg-light text-slate-500 px-3 py-2">
+                                            <?= !empty($activity['created_at']) ? date('d M Y, H:i', strtotime($activity['created_at'])) : '-' ?>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="activity-empty">
+                        <i class="bi bi-journal-text d-block mb-3" style="font-size: 2rem;"></i>
+                        <h6 class="fw-700 text-dark mb-2">Belum ada aktiviti direkodkan</h6>
+                        <p class="mb-0">Aktiviti pengguna akan muncul di sini selepas perubahan dibuat dalam sistem.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
     </div>
 </div>
 

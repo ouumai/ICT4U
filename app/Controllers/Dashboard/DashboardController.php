@@ -1,246 +1,76 @@
 <?php
+
 namespace App\Controllers\Dashboard;
 
 use App\Controllers\BaseController;
-use App\Models\UserModel;
-use App\Models\ServisModel;
+use App\Models\AuditLogModel;
 use App\Models\DokumenModel;
 use App\Models\PerincianModulModel;
+use App\Models\ServisModel;
+use CodeIgniter\Shield\Models\UserModel as ShieldUserModel;
 
 class DashboardController extends BaseController
 {
-    protected $userModel;
-    protected $servisModel;
-    protected $dokumenModel;
-    protected $perincianModulModel;
+    protected ServisModel $servisModel;
+    protected DokumenModel $dokumenModel;
+    protected PerincianModulModel $perincianModulModel;
+    protected AuditLogModel $recentAuditLogModel;
 
     public function __construct()
     {
-        $this->userModel           = new UserModel();
-        $this->servisModel         = new ServisModel();
-        $this->dokumenModel        = new DokumenModel();
+        helper(['url', 'form', 'auth']);
+
+        $this->servisModel = new ServisModel();
+        $this->dokumenModel = new DokumenModel();
         $this->perincianModulModel = new PerincianModulModel();
+        $this->recentAuditLogModel = new AuditLogModel();
     }
 
-    /**
-     * =========================
-     * MAIN DASHBOARD
-     * =========================
-     */
-    public function index()
+    public function index(): string
     {
-        $role = session()->get('role') ?? 'viewer';
-
-        // Dokumen status counts
-        $dokumenCounts = $this->dokumenCounts();
-
         $data = [
-            'title'                => 'Dashboard',
-            'role'                 => $role,
-            'totalUsers'           => $this->userModel->countAll(),
-            'totalServis'          => $this->servisModel->countAll(),
-            'totalDokumen'         => array_sum($dokumenCounts),
-            'dokPending'           => $dokumenCounts['pending'],
-            'dokApproved'          => $dokumenCounts['approved'],
-            'dokRejected'          => $dokumenCounts['rejected'],
-            'totalPerincianModul'  => $this->perincianModulModel->countAll(),
-            'totalServisKelulusan' => $this->servisModel->countAll(), // adjust if specific
+            'title'               => 'Dashboard',
+            'totalServisKelulusan' => $this->servisModel->countAllResults(),
+            'dokApproved'         => $this->dokumenModel->where('status', 'approved')->countAllResults(),
+            'dokPending'          => $this->dokumenModel->where('status', 'pending')->countAllResults(),
+            'dokRejected'         => $this->dokumenModel->where('status', 'rejected')->countAllResults(),
+            'totalDokumen'        => $this->dokumenModel->countAllResults(),
+            'totalPerincianModul' => $this->perincianModulModel->countAllResults(),
+            'recentActivities'    => $this->recentAuditLogModel->getRecentActivities(8),
         ];
 
-        // User-specific analytics
-        if ($role !== 'admin') {
-            $userId = session()->get('user_id');
-            $data['analytics'] = [
-                'myServisCount'  => $this->servisModel
-                    ->where('created_by', $userId)
-                    ->countAllResults(),
-                'myDokumenCount' => $this->dokumenModel
-                    ->where('created_by', $userId)
-                    ->where('deleted_at', null)
-                    ->countAllResults(),
-            ];
-
-            return view('dashboard/index', $data);
-        }
+        return view('dashboard/index', $data);
     }
 
-    /**
-     * =========================
-     * LOAD PAGE (AJAX)
-     * =========================
-     */
-        public function loadPage($page)
-    {
-        $validPages = [
-            'home',
-            'users',
-            'perincian',
-            'dokumen', // masih valid untuk route, tapi kita redirect ke view baru
-            'approvaldokumen',
-            'serviskelulusan'
-        ];
-
-        if (!in_array($page, $validPages)) {
-            return $this->response
-                ->setStatusCode(404)
-                ->setBody('Page not found');
-        }
-
-        $data = [];
-
-        // Pass data spesifik untuk page tertentu
-        if ($page === 'dokumen') {
-            $page = 'pengurusan_dokumen'; // tukar view
-            $data['servis'] = $this->servisModel->orderBy('namaservis', 'ASC')->findAll();
-        }
-
-        return view("dashboard/pages/{$page}", $data);
-    }
-    /**
-     * =========================
-     * SERVIS KELULUSAN (DOKUMEN STATUS)
-     * =========================
-     */
-    public function servisKelulusan()
-    {
-        $dokumenCounts = $this->dokumenCounts();
-        $totalDokumen  = array_sum($dokumenCounts);
-
-        $data = [
-            'totalDokumenPending'  => $dokumenCounts['pending'],
-            'totalDokumenApproved' => $dokumenCounts['approved'],
-            'totalDokumenRejected' => $dokumenCounts['rejected'],
-            'totalDokumen'         => $totalDokumen,
-        ];
-
-        return view('servis/servisKelulusan', $data);
-    }
-
-    /**
-     * =========================
-     * DASHBOARD LIVE DATA (AJAX)
-     * =========================
-     */
-    public function getData()
-    {
-        $summary = [
-            'totalUsers' => $this->userModel->countAll(),
-        ];
-
-        $dokumenCounts = $this->dokumenCounts();
-        $summary = array_merge($summary, [
-            'totalDokumen'         => array_sum($dokumenCounts),
-            'totalDokumenPending'  => $dokumenCounts['pending'],
-            'totalDokumenApproved' => $dokumenCounts['approved'],
-            'totalDokumenRejected' => $dokumenCounts['rejected'],
-        ]);
-
-        // Monthly Dokumen Chart
-        $months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-        $monthlyData = [];
-        $currentYear = date('Y');
-
-        for ($i = 1; $i <= 12; $i++) {
-            $monthlyData[] = $this->dokumenModel
-                ->where('YEAR(created_at)', $currentYear)
-                ->where('MONTH(created_at)', $i)
-                ->where('deleted_at', null)
-                ->countAllResults();
-        }
-
-        // Dokumen Status Chart
-        $statusLabels = ['Pending','Approved','Rejected'];
-        $statusData = [
-            $dokumenCounts['pending'],
-            $dokumenCounts['approved'],
-            $dokumenCounts['rejected'],
-        ];
-
-        // Latest 10 Users
-        $users = $this->userModel->orderBy('id','DESC')->findAll(10);
-
-        return $this->response->setJSON([
-            'status' => 'success',
-            'data' => [
-                'summary' => $summary,
-                'users'   => $users,
-                'charts'  => [
-                    'monthly' => [
-                        'labels' => $months,
-                        'data'   => $monthlyData,
-                    ],
-                    'status' => [
-                        'labels' => $statusLabels,
-                        'data'   => $statusData,
-                    ]
-                ]
-            ]
-        ]);
-    }
-
-    /**
-     * =========================
-     * PRIVATE HELPER: DOKUMEN COUNTS
-     * =========================
-     */
-    private function dokumenCounts(): array
-    {
-        return [
-            'pending'  => $this->dokumenModel
-                ->where('status', DokumenModel::STATUS_PENDING)
-                ->where('deleted_at', null)
-                ->countAllResults(),
-            'approved' => $this->dokumenModel
-                ->where('status', DokumenModel::STATUS_APPROVED)
-                ->where('deleted_at', null)
-                ->countAllResults(),
-            'rejected' => $this->dokumenModel
-                ->where('status', DokumenModel::STATUS_REJECTED)
-                ->where('deleted_at', null)
-                ->countAllResults(),
-        ];
-    }
-
-
-    /**
-     * =========================
-     * UPDATE PASSWORD (RESET)
-     * =========================
-     */
     public function updatePassword()
     {
-        // 1. Ambil data dari form reset_password.php
-        $password        = $this->request->getPost('password');
-        $passwordConfirm = $this->request->getPost('password_confirm');
+        $rules = [
+            'password'         => 'required|min_length[8]',
+            'password_confirm' => 'required|matches[password]',
+        ];
 
-        // 2. Semak jika password dan pengesahan adalah sama
-        if ($password !== $passwordConfirm) {
-            return redirect()->back()->with('error', 'Kata laluan baharu dan pengesahan tidak sepadan.');
+        if (! $this->validate($rules)) {
+            return redirect()->back()->with('error', 'Pastikan kata laluan sekurang-kurangnya 8 aksara dan sepadan.');
         }
 
-        // 3. Semak panjang password (min 8 aksara)
-        if (strlen($password) < 8) {
-            return redirect()->back()->with('error', 'Kata laluan mestilah sekurang-kurangnya 8 aksara.');
+        $email = session()->get('reset_email');
+
+        if (empty($email)) {
+            return redirect()->back()->with('error', 'Sesi set semula kata laluan tidak sah atau telah tamat.');
         }
 
-        // 4. Ambil user yang tengah login (Shield auto-login selepas klik link email)
-        $user = auth()->user();
+        $userModel = new ShieldUserModel();
+        $user = $userModel->findByCredentials(['email' => $email]);
 
-        if (!$user) {
-            return redirect()->to('/login')->with('error', 'Sesi telah tamat. Sila mohon link baharu.');
+        if ($user === null) {
+            return redirect()->back()->with('error', 'Akaun pengguna tidak ditemui.');
         }
 
-        // 5. Kemaskini password dalam database
-        $user->fill([
-            'password' => $password
-        ]);
+        $user->password = $this->request->getPost('password');
+        $userModel->save($user);
 
-        // Guna UserModel atau Shield provider untuk simpan
-        $userProvider = model(setting('Auth.userProvider'));
-        $userProvider->save($user);
+        session()->remove(['reset_email', 'reset_token']);
 
-        // 6. Redirect ke dashboard dengan mesej berjaya
-        return redirect()->to('/')->with('message', 'Kata laluan anda telah berjaya dikemaskini!');
+        return redirect()->to('/login')->with('success', 'Kata laluan berjaya dikemaskini. Sila log masuk semula.');
     }
-
 }
