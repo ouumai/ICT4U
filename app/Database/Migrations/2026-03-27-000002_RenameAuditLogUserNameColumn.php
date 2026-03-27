@@ -8,11 +8,14 @@ class RenameAuditLogUserNameColumn extends Migration
 {
     public function up()
     {
-        if (! $this->db->tableExists('audit_logs')) {
+        /** @var \CodeIgniter\Database\BaseConnection $db */
+        $db = $this->db;
+
+        if (! $db->tableExists('audit_logs')) {
             return;
         }
 
-        $fields = $this->db->getFieldData('audit_logs');
+        $fields = $db->getFieldData('audit_logs');
         $hasUserName = false;
         $hasUsername = false;
 
@@ -40,11 +43,14 @@ class RenameAuditLogUserNameColumn extends Migration
 
     public function down()
     {
-        if (! $this->db->tableExists('audit_logs')) {
+        /** @var \CodeIgniter\Database\BaseConnection $db */
+        $db = $this->db;
+
+        if (! $db->tableExists('audit_logs')) {
             return;
         }
 
-        $fields = $this->db->getFieldData('audit_logs');
+        $fields = $db->getFieldData('audit_logs');
         $hasUserName = false;
         $hasUsername = false;
 
