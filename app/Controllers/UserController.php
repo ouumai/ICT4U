@@ -214,7 +214,7 @@ class UserController extends BaseController
         $user->fill(['password' => $newPw]);
         
         if ($this->userModel->save($user)) {
-            // Trigger email notifikasi dinamik
+            // Trigger email notifikasi
             $this->sendSecurityAlert($user->email, $user->fullname ?? $user->username);
 
             $this->writeAuditLog(
@@ -295,5 +295,51 @@ class UserController extends BaseController
             'totalAdmin'    => $this->userModel->where('role', 'admin')->countAllResults(),
             'totalUploader' => $this->userModel->where('role', 'uploader')->countAllResults()
         ];
+    }
+
+    /* ============================================================
+    REMOVE PROFILE PICTURE (MODERN DROPDOWN STYLE)
+    ============================================================ */
+    public function deleteProfilePic(): ResponseInterface
+    {
+        // 1. Dapatkan user yang tengah login melalui Shield
+        $user = auth()->user(); 
+        $userId = $user->id;
+
+        if ($user && !empty($user->profile_pic)) {
+            $oldPicName = $user->profile_pic;
+            $filePath = FCPATH . 'uploads/profile/' . $oldPicName;
+
+            // 2. Padam fail fizikal dari server (Unlink)
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+
+            // 3. Update database (set jadi NULL)
+            // Kita guna userModel sedia ada dalam controller ni
+            $this->userModel->update($userId, ['profile_pic' => null]);
+
+            // 4. Masukkan dalam Audit Log (Recent Activity)
+            $this->writeAuditLog(
+                'update',
+                'user',
+                $userId,
+                'Buang Gambar Profil',
+                ['Status Gambar: Kembali ke default'],
+                'Pengguna "' . $this->auditValue($user->fullname ?? $user->username) . '" telah membuang gambar profil.'
+            );
+
+            return $this->response->setJSON([
+                'status'  => true,
+                'message' => 'Gambar profil berjaya dibuang.',
+                'csrfHash' => csrf_hash()
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'status'  => false,
+            'message' => 'Tiada gambar untuk dibuang.',
+            'csrfHash' => csrf_hash()
+        ]);
     }
 }

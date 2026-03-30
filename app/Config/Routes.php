@@ -44,8 +44,9 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
     $routes->get('profile', '\App\Controllers\Auth::profile', ['as' => 'profile']); 
     $routes->post('profile/update', '\App\Controllers\Auth::updateProfile');
     $routes->post('profile/update-password', '\App\Controllers\Auth::updatePassword');
-    $routes->get('profile/delete-pic', '\App\Controllers\Auth::deleteProfilePic');
-
+    $routes->get('profile/delete-pic', 'UserController::deleteProfilePic');    
+    
+    
     /**
      * Pengesahan Dokumen (Mapping URL Baru)
      */

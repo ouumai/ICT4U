@@ -70,6 +70,21 @@
         order: 1 !important; /* Paksa kiri */
     }
 
+    .dropdown-menu {
+    min-width: 200px;
+    margin-top: 10px !important;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
+    }
+
+    .dropdown-item:active {
+        background-color: #4f46e5 !important;
+        color: white !important;
+    }
+
+    .dropdown-item:active i {
+        color: white !important;
+    }
+
     .profile-header-bg { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); height: 150px; }
     .avatar-wrapper { position: relative; display: inline-block; margin-top: -55px; margin-left: 30px; }
     .avatar-box { width: 110px; height: 110px; background: white; border: 4px solid white; border-radius: 28px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; color: #4f46e5; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
@@ -104,22 +119,42 @@
                     <?= csrf_field() ?>
                     
                     <div class="avatar-wrapper">
-                        <div class="avatar-box" id="imagePreview">
-                        <?php 
-                            $picName = $user->profile_pic;
-                            $filePath = FCPATH . 'uploads/profile/' . $picName;
-                            
-                            if (!empty($picName) && is_file($filePath)): 
-                        ?>
-                            <img src="<?= base_url('uploads/profile/' . $picName) ?>?t=<?= time() ?>" alt="Profile">
-                        <?php else: ?>
-                            <span class="text-uppercase"><?= substr($user->username, 0, 1) ?></span> 
-                        <?php endif; ?>
-                    </div>
-                        <label for="profile_pic" class="upload-badge">
-                            <i class="bi bi-camera-fill"></i>
-                            <input type="file" name="profile_pic" id="profile_pic" class="d-none" accept="image/png, image/jpeg, image/jpg">
-                        </label>
+                        <div class="avatar-box" id="imagePreview" data-default-initial="<?= esc(strtoupper(substr($user->username, 0, 1))) ?>">
+                            <?php 
+                                $picName = $user->profile_pic;
+                                $filePath = FCPATH . 'uploads/profile/' . $picName;
+                                
+                                if (!empty($picName) && is_file($filePath)): 
+                            ?>
+                                <img src="<?= base_url('uploads/profile/' . $picName) ?>?t=<?= time() ?>" alt="Profile">
+                            <?php else: ?>
+                                <span class="text-uppercase"><?= substr($user->username, 0, 1) ?></span> 
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="dropdown">
+                            <button class="upload-badge border-0" type="button" id="dropdownProfile" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-camera-fill"></i>
+                            </button>
+                            <ul class="dropdown-menu shadow-lg border-0 rounded-2xl p-2 animate__animated animate__fadeIn animate__faster" aria-labelledby="dropdownProfile">
+                                <li>
+                                    <label class="dropdown-item d-flex align-items-center gap-2 py-2 px-3 rounded-xl cursor-pointer hover:bg-indigo-50 transition-all">
+                                        <i class="bi bi-image text-indigo-600"></i>
+                                        <span class="small fw-bold text-slate-700">Pilih Gambar Baru</span>
+                                        <input type="file" name="profile_pic" id="profile_pic" class="d-none" accept="image/*" onchange="this.form.submit()">
+                                    </label>
+                                </li>
+                                <?php if (!empty($picName) && is_file($filePath)): ?>
+                                    <li id="removePicDivider"><hr class="dropdown-divider opacity-50"></li>
+                                    <li id="removePicItem">
+                                        <button type="button" class="dropdown-item d-flex align-items-center gap-2 py-2 px-3 rounded-xl text-danger hover:bg-red-50 transition-all" onclick="confirmRemove()">
+                                            <i class="bi bi-trash3-fill"></i>
+                                            <span class="small fw-bold">Buang Gambar</span>
+                                        </button>
+                                    </li>
+                                <?php endif; ?>
+                            </ul>
+                        </div>
                     </div>
 
                     <div class="p-4 p-md-5 pt-4">
@@ -290,6 +325,79 @@
         newPw.addEventListener('input', checkMatch);
         confPw.addEventListener('input', checkMatch);
     });
+
+
+    function confirmRemove() {
+        Swal.fire({
+            title: 'Buang Gambar?',
+            text: "Gambar anda akan ditukar semula kepada default.",
+            icon: 'warning',
+            showCancelButton: true,
+            showCloseButton: true,
+            confirmButtonText: 'Ya, Buang',
+            cancelButtonText: 'Batal',
+            buttonsStyling: false,
+            customClass: { 
+                popup: 'swal-rounded',
+                confirmButton: 'btn-swal-hantar', 
+                cancelButton: 'btn-swal-batal',
+                actions: 'swal2-actions',
+                closeButton: 'swal2-close'
+            }
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch("<?= base_url('profile/delete-pic') ?>", {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    const res = await response.json();
+
+                    if (res.status) {
+                        const previewBox = document.getElementById('imagePreview');
+                        const defaultInitial = previewBox.dataset.defaultInitial || 'U';
+                        previewBox.innerHTML = `<span class="text-uppercase">${defaultInitial}</span>`;
+
+                        const removePicItem = document.getElementById('removePicItem');
+                        const removePicDivider = document.getElementById('removePicDivider');
+                        if (removePicItem) removePicItem.remove();
+                        if (removePicDivider) removePicDivider.remove();
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berjaya!',
+                            text: res.message || 'Gambar profil berjaya dibuang.',
+                            timer: 1800,
+                            showConfirmButton: false,
+                            showCloseButton: true,
+                            customClass: { popup: 'swal-rounded', closeButton: 'swal2-close' }
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: res.message || 'Tidak berjaya membuang gambar profil.',
+                            showCloseButton: true,
+                            customClass: { popup: 'swal-rounded', closeButton: 'swal2-close' }
+                        });
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Ralat',
+                        text: 'Permintaan AJAX gagal diproses.',
+                        showCloseButton: true,
+                        customClass: { popup: 'swal-rounded', closeButton: 'swal2-close' }
+                    });
+                }
+            }
+        });
+    }
+
 </script>
 
 <?= $this->endSection() ?>
