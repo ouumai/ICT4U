@@ -4,6 +4,7 @@
 
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <style>
     :root {
@@ -11,6 +12,7 @@
         --deep-lilac: #8b5cf6;
         --soft-emerald: #ecfdf5;
         --emerald-green: #10b981;
+        --dashboard-panel-height: 650px;
     }
 
     /* 1. Global Setup */
@@ -18,8 +20,9 @@
         font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
 
-    /* Remove Default Headers */
-    .content-header, .breadcrumb, .content-wrapper > section.content-header,
+    /* Remove Default AdminLTE/Layout Headers */
+    .content-header,
+    .breadcrumb,
     .content-wrapper > .container-fluid > .d-md-flex.align-items-center.justify-content-between.mb-5 {
         display: none !important;
     }
@@ -37,96 +40,129 @@
         border-radius: 28px;
         padding: 1.8rem;
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        height: 100%;
     }
 
     .stat-card:hover {
-        transform: translateY(-10px); /* Bergerak 10px ke atas */
+        transform: translateY(-10px);
         box-shadow: 0 20px 30px -10px rgba(0,0,0,0.1) !important;
     }
 
     .icon-box {
-        width: 55px; height: 55px;
+        width: 55px;
+        height: 55px;
         border-radius: 18px;
-        display: flex; align-items: center; justify-content: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 1.4rem;
         margin-bottom: 1.2rem;
         background: white;
     }
 
-    .chart-card {
+    /* 3. Equal Height Panel Logic */
+    .dashboard-panels {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .dashboard-panels > [class*="col-"] {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chart-card, .activity-card {
         border-radius: 30px;
         border: 1px solid #e2e8f0;
         background: white;
         padding: 2.5rem;
+        height: var(--dashboard-panel-height);
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        margin-top: 0 !important;
     }
 
-    .activity-card {
-        border-radius: 30px;
-        border: 1px solid #e2e8f0;
-        background: white;
-        padding: 2rem;
-        height: 100%;
+    @media (max-width: 991.98px) {
+        .chart-card, .activity-card {
+            height: auto;
+        }
     }
 
     .activity-list {
-        max-height: 430px;
+        flex: 1;
+        max-height: 480px;
         overflow-y: auto;
-        padding-right: 6px;
+        padding-right: 8px;
+    }
+
+    /* Custom Scrollbar */
+    .activity-list::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .activity-list::-webkit-scrollbar-thumb {
+        background: #e2e8f0;
+        border-radius: 10px;
     }
 
     .activity-item {
         display: flex;
         gap: 1rem;
-        padding: 1rem 1rem;
-        border: 1px solid #e0e7ff;
-        background: linear-gradient(135deg, #f8faff 0%, #eef2ff 100%);
-        border-radius: 22px;
+        padding: 1.35rem 1.4rem;
+        border: 1px solid #f1f5f9;
+        background: #f8fafc;
+        border-radius: 20px;
         margin-bottom: 1rem;
-        box-shadow: 0 10px 25px -18px rgba(79, 70, 229, 0.35);
+        transition: all 0.2s;
     }
 
-    .activity-item:last-child {
-        margin-bottom: 0;
+    .activity-item:hover {
+        background: #f1f5f9;
+        border-color: #e2e8f0;
     }
 
     .activity-icon {
-        width: 46px;
-        height: 46px;
-        border-radius: 16px;
-        background: #eef2ff;
-        color: #4f46e5;
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: white;
+        color: #6366f1;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.1rem;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         flex-shrink: 0;
+        font-size: 1.05rem;
     }
 
-    .activity-empty {
-        background: #f8fafc;
-        border: 1px dashed #cbd5e1;
-        border-radius: 22px;
-        padding: 2rem;
-        text-align: center;
-        color: #64748b;
+    .activity-title {
+        font-size: 1.08rem;
+        line-height: 1.25;
     }
 
-    /* Date Stamp Style - Ikut style grey yang Mai nak */
+    .activity-meta {
+        font-size: 0.92rem;
+    }
+
+    .activity-time {
+        font-size: 0.82rem;
+    }
+
+    /* Date Stamp */
     .date-stamp {
-        background: rgba(255, 255, 255, 0.5);
+        background: white;
         border: 1px solid #e2e8f0;
         padding: 8px 16px;
         border-radius: 12px;
         font-size: 0.85rem;
-        color: #64748b; /* Slate 500 */
+        color: #64748b;
         font-weight: 600;
         display: flex;
         align-items: center;
         gap: 8px;
     }
 
-    /* Custom Gray Text */
-    .text-slate-500 { color: #64748b !important; }
     .fw-800 { font-weight: 800 !important; }
     .fw-700 { font-weight: 700 !important; }
 </style>
@@ -140,14 +176,14 @@
             </div>
             <div>
                 <h1 class="text-3xl fw-800 text-slate-900 mb-1">Dashboard</h1>
-                <p class="text-slate-500 font-medium mb-0">Ringkasan status permohonan dan statistik dokumen sistem</p>
+                <p class="text-gray-500 font-medium mb-0">Ringkasan status permohonan dan statistik sistem terkini</p>
             </div>
         </div>
         
         <div class="mt-4 md:mt-0">
             <div class="date-stamp shadow-sm">
-                <i class="bi bi-calendar-event text-slate-500"></i>
-                <span id="currentDateTime" class="text-slate-500"><?= date('M d 2026, H:i:s') ?></span>
+                <i class="bi bi-calendar-event"></i>
+                <span id="currentDateTime"><?= date('M d 2026, H:i:s') ?></span>
             </div>
         </div>
     </div>
@@ -174,7 +210,7 @@
         </div>
 
         <div class="col-md-3">
-            <div class="stat-card bg-emerald-premium shadow-sm border" style="background: var(--soft-emerald);">
+            <div class="stat-card shadow-sm border" style="background: var(--soft-emerald);">
                 <div class="icon-box text-success shadow-sm">
                     <i class="bi bi-folder2-open"></i>
                 </div>
@@ -184,7 +220,7 @@
         </div>
 
         <div class="col-md-3">
-            <div class="stat-card bg-lilac-premium shadow-sm border" style="background: var(--soft-lilac);">
+            <div class="stat-card shadow-sm border" style="background: var(--soft-lilac);">
                 <div class="icon-box text-purple shadow-sm">
                     <i class="bi bi-ui-checks-grid"></i>
                 </div>
@@ -194,11 +230,11 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row g-4 dashboard-panels">
         <div class="col-lg-5">
             <div class="chart-card shadow-sm">
                 <h5 class="fw-800 mb-6 text-dark">Analisis Status Keseluruhan</h5>
-                <div style="height: 250px;">
+                <div style="height: 250px; position: relative;" class="mb-4">
                     <canvas id="statusChart"></canvas>
                 </div>
                 
@@ -235,13 +271,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-7 mt-4 mt-lg-0">
+
+        <div class="col-lg-7">
             <div class="activity-card shadow-sm">
-                <div class="mb-4">
-                    <div>
-                        <h5 class="fw-800 mb-1 text-dark">Aktiviti Terkini</h5>
-                        <p class="text-slate-500 mb-0">Senarai perubahan terkini yang dibuat oleh pengguna.</p>
-                    </div>
+                <div class="mb-6">
+                    <h5 class="fw-800 mb-1 text-dark">Aktiviti Terkini</h5>
+                    <p class="text-slate-500 mb-0">Jejak audit aktiviti pengguna dalam sistem</p>
                 </div>
 
                 <?php if (!empty($recentActivities)): ?>
@@ -252,14 +287,14 @@
                                     <i class="bi bi-pencil-square"></i>
                                 </div>
                                 <div class="flex-grow-1">
-                                    <div class="d-flex flex-column flex-md-row align-items-md-start justify-content-md-between gap-2 mb-2">
+                                    <div class="flex flex-col md:flex-row md:items-start justify-between gap-2">
                                         <div>
-                                            <h6 class="fw-700 text-dark mb-1"><?= esc($activity['subject'] ?? 'Aktiviti Sistem') ?></h6>
-                                            <p class="text-slate-500 mb-0 small">
-                                                Oleh <?= esc($activity['username'] ?? 'Pengguna Sistem') ?>
+                                            <h6 class="fw-700 text-dark mb-1 activity-title"><?= esc($activity['subject'] ?? 'Aktiviti Sistem') ?></h6>
+                                            <p class="text-slate-500 mb-0 activity-meta">
+                                                Oleh <span class="font-bold text-indigo-600"><?= esc($activity['username'] ?? 'Sistem') ?></span>
                                             </p>
                                         </div>
-                                        <span class="badge rounded-pill bg-light text-slate-500 px-3 py-2">
+                                        <span class="text-slate-400 font-semibold whitespace-nowrap bg-white px-3 py-1 rounded-lg border activity-time">
                                             <?= !empty($activity['created_at']) ? date('d M Y, H:i', strtotime($activity['created_at'])) : '-' ?>
                                         </span>
                                     </div>
@@ -268,10 +303,10 @@
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
-                    <div class="activity-empty">
-                        <i class="bi bi-journal-text d-block mb-3" style="font-size: 2rem;"></i>
-                        <h6 class="fw-700 text-dark mb-2">Belum ada aktiviti direkodkan</h6>
-                        <p class="mb-0">Aktiviti pengguna akan muncul di sini selepas perubahan dibuat dalam sistem.</p>
+                    <div class="activity-empty flex-1 flex flex-col items-center justify-center text-center p-8 bg-slate-50 rounded-3xl border border-dashed border-slate-300">
+                        <i class="bi bi-journal-x text-4xl text-slate-300 mb-3"></i>
+                        <h6 class="fw-700 text-slate-500">Tiada Aktiviti Terkini</h6>
+                        <p class="text-slate-400 small mb-0">Segala aktiviti log pengguna akan dipaparkan di sini.</p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -285,42 +320,47 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // Update Time
+        // Real-time Clock Update
         setInterval(() => {
             const now = new Date();
             const options = { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-            document.getElementById('currentDateTime').innerText = now.toLocaleString('en-US', options).replace(',', '');
+            const timeStr = now.toLocaleString('en-US', options).replace(',', '');
+            const el = document.getElementById('currentDateTime');
+            if (el) el.innerText = timeStr;
         }, 1000);
 
-        // Chart
+        // Donut Chart Initialization
         const ctx = document.getElementById('statusChart');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Pending', 'Approved', 'Rejected'],
-                datasets: [{
-                    data: [<?= $dokPending ?>, <?= $dokApproved ?>, <?= $dokRejected ?>],
-                    backgroundColor: ['#f59e0b', '#10b981', '#ef4444'],
-                    borderWidth: 0,
-                    hoverOffset: 12
-                }]
-            },
-            options: {
-                cutout: '75%',
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'right',
-                        labels: {
-                            usePointStyle: true,
-                            padding: 25,
-                            font: { size: 13, weight: '700', family: "'Plus Jakarta Sans', sans-serif" }
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending', 'Approved', 'Rejected'],
+                    datasets: [{
+                        data: [<?= $dokPending ?>, <?= $dokApproved ?>, <?= $dokRejected ?>],
+                        backgroundColor: ['#f59e0b', '#10b981', '#ef4444'],
+                        borderWidth: 0,
+                        hoverOffset: 12
+                    }]
+                },
+                options: {
+                    cutout: '75%',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'right',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 25,
+                                font: { size: 13, weight: '700', family: "'Plus Jakarta Sans'" }
+                            }
                         }
                     }
-                },
-                maintainAspectRatio: false
-            }
-        });
+                }
+            });
+        }
     });
 </script>
 <?= $this->endSection() ?>
