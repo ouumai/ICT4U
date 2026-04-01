@@ -130,7 +130,7 @@ class UserController extends BaseController
             'fullname' => 'required|min_length[3]|max_length[100]',
             'email'    => "required|valid_email|is_unique[users.email,id,{$id}]",
             'role'     => 'required|in_list[admin,uploader]',
-            'status'   => 'required|in_list[active,inactive]',
+            'status'   => 'required|in_list[active,inactive,banned]',
             'password' => 'permit_empty|min_length[6]'
         ]);
 

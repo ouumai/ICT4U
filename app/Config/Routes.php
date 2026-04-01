@@ -12,6 +12,7 @@ use CodeIgniter\Router\RouteCollection;
 service('auth')->routes($routes);
 
 $routes->get('test-mail', 'Home::testEmail');
+$routes->get('reactivate-account', '\App\Controllers\Auth::reactivateAccount');
 
 /**
  * Route Reset Password (Public)
@@ -44,6 +45,8 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
     $routes->get('profile', '\App\Controllers\Auth::profile', ['as' => 'profile']); 
     $routes->post('profile/update', '\App\Controllers\Auth::updateProfile');
     $routes->post('profile/update-password', '\App\Controllers\Auth::updatePassword');
+    $routes->post('profile/verify-deactivate-password', '\App\Controllers\Auth::verifyDeactivatePassword');
+    $routes->post('profile/deactivate-account', '\App\Controllers\Auth::deactivateAccount');
     $routes->get('profile/delete-pic', 'UserController::deleteProfilePic');    
     
     

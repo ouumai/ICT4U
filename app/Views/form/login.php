@@ -168,6 +168,13 @@
             </div>
         <?php endif; ?>
 
+        <?php if(session()->getFlashdata('success')): ?>
+            <div class="alert alert-success border-0 rounded-4 small p-3 mb-4 d-flex align-items-center">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <strong><?= session()->getFlashdata('success') ?></strong>
+            </div>
+        <?php endif; ?>
+
         <form action="<?= base_url('/login') ?>" method="post">
             <?= csrf_field() ?>
             
