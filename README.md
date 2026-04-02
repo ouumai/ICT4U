@@ -2,10 +2,11 @@
 
 **ICT4U** is a centralized service portal designed specifically for **Warga UKM**. This system serves as a one-stop center for various ICT-related services, offering a more streamlined, faster and user-friendly experience compared to the previous iteration.
 
-## 🌟 Project Evolution
-This project is a major enhancement of the legacy ICT4U website. 
-- **Legacy Foundation:** Originally developed by **Shafiq** (Previous Intern).
-- **Current Version:** Fully refactored and modernized by **Umairah** to meet current web standards and performance requirements.
+## 🌟 Project Evolution & Credits
+This project is a major enhancement and overhaul of the existing ICT4U website.
+* **Supervised by:** Encik Noorulfaiz bin Ateman
+* **Original Version:** Developed by **Shafiq** (Previous Industrial Trainee).
+* **Current Version:** Fully refactored and modernized by **Umairah** to meet current web standards and high-performance requirements.
 
 ## 🛠 Tech Stack
 * **Framework:** CodeIgniter 4.7.0 (Latest Stable)
