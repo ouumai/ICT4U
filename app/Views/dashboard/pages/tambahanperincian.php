@@ -70,6 +70,8 @@
     
     .btn-swal-hantar { flex: 1 !important; background: #4f46e5 !important; color: white !important; font-weight: 700 !important; padding: 14px !important; border-radius: 16px !important; border: none !important; order: 2 !important; }
     .btn-swal-padam { flex: 1 !important; background: #fee2e2 !important; color: #ef4444 !important; font-weight: 700 !important; padding: 14px !important; border-radius: 16px !important; border: none !important; order: 1 !important; }
+    .swal2-actions.swal-delete-actions .btn-swal-hantar { order: 2 !important; }
+    .swal2-actions.swal-delete-actions .btn-swal-padam { order: 1 !important; }
     
     .swal-label-custom { display: block; font-size: 0.8rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
     .swal-input-custom { height: 52px; border-radius: 12px; border: 1px solid #e2e8f0; padding: 0 15px; width: 100%; background-color: #ffffff; font-weight: 500; font-size: 0.95rem; }
@@ -201,8 +203,8 @@ function openEditor(id = null) {
         buttonsStyling: false,
         customClass: { 
             popup: 'swal-rounded',
-            confirmButton: 'btn-swal-hantar', 
             denyButton: 'btn-swal-padam', 
+            confirmButton: 'btn-swal-hantar', 
             closeButton: 'swal2-close',
             actions: 'swal2-actions'
         },
@@ -268,7 +270,7 @@ async function deleteServis(id){
         confirmButtonText: 'Ya, Padam', 
         cancelButtonText: 'Batal',
         buttonsStyling: false,
-        customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-padam', cancelButton: 'btn-swal-hantar', actions: 'swal2-actions' } 
+        customClass: { popup: 'swal-rounded', cancelButton: 'btn-swal-padam', confirmButton: 'btn-swal-hantar',  actions: 'swal2-actions swal-delete-actions' } 
     }).then(async (result) => {
         if (result.isConfirmed) {
             const fd = new FormData(); 
