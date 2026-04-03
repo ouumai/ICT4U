@@ -399,13 +399,21 @@
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
 
+                const isPasswordForm = this.id === 'formPassword';
+                const popupTitle = isPasswordForm ? 'Tukar Kata Laluan?' : 'Kemaskini Maklumat?';
+                const popupText = isPasswordForm
+                    ? 'Pastikan kata laluan baharu anda betul sebelum dikemaskini.'
+                    : 'Pastikan maklumat anda adalah tepat sebelum disimpan.';
+                const confirmText = isPasswordForm ? 'Ya, Kemaskini' : 'Ya, Simpan';
+                const loadingText = isPasswordForm ? 'Mengemaskini...' : 'Menyimpan...';
+
                 Swal.fire({
-                    title: 'Kemaskini Maklumat?',
-                    text: 'Pastikan maklumat anda adalah tepat sebelum disimpan.',
+                    title: popupTitle,
+                    text: popupText,
                     icon: 'question',
                     showCancelButton: true,
                     showCloseButton: true,
-                    confirmButtonText: 'Ya, Simpan',
+                    confirmButtonText: confirmText,
                     cancelButtonText: 'Batal',
                     buttonsStyling: false,
                     customClass: {
@@ -419,7 +427,7 @@
                     if (result.isConfirmed) {
                         const btn = this.querySelector('.btn-submit');
                         btn.disabled = true;
-                        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Menyimpan...';
+                        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> ${loadingText}`;
                         this.submit();
                     }
                 });
