@@ -12,13 +12,33 @@ class ApprovalDokumenController extends BaseController
     protected $servisModel;
     protected $approvalModel;
 
-   public function __construct()
+    public function __construct()
     {
         helper(['url', 'form']);
         $this->dokumenModel  = new DokumenModel();
         $this->servisModel   = new ServisModel();
         $this->approvalModel = new ApprovalDokumenModel();
         date_default_timezone_set('Asia/Kuala_Lumpur');
+    }
+
+    private function slugify(string $text): string
+    {
+        $text = preg_replace('~[^\pL\d]+~u', '_', $text);
+        $text = trim((string) $text, '_');
+        $text = strtolower((string) $text);
+
+        return $text !== '' ? $text : 'n_a';
+    }
+
+    private function getFolderNameByServisId($idservis): ?string
+    {
+        $servis = $this->servisModel->find($idservis);
+
+        if (!$servis || empty($servis['namaservis'])) {
+            return null;
+        }
+
+        return $this->slugify((string) $servis['namaservis']);
     }
 
     public function index()
@@ -127,19 +147,27 @@ class ApprovalDokumenController extends BaseController
     // Show file in browser
     public function viewFile($idservis, $filename)
     {
-        // Cuba path dengan ID Servis dulu
-        $pathWithSubfolder = WRITEPATH . "uploads/dokumen/{$idservis}/{$filename}";
-        
-        // Cuba path tanpa ID Servis
-        $pathDirect = WRITEPATH . "uploads/dokumen/{$filename}";
+        $folderName = $this->getFolderNameByServisId($idservis);
 
-        // Check mana satu yang wujud
-        if (file_exists($pathWithSubfolder)) {
-            $path = $pathWithSubfolder;
-        } elseif (file_exists($pathDirect)) {
-            $path = $pathDirect;
-        } else {
-            return $this->response->setStatusCode(404, 'File not found at: ' . $pathWithSubfolder);
+        $candidatePaths = [];
+
+        if ($folderName) {
+            $candidatePaths[] = WRITEPATH . "uploads/dokumen/{$folderName}/{$filename}";
+        }
+
+        $candidatePaths[] = WRITEPATH . "uploads/dokumen/{$idservis}/{$filename}";
+        $candidatePaths[] = WRITEPATH . "uploads/dokumen/{$filename}";
+
+        $path = null;
+        foreach ($candidatePaths as $candidatePath) {
+            if (file_exists($candidatePath)) {
+                $path = $candidatePath;
+                break;
+            }
+        }
+
+        if (!$path) {
+            return $this->response->setStatusCode(404, 'File not found.');
         }
 
         $mime = mime_content_type($path);
