@@ -13,7 +13,6 @@ class DokumenController extends BaseController
 
     protected $dokumenModel;
     protected $servisModel;
-    protected string $dokumenTable = 'aict4u106mdoc';
 
     public function __construct()
     {
@@ -35,28 +34,29 @@ class DokumenController extends BaseController
         return $extension === 'pdf' && in_array($file->getMimeType(), $allowedMimeTypes, true);
     }
 
-    private function hasDokumenColumn(string $column): bool
+    private function dokumenColumnExists(string $column): bool
     {
-        return $this->dokumenModel->db->fieldExists($column, $this->dokumenTable);
+        return $this->dokumenModel->db->fieldExists($column, 'aict4u106mdoc');
     }
 
-    private function resolveFolderName(?array $dokumen = null, $idservis = null): string
+    private function slugify(string $text): string
     {
-        if (!empty($dokumen['folder_name'])) {
-            return (string) $dokumen['folder_name'];
+        $text = preg_replace('~[^\pL\d]+~u', '_', $text);
+        $text = trim((string) $text, '_');
+        $text = strtolower((string) $text);
+
+        return $text !== '' ? $text : 'n_a';
+    }
+
+    private function getFolderNameByServisId($idservis): ?string
+    {
+        $servis = $this->servisModel->find($idservis);
+
+        if (!$servis || empty($servis['namaservis'])) {
+            return null;
         }
 
-        $servisId = $idservis ?? ($dokumen['idservis'] ?? null);
-
-        if ($servisId) {
-            $servis = $this->servisModel->find($servisId);
-
-            if (!empty($servis['namaservis'])) {
-                return $this->slugify($servis['namaservis']);
-            }
-        }
-
-        return (string) $servisId;
+        return $this->slugify($servis['namaservis']);
     }
 
     public function index()
@@ -117,19 +117,22 @@ class DokumenController extends BaseController
         $nama     = $this->request->getPost('nama');
         $descdoc  = $this->cleanCKEditor($this->request->getPost('descdoc'));
         $file     = $this->request->getFile('file');
+        $folderName = $this->getFolderNameByServisId($idservis);
 
-        // 1. Cari Servis & Buat Folder Name
-        $servis = $this->servisModel->find($idservis);
-        if (!$servis) return $this->response->setJSON(['status' => false, 'msg' => 'Servis tidak sah.']);
-        
-        $folderName = $this->slugify($servis['namaservis']);
+        if (!$file || !$file->isValid()) {
+            return $this->response->setJSON(['status' => false, 'msg' => 'Fail tidak sah.', 'csrf' => csrf_hash()]);
+        }
 
-        if (!$file || !$file->isValid()) return $this->response->setJSON(['status' => false, 'msg' => 'Fail tidak sah.']);
-        if (!$this->isPdfFile($file)) return $this->response->setJSON(['status' => false, 'msg' => 'Hanya PDF sahaja.']);
+        if (!$folderName) {
+            return $this->response->setJSON(['status' => false, 'msg' => 'Servis tidak sah.', 'csrf' => csrf_hash()]);
+        }
 
-        // 2. Setup File Naming
-        $originalName = $file->getClientName(); 
+        if (!$this->isPdfFile($file)) {
+            return $this->response->setJSON(['status' => false, 'msg' => 'Hanya fail PDF dibenarkan.', 'csrf' => csrf_hash()]);
+        }
+
         $newName = time() . '_' . $file->getRandomName();
+        $originalName = $file->getClientName();
         $uploadPath = WRITEPATH . "uploads/dokumen/{$folderName}/";
         
         if (!is_dir($uploadPath)) mkdir($uploadPath, 0777, true);
@@ -139,24 +142,35 @@ class DokumenController extends BaseController
                 'idservis'           => $idservis,
                 'folder_name'        => $folderName,
                 'nama'               => $nama,
+                'descdoc'            => $descdoc,
                 'namafail'           => $newName,
                 'file_original_name' => $originalName,
                 'mime'               => $file->getClientMimeType(),
-                'descdoc'            => $descdoc,
-                'status'             => 'pending',
-                'uploaded_by'        => auth()->id()
+                'status'             => 'pending'
             ];
 
             if ($this->dokumenModel->insert($data)) {
                 $documentId = $this->dokumenModel->getInsertID();
-                $this->writeAuditLog('create', 'dokumen', $documentId, "Tambah Dokumen {$nama}", 
-                    ['Folder: ' . $folderName, 'Fail Asal: ' . $originalName], 
-                    "Dokumen \"$nama\" dimuat naik ke folder $folderName"
+                $this->writeAuditLog(
+                    'create',
+                    'dokumen',
+                    $documentId,
+                    "Tambah Dokumen {$nama}",
+                    [
+                        'Servis ID: ' . $this->auditValue($idservis),
+                        'Nama Dokumen: ' . $this->auditValue($nama),
+                        'Status Awal: Pending',
+                    ],
+                    'Dokumen baharu "' . $this->auditValue($nama) . '" telah ditambah ke dalam sistem.'
                 );
+
                 return $this->response->setJSON(['status' => true, 'msg' => 'Dokumen berjaya dimuat naik!', 'csrf' => csrf_hash()]);
+            } else {
+                return $this->response->setJSON(['status' => false, 'msg' => 'Gagal simpan rekod.', 'csrf' => csrf_hash()]);
             }
         }
-        return $this->response->setJSON(['status' => false, 'msg' => 'Gagal pindah fail.']);
+
+        return $this->response->setJSON(['status' => false, 'msg' => 'Gagal pindah fail.', 'csrf' => csrf_hash()]);
     }
 
     public function kemaskini($iddoc)
@@ -168,10 +182,21 @@ class DokumenController extends BaseController
             $finalDesc = $this->cleanCKEditor($this->request->getPost('descdoc'));
 
             $updateData = [
-                'nama'    => $this->request->getPost('nama'),
-                'descdoc' => $finalDesc, 
-                'status'  => $this->request->getPost('status') ?? $dokumen['status']
+                'nama'        => $this->request->getPost('nama'),
+                'descdoc'     => $finalDesc,
+                'status'      => $this->request->getPost('status') ?? $dokumen['status'],
+                'folder_name' => $dokumen['folder_name'] ?? null,
             ];
+
+            if (empty($updateData['folder_name'])) {
+                $folderName = $this->getFolderNameByServisId($dokumen['idservis'] ?? $this->request->getPost('idservis'));
+
+                if (!$folderName) {
+                    return $this->response->setJSON(['status' => false, 'msg' => 'Servis tidak sah.', 'csrf' => csrf_hash()]);
+                }
+
+                $updateData['folder_name'] = $folderName;
+            }
 
             $file = $this->request->getFile('file');
             if ($file && $file->isValid() && !$file->hasMoved()) {
@@ -179,9 +204,7 @@ class DokumenController extends BaseController
                     return $this->response->setJSON(['status' => false, 'msg' => 'Hanya fail PDF dibenarkan.', 'csrf' => csrf_hash()]);
                 }
 
-                // Logic ganti fail...
-                $folderName = $this->resolveFolderName($dokumen, $this->request->getPost('idservis'));
-                $uploadPath = WRITEPATH . "uploads/dokumen/{$folderName}/";
+                $uploadPath = WRITEPATH . "uploads/dokumen/{$updateData['folder_name']}/";
 
                 if (!is_dir($uploadPath)) {
                     mkdir($uploadPath, 0777, true);
@@ -194,11 +217,16 @@ class DokumenController extends BaseController
                 $newFileName = time() . '_' . $file->getRandomName();
                 $file->move($uploadPath, $newFileName);
                 $updateData['namafail'] = $newFileName;
-                $updateData['mime']     = $file->getClientMimeType();
+                $updateData['mime'] = $file->getClientMimeType();
+                $updateData['file_original_name'] = $file->getClientName();
 
-                if ($this->hasDokumenColumn('file_original_name')) {
-                    $updateData['file_original_name'] = $file->getClientName();
+                if ($this->dokumenColumnExists('uploaded_by')) {
+                    $updateData['uploaded_by'] = function_exists('auth') && auth()->loggedIn()
+                        ? auth()->id()
+                        : null;
                 }
+            } elseif (empty($dokumen['file_original_name'] ?? null) && !empty($dokumen['namafail'])) {
+                $updateData['file_original_name'] = $dokumen['namafail'];
             }
 
             if ($this->dokumenModel->update($iddoc, $updateData)) {
@@ -207,7 +235,9 @@ class DokumenController extends BaseController
                     'descdoc' => 'Penerangan',
                     'status' => 'Status',
                     'namafail' => 'Fail PDF',
+                    'file_original_name' => 'Nama fail asal',
                     'mime' => 'Jenis fail',
+                    'uploaded_by' => 'Dikemas kini oleh',
                 ]);
 
                 $this->writeAuditLog(
@@ -235,7 +265,7 @@ class DokumenController extends BaseController
             $dokumen = $this->dokumenModel->find($iddoc);
             if (!$dokumen) return $this->response->setJSON(['status' => false, 'msg' => 'Dokumen tidak dijumpai.', 'csrf' => csrf_hash()]);
 
-            $folderName = $this->resolveFolderName($dokumen);
+            $folderName = $dokumen['folder_name'] ?? $this->getFolderNameByServisId($dokumen['idservis']);
             $filePath = WRITEPATH . "uploads/dokumen/{$folderName}/{$dokumen['namafail']}";
             if (!empty($dokumen['namafail']) && file_exists($filePath)) unlink($filePath);
 
@@ -263,7 +293,7 @@ class DokumenController extends BaseController
 
     public function viewFile($idservis, $filename)
     {
-        $folderName = $this->resolveFolderName(null, $idservis);
+        $folderName = $this->getFolderNameByServisId($idservis);
         $path = WRITEPATH . "uploads/dokumen/{$folderName}/{$filename}";
         if (!file_exists($path)) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
@@ -273,14 +303,5 @@ class DokumenController extends BaseController
             ->setHeader('Content-Type', $mimeType)
             ->setHeader('Content-Disposition', 'inline; filename="' . $filename . '"')
             ->setBody(file_get_contents($path));
-    }
-
-    private function slugify($text)
-    {
-        // Tukar simbol/space jadi underscore, pastikan lowercase
-        $text = preg_replace('~[^\pL\d]+~u', '_', $text);
-        $text = trim($text, '_');
-        $text = strtolower($text);
-        return empty($text) ? 'n_a' : $text;
     }
 }
