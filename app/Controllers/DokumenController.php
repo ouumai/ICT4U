@@ -34,11 +34,6 @@ class DokumenController extends BaseController
         return $extension === 'pdf' && in_array($file->getMimeType(), $allowedMimeTypes, true);
     }
 
-    private function dokumenColumnExists(string $column): bool
-    {
-        return $this->dokumenModel->db->fieldExists($column, 'aict4u106mdoc');
-    }
-
     private function slugify(string $text): string
     {
         $text = preg_replace('~[^\pL\d]+~u', '_', $text);
@@ -56,7 +51,26 @@ class DokumenController extends BaseController
             return null;
         }
 
-        return $this->slugify($servis['namaservis']);
+        return $this->slugify((string) $servis['namaservis']);
+    }
+
+    private function resolveFolderName(array $dokumen): ?string
+    {
+        if (!empty($dokumen['folder_name'])) {
+            return $dokumen['folder_name'];
+        }
+
+        if (!empty($dokumen['idservis'])) {
+            $folderName = $this->getFolderNameByServisId($dokumen['idservis']);
+
+            if ($folderName) {
+                return $folderName;
+            }
+
+            return (string) $dokumen['idservis'];
+        }
+
+        return null;
     }
 
     public function index()
@@ -146,7 +160,9 @@ class DokumenController extends BaseController
                 'namafail'           => $newName,
                 'file_original_name' => $originalName,
                 'mime'               => $file->getClientMimeType(),
-                'status'             => 'pending'
+                'status'             => 'pending',
+                'created_by'         => function_exists('auth') && auth()->loggedIn() ? auth()->id() : null,
+                'uploaded_by'        => function_exists('auth') && auth()->loggedIn() ? auth()->id() : null,
             ];
 
             if ($this->dokumenModel->insert($data)) {
@@ -185,7 +201,7 @@ class DokumenController extends BaseController
                 'nama'        => $this->request->getPost('nama'),
                 'descdoc'     => $finalDesc,
                 'status'      => $this->request->getPost('status') ?? $dokumen['status'],
-                'folder_name' => $dokumen['folder_name'] ?? null,
+                'folder_name' => $this->resolveFolderName($dokumen),
             ];
 
             if (empty($updateData['folder_name'])) {
@@ -219,12 +235,9 @@ class DokumenController extends BaseController
                 $updateData['namafail'] = $newFileName;
                 $updateData['mime'] = $file->getClientMimeType();
                 $updateData['file_original_name'] = $file->getClientName();
-
-                if ($this->dokumenColumnExists('uploaded_by')) {
-                    $updateData['uploaded_by'] = function_exists('auth') && auth()->loggedIn()
-                        ? auth()->id()
-                        : null;
-                }
+                $updateData['uploaded_by'] = function_exists('auth') && auth()->loggedIn()
+                    ? auth()->id()
+                    : null;
             } elseif (empty($dokumen['file_original_name'] ?? null) && !empty($dokumen['namafail'])) {
                 $updateData['file_original_name'] = $dokumen['namafail'];
             }
@@ -265,7 +278,7 @@ class DokumenController extends BaseController
             $dokumen = $this->dokumenModel->find($iddoc);
             if (!$dokumen) return $this->response->setJSON(['status' => false, 'msg' => 'Dokumen tidak dijumpai.', 'csrf' => csrf_hash()]);
 
-            $folderName = $dokumen['folder_name'] ?? $this->getFolderNameByServisId($dokumen['idservis']);
+            $folderName = $this->resolveFolderName($dokumen);
             $filePath = WRITEPATH . "uploads/dokumen/{$folderName}/{$dokumen['namafail']}";
             if (!empty($dokumen['namafail']) && file_exists($filePath)) unlink($filePath);
 
@@ -294,6 +307,9 @@ class DokumenController extends BaseController
     public function viewFile($idservis, $filename)
     {
         $folderName = $this->getFolderNameByServisId($idservis);
+        if (!$folderName) {
+            $folderName = (string) $idservis;
+        }
         $path = WRITEPATH . "uploads/dokumen/{$folderName}/{$filename}";
         if (!file_exists($path)) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
