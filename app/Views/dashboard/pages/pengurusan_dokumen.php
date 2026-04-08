@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/dropzone@5.9.3/dist/min/dropzone.min.css" rel="stylesheet">
 
 <style>
     /* 1. Global Setup & Typography */
@@ -58,6 +59,62 @@
 
     .swal-label-custom { display: block; font-size: 0.8rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
     .swal-input-custom { min-height: 52px; border-radius: 12px; border: 1px solid #e2e8f0; padding: 12px 15px; width: 100%; background-color: #ffffff; font-weight: 500; font-size: 0.95rem; }
+
+    .ict4u-dropzone {
+        border: 2px dashed #a5b4fc !important;
+        border-radius: 1rem !important;
+        background: linear-gradient(135deg, #eef2ff 0%, #ffffff 100%) !important;
+        padding: 1.5rem 1.25rem !important;
+        min-height: 220px !important;
+        transition: all 0.2s ease !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ict4u-dropzone:hover,
+    .ict4u-dropzone.dz-drag-hover {
+        border-color: #4f46e5 !important;
+        background: linear-gradient(135deg, #e0e7ff 0%, #ffffff 100%) !important;
+        box-shadow: 0 0 0 6px rgba(79, 70, 229, 0.10) !important;
+        transform: translateY(-1px);
+    }
+
+    .ict4u-dropzone .dz-message {
+        margin: 0 !important;
+        width: 100%;
+    }
+
+    .ict4u-dropzone .dz-preview {
+        margin: 0.75rem 0 0 !important;
+        width: 100%;
+        min-height: auto !important;
+    }
+
+    .ict4u-dropzone .dz-preview .dz-details {
+        border-radius: 1rem !important;
+        background: #ffffff !important;
+        border: 1px solid #c7d2fe !important;
+        padding: 1rem !important;
+    }
+
+    .ict4u-dropzone .dz-preview .dz-filename,
+    .ict4u-dropzone .dz-preview .dz-size {
+        color: #312e81 !important;
+        font-weight: 700 !important;
+    }
+
+    .ict4u-dropzone .dz-remove {
+        color: #dc2626 !important;
+        font-weight: 700 !important;
+        text-decoration: none !important;
+        margin-top: 0.75rem;
+        display: inline-block;
+    }
+
+    .ict4u-dropzone .dz-error-message {
+        top: calc(100% + 0.5rem) !important;
+    }
 
     /* 6. Status Pills (WARNA-WARNI MACAM APPROVAL) */
     .status-pill { padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; display: inline-block; }
@@ -223,10 +280,14 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.ckeditor.com/ckeditor5/38.1.0/classic/ckeditor.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dropzone@5.9.3/dist/min/dropzone.min.js"></script>
 
 <script>
 let editorInstance = null;
+let dokumenDropzone = null;
 let currentCsrfHash = '<?= csrf_hash() ?>';
+
+Dropzone.autoDiscover = false;
 
 $(document).ready(function() {
     // ==========================================
@@ -385,7 +446,17 @@ function showSwalEditor(data = null, idservis) {
             </div>
             <div>
                 <label class="swal-label-custom">Fail Dokumen (PDF Sahaja)</label>
-                <input type="file" id="swal-file" class="swal-input-custom" style="padding-top:12px" accept="application/pdf">
+                <form id="swal-dropzone" class="dropzone ict4u-dropzone">
+                    <div class="dz-message needsclick">
+                        <div class="flex flex-col items-center text-center">
+                            <div class="w-16 h-16 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 shadow-sm">
+                                <i class="bi bi-cloud-arrow-up-fill text-3xl"></i>
+                            </div>
+                            <div class="text-base font-extrabold text-slate-800">Seret fail PDF ke sini</div>
+                            <div class="text-sm text-slate-500 mt-2">Atau klik kawasan ini untuk pilih satu fail sahaja.</div>
+                        </div>
+                    </div>
+                </form>
                 ${!isNew ? `<div class="text-sm text-blue-600 mt-1">* Biarkan kosong jika tidak mahu tukar fail</div>` : ''}
             </div>
         </div>`,
@@ -404,15 +475,60 @@ function showSwalEditor(data = null, idservis) {
             if (editorInstance) { editorInstance.destroy(); }
             ClassicEditor.create(document.querySelector('#swal-descdoc'))
                 .then(newEditor => { editorInstance = newEditor; });
+
+            if (dokumenDropzone) {
+                dokumenDropzone.destroy();
+                dokumenDropzone = null;
+            }
+
+            dokumenDropzone = new Dropzone('#swal-dropzone', {
+                url: '#',
+                autoProcessQueue: false,
+                uploadMultiple: false,
+                maxFiles: 1,
+                acceptedFiles: 'application/pdf,.pdf',
+                addRemoveLinks: true,
+                clickable: true,
+                dictRemoveFile: 'Buang fail',
+                dictInvalidFileType: 'Hanya fail PDF dibenarkan.',
+                dictMaxFilesExceeded: 'Hanya satu fail dibenarkan untuk setiap muat naik.',
+                init: function() {
+                    this.on('addedfile', function(file) {
+                        if (this.files.length > 1) {
+                            this.removeFile(this.files[0]);
+                        }
+                    });
+
+                    this.on('maxfilesexceeded', function(file) {
+                        this.removeAllFiles();
+                        this.addFile(file);
+                    });
+                }
+            });
+        },
+        willClose: () => {
+            if (editorInstance) {
+                editorInstance.destroy();
+                editorInstance = null;
+            }
+
+            if (dokumenDropzone) {
+                dokumenDropzone.destroy();
+                dokumenDropzone = null;
+            }
         },
         preConfirm: () => {
             const nama = document.getElementById('swal-nama').value.trim();
             let description = editorInstance ? editorInstance.getData() : '';
-            const fileInput = document.getElementById('swal-file');
+            const acceptedFiles = dokumenDropzone ? dokumenDropzone.getAcceptedFiles() : [];
 
             if (!nama) { Swal.showValidationMessage('Tajuk Dokumen wajib diisi.'); return false; }
             const plainText = description.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, '').trim();
             if (plainText === "") { description = ""; }
+            if (isNew && acceptedFiles.length === 0) {
+                Swal.showValidationMessage('Sila muat naik satu fail PDF sebelum simpan.');
+                return false;
+            }
 
             const fd = new FormData();
             fd.append('<?= csrf_token() ?>', currentCsrfHash); 
@@ -420,8 +536,8 @@ function showSwalEditor(data = null, idservis) {
             fd.append('nama', nama);
             fd.append('descdoc', description);
             
-            if (fileInput.files && fileInput.files.length > 0) {
-                fd.append('file', fileInput.files[0]);
+            if (acceptedFiles.length > 0) {
+                fd.append('file', acceptedFiles[0]);
             }
             return { formData: fd };
         }
