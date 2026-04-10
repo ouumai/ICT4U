@@ -142,7 +142,7 @@
     }
 
     .modal-container {
-        margin: auto; /* TAMBAH BARIS NI */
+        margin: auto;
         width: min(90vw, 960px);
         height: min(85vh, 760px);
         min-width: 640px;
@@ -339,6 +339,10 @@
     </div>
 </div>
 
+<div id="lottieContainer" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:10000; display:none;">
+    <lottie-player id="successAnimation" src="https://assets10.lottiefiles.com/packages/lf20_jbrw3hcz.json" background="transparent" speed="1" style="width:250px;height:250px;" autoplay></lottie-player>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.ckeditor.com/ckeditor5/38.1.0/classic/ckeditor.js"></script>
@@ -495,7 +499,7 @@ function refreshTable(idservis){
     });
 }
 
-function showDokumenModal(id) {
+window.showDokumenModal = function(id) {
     const d = dokumenCache[id];
     if (!d) return;
 
@@ -503,59 +507,46 @@ function showDokumenModal(id) {
     const dokumenDetails = document.getElementById('dokumenDetails');
     const namaservis = $('#dropdownServis option:selected').text();
     
-    // Bukak modal
     viewModal.classList.remove('hidden');
-    
     const fileUrl = `<?= base_url('pengurusandokumen/viewFile') ?>/${d.idservis}/${d.namafail}`;
     const statusLabel = d.status ? d.status.toLowerCase() : 'pending';
 
-    // Set file HTML
-    let fileHTML = '';
-    if (d.namafail && (d.namafail.toLowerCase().endsWith('.png') || d.namafail.toLowerCase().endsWith('.jpg') || d.namafail.toLowerCase().endsWith('.jpeg'))) {
-        fileHTML = `<img src="${fileUrl}" class="w-full rounded-2xl shadow-lg border" />`;
-    } else if (d.namafail && d.namafail.toLowerCase().endsWith('.pdf')) {
-        fileHTML = `<div class="file-preview-wrapper"><iframe src="${fileUrl}" class="file-preview-frame"></iframe></div>`;
-    } else {
-        fileHTML = `<div class="p-8 border-2 border-dashed rounded-2xl text-center"><a href="${fileUrl}" target="_blank" class="text-indigo-600 font-bold underline">Muat Turun Fail</a></div>`;
-    }
+    let fileHTML = d.namafail && d.namafail.toLowerCase().endsWith('.pdf') 
+        ? `<div class="file-preview-wrapper"><iframe src="${fileUrl}" class="file-preview-frame"></iframe></div>`
+        : `<div class="p-8 border-2 border-dashed rounded-2xl text-center"><a href="${fileUrl}" target="_blank" class="text-indigo-600 font-bold underline">Muat Turun Fail</a></div>`;
     
-    // KOD BARU: Grid 2x2 yang kemas dan selari untuk Pengurusan Dokumen
+    // GRID 2X2 - BUTANG BUKA TAB SELARI DENGAN JENIS SERVIS
     dokumenDetails.innerHTML = `
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-4 mb-6 text-left">
             <div>
                 <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Nama Dokumen</span>
                 <p class="font-bold text-slate-800 mt-1">${d.nama}</p>
             </div>
-            
             <div>
                 <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Jenis Servis</span>
                 <p class="font-bold text-slate-800 mt-1">${namaservis || '-'}</p>
             </div>
-
             <div>
                 <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Status Semasa</span>
-                <div class="mt-2">
-                    <span class="status-pill status-${statusLabel}">${statusLabel.toUpperCase()}</span>
-                </div>
+                <div class="mt-2"><span class="status-pill status-${statusLabel}">${statusLabel.toUpperCase()}</span></div>
             </div>
-            
-            <div>
-                <span class="text-xs font-bold uppercase hidden md:block opacity-0">&nbsp;</span>
-                <div class="mt-2 flex justify-start">
-                    <a href="${fileUrl}" target="_blank" class="bg-indigo-100 hover:bg-indigo-600 text-indigo-700 hover:text-white px-4 py-2 rounded-xl text-sm font-bold transition inline-flex items-center gap-2">
-                        <i class="bi bi-box-arrow-up-right"></i> Buka Tab Baru
-                    </a>
-                </div>
+            <div class="flex items-end justify-start">
+                <a href="${fileUrl}" target="_blank" class="bg-indigo-100 hover:bg-indigo-600 text-indigo-700 hover:text-white px-4 py-2.5 rounded-xl text-sm font-bold transition inline-flex items-center gap-2">
+                    <i class="bi bi-box-arrow-up-right"></i> Buka Tab Baru
+                </a>
             </div>
         </div>
-        
-        <div class="mb-6">
+        <div class="mb-6 text-left">
             <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Catatan</span>
             <div class="text-slate-600 mt-1">${d.descdoc || 'Tiada catatan.'}</div>
         </div>
         ${fileHTML}
     `;
 }
+
+document.getElementById('closeViewModal').onclick = () => {
+    document.getElementById('viewModal').classList.add('hidden');
+};
 
 function openDokumenEditor(iddoc = null) {
     const idservis = $('#dropdownServis').val();
