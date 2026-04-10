@@ -49,7 +49,7 @@
         opacity: 0.6;
     }
 
-    /* 5. SweetAlert UI Design (Standard ICT4U) */
+    /* 5. SweetAlert UI Design */
     .swal-rounded { border-radius: 2rem !important; padding: 1.5rem !important; }
     .swal2-popup { border-radius: 28px !important; padding: 2rem !important; }
     .swal2-actions { width: 100% !important; display: flex !important; flex-direction: row !important; gap: 12px !important; margin-top: 1.5rem !important; padding: 0 1rem !important; }
@@ -116,14 +116,75 @@
         top: calc(100% + 0.5rem) !important;
     }
 
-    /* 6. Status Pills (WARNA-WARNI MACAM APPROVAL) */
+    /* 6. Status Pills */
     .status-pill { padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; display: inline-block; }
     .status-pending { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
     .status-approved { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
     .status-rejected { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
 
+    /* 7. MODAL X BUTTON & VIEW STYLES (SEBIJIK PENGESAHAN DOKUMEN) */
+    #closeViewModal {
+        color: #94a3b8;
+        transition: all 0.2s ease;
+        background: transparent;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-text-stroke: 1.2px #94a3b8;
+    }
+    #closeViewModal:hover, #closeViewModal:active {
+        color: #ef4444 !important; 
+        -webkit-text-stroke: 1.2px #ef4444;
+    }
+
+    .modal-container {
+        width: min(90vw, 960px);
+        height: min(85vh, 760px);
+        min-width: 640px;
+        min-height: 520px;
+        max-width: 96vw;
+        max-height: 92vh;
+        display: flex;
+        flex-direction: column;
+        resize: both;
+        overflow: hidden;
+    }
+
+    #dokumenDetails {
+        flex: 1;
+        overflow: auto;
+    }
+
+    .file-preview-frame {
+        width: 100%;
+        height: 100%;
+        min-height: 450px;
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+    }
+
+    .file-preview-wrapper {
+        height: clamp(420px, 58vh, 720px);
+    }
+
+    @media (max-width: 768px) {
+        .modal-container {
+            width: 100%;
+            height: 88vh;
+            min-width: 0;
+            min-height: 0;
+            resize: none;
+        }
+    }
+
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
     /* ==========================================
-       TOM SELECT - DROPDOWN INPUT UI (MAGIC)
+        TOM SELECT - DROPDOWN INPUT UI
     ========================================== */
     .servis-select-wrapper {
         position: relative;
@@ -131,10 +192,9 @@
         width: 100%;
     }
 
-    /* Kotak Utama (Tempat user klik) */
     .TS-Compact .ts-wrapper.single .ts-control {
         min-height: 48px !important;
-        padding: 0 2.5rem 0 1rem !important; /* Elak teks langgar arrow */
+        padding: 0 2.5rem 0 1rem !important;
         border-radius: 0.75rem !important;
         border: 1px solid #e2e8f0 !important;
         background: #ffffff !important;
@@ -145,14 +205,12 @@
         transition: all 0.2s ease;
     }
 
-    /* Kotak Menyala Indigo bila diklik */
     .TS-Compact .ts-wrapper.focus .ts-control,
     .TS-Compact .ts-wrapper.dropdown-active .ts-control {
         border-color: #4f46e5 !important;
         box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15) !important;
     }
 
-    /* Text Pilihan */
     .TS-Compact .ts-wrapper.single .ts-control > .item,
     .TS-Compact .ts-control > input::placeholder {
         font-size: 0.95rem !important;
@@ -160,7 +218,6 @@
         color: #475569 !important;
     }
 
-    /* Bunuh terus arrow default Tom Select */
     .TS-Compact .ts-wrapper.single::after,
     .TS-Compact .ts-control::after {
         display: none !important;
@@ -169,7 +226,6 @@
         visibility: hidden !important;
     }
 
-    /* Container Dropdown Menu */
     .TS-Compact .ts-dropdown {
         border-radius: 0.75rem !important;
         border: 1px solid #e2e8f0 !important;
@@ -179,7 +235,6 @@
         z-index: 9999;
     }
 
-    /* Kotak Search Dalam Dropdown */
     .TS-Compact .dropdown-input-wrap {
         padding: 10px !important; 
         border-bottom: 1px solid #e2e8f0 !important; 
@@ -202,7 +257,6 @@
         box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1) !important;
     }
 
-    /* Tema Indigo Hover */
     .TS-Compact .ts-dropdown-content {
         padding: 4px !important; 
     }
@@ -223,12 +277,10 @@
         font-weight: 700 !important;
     }
 
-    /* Sorok Placeholder Dari Dropdown List */
     .TS-Compact .ts-dropdown .option[data-value=""] {
         display: none !important;
     }
 
-    /* Animasi Arrow Pusing 180 Darjah */
     .ts-wrapper.dropdown-active ~ .custom-arrow {
         transform: translateY(-50%) rotate(180deg) !important;
     }
@@ -276,6 +328,16 @@
     </div>
 </div>
 
+<div id="viewModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4" style="z-index: 9999;">
+    <div class="modal-container bg-white rounded-3xl shadow-2xl animate-[slideUp_0.3s_ease-out]">
+        <div class="bg-slate-50 p-5 flex justify-between items-center border-b">
+            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2 m-0">Perincian Dokumen</h2>
+            <button id="closeViewModal" title="Tutup"><i class="bi bi-x-lg" style="font-size: 1.3rem;"></i></button>
+        </div>
+        <div id="dokumenDetails" class="p-8"></div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.ckeditor.com/ckeditor5/38.1.0/classic/ckeditor.js"></script>
@@ -286,13 +348,11 @@
 let editorInstance = null;
 let dokumenDropzone = null;
 let currentCsrfHash = '<?= csrf_hash() ?>';
+let dokumenCache = {}; 
 
 Dropzone.autoDiscover = false;
 
 $(document).ready(function() {
-    // ==========================================
-    // INIT TOM SELECT (MAGIC SEBIJIK PERINCIAN)
-    // ==========================================
     const dropdownServis = new TomSelect('#dropdownServis', {
         allowEmptyOption: true,
         create: false,
@@ -316,9 +376,25 @@ $(document).ready(function() {
         }
     });
 
-    // Pindah event listener ke sini lepas init
     $('#dropdownServis').change(function(){
         refreshTable($(this).val());
+    });
+
+    document.getElementById('closeViewModal').onclick = () => document.getElementById('viewModal').classList.add('hidden');
+
+    $(document).on('click', '.btn-view-dokumen', function() {
+        const id = $(this).data('id');
+        showDokumenModal(id);
+    });
+
+    $(document).on('click', '.btn-edit-dokumen', function() {
+        const id = $(this).data('id');
+        openDokumenEditor(id);
+    });
+
+    $(document).on('click', '.btn-hapus-dokumen', function() {
+        const id = $(this).data('id');
+        hapusDokumen(id);
     });
 });
 
@@ -343,6 +419,9 @@ function refreshTable(idservis){
     $.get('<?= base_url('pengurusandokumen/getDokumen') ?>/' + idservis, function(res){
         if(res.csrf) refreshToken(res.csrf);
         var items = res.items;
+        
+        dokumenCache = {}; 
+
         if(!items || items.length === 0){
             $('#dokumenArea').html(`<div class="p-20 text-center"><div class="bg-red-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm"><i class="bi bi-folder-x text-4xl text-red-500"></i></div><h5 class="text-slate-900 font-bold mb-1">Tiada Fail Dijumpai</h5><p class="text-slate-500 font-medium">Tiada dokumen yang dimuat naik untuk servis ini.</p></div>`);
             return;
@@ -361,6 +440,8 @@ function refreshTable(idservis){
                 <tbody class="divide-y divide-slate-100">`;
         
         items.forEach(d => {
+            dokumenCache[d.iddoc] = d; 
+            
             const fileUrl = `<?= base_url('pengurusandokumen/viewFile') ?>/${d.idservis}/${d.namafail}`;
             const createdDate = d.created_at ? d.created_at : '-';
             const updatedDate = d.updated_at ? d.updated_at : createdDate;
@@ -394,14 +475,14 @@ function refreshTable(idservis){
                     </td>
                     <td class="px-8 py-6 text-center">
                         <div class="flex justify-center gap-2">
-                            <a href="${fileUrl}" target="_blank" class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-600 p-2 rounded-xl hover:bg-gray-600 hover:text-white transition" title="Lihat">
-                                <i class="bi bi-eye-fill"></i>
-                            </a>
-                            <button onclick="openDokumenEditor(${d.iddoc})" class="w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 p-2 rounded-xl hover:bg-indigo-600 hover:text-white transition" title="Edit">
-                                <i class="bi bi-pencil-square"></i>
+                            <button data-id="${d.iddoc}" class="btn-view-dokumen w-10 h-10 flex items-center justify-center bg-gray-50 text-gray-600 p-2 rounded-xl hover:bg-gray-600 hover:text-white transition group" title="Lihat">
+                                <i class="bi bi-eye-fill pointer-events-none group-hover:text-white"></i>
                             </button>
-                            <button onclick="hapusDokumen(${d.iddoc})" class="w-10 h-10 flex items-center justify-center bg-red-50 text-red-600 p-2 rounded-xl hover:bg-red-600 hover:text-white transition" title="Padam">
-                                <i class="bi bi-trash3-fill"></i>
+                            <button data-id="${d.iddoc}" class="btn-edit-dokumen w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 p-2 rounded-xl hover:bg-indigo-600 hover:text-white transition" title="Edit">
+                                <i class="bi bi-pencil-square pointer-events-none"></i>
+                            </button>
+                            <button data-id="${d.iddoc}" class="btn-hapus-dokumen w-10 h-10 flex items-center justify-center bg-red-50 text-red-600 p-2 rounded-xl hover:bg-red-600 hover:text-white transition" title="Padam">
+                                <i class="bi bi-trash3-fill pointer-events-none"></i>
                             </button>
                         </div>
                     </td>
@@ -411,6 +492,32 @@ function refreshTable(idservis){
         html += '</tbody></table></div>';
         $('#dokumenArea').html(html);
     });
+}
+
+function showDokumenModal(id) {
+    const d = dokumenCache[id];
+    if (!d) return;
+
+    const viewModal = document.getElementById('viewModal');
+    const dokumenDetails = document.getElementById('dokumenDetails');
+    const namaservis = $('#dropdownServis option:selected').text();
+    
+    viewModal.classList.remove('hidden');
+    
+    const fileUrl = `<?= base_url('pengurusandokumen/viewFile') ?>/${d.idservis}/${d.namafail}`;
+    const statusLabel = d.status ? d.status.toLowerCase() : 'pending';
+
+    let fileHTML = '';
+    if (d.namafail && (d.namafail.toLowerCase().endsWith('.png') || d.namafail.toLowerCase().endsWith('.jpg') || d.namafail.toLowerCase().endsWith('.jpeg'))) {
+        fileHTML = `<img src="${fileUrl}" class="w-full rounded-2xl shadow-lg border" />`;
+    } else if (d.namafail && d.namafail.toLowerCase().endsWith('.pdf')) {
+        fileHTML = `<div class="file-preview-wrapper"><iframe src="${fileUrl}" class="file-preview-frame"></iframe></div>`;
+    } else {
+        fileHTML = `<div class="p-8 border-2 border-dashed rounded-2xl text-center"><a href="${fileUrl}" target="_blank" class="text-indigo-600 font-bold underline">Muat Turun Fail</a></div>`;
+    }
+    
+    // HTML DALAM MODAL: 100% COPY PASTE DARI PENGESAHAN DOKUMEN
+    dokumenDetails.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"><div class="bg-slate-50 p-4 rounded-2xl"><span class="text-xs text-slate-400 font-bold uppercase">Nama Dokumen</span><p class="font-bold text-slate-700 mt-1">${d.nama}</p></div><div class="bg-slate-50 p-4 rounded-2xl"><span class="text-xs text-slate-400 font-bold uppercase">Jenis Servis</span><p class="font-bold text-slate-700 mt-1">${namaservis || '-'}</p></div><div class="bg-slate-50 p-4 rounded-2xl md:col-span-2"><span class="text-xs text-slate-400 font-bold uppercase">Status Semasa</span><div class="mt-2"><span class="status-pill status-${statusLabel}">${statusLabel}</span></div></div></div><div class="mb-6"><span class="text-xs text-slate-400 font-bold uppercase">Catatan</span><p class="text-slate-600 mt-1">${d.descdoc || 'Tiada catatan.'}</p></div>${fileHTML}`;
 }
 
 function openDokumenEditor(iddoc = null) {
@@ -495,7 +602,7 @@ function showSwalEditor(data = null, idservis) {
                 init: function() {
                     this.on('addedfile', function(file) {
                         if (this.files.length > 1) {
-                            this.removeFile(this.files[0]);
+                            this.removeFile(this.files);
                         }
                     });
 
@@ -537,7 +644,7 @@ function showSwalEditor(data = null, idservis) {
             fd.append('descdoc', description);
             
             if (acceptedFiles.length > 0) {
-                fd.append('file', acceptedFiles[0]);
+                fd.append('file', acceptedFiles);
             }
             return { formData: fd };
         }
@@ -576,7 +683,7 @@ function saveDokumen(url, formData) {
     });
 }
 
-window.hapusDokumen = function(id) {
+function hapusDokumen(id) {
     Swal.fire({
         title: 'Hapus Dokumen?',
         text: "Tindakan ini tidak boleh diundur. Adakah anda pasti?",
