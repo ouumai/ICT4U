@@ -142,6 +142,7 @@
     }
 
     .modal-container {
+        margin: auto; /* TAMBAH BARIS NI */
         width: min(90vw, 960px);
         height: min(85vh, 760px);
         min-width: 640px;
