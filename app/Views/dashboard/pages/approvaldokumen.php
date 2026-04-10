@@ -319,12 +319,50 @@ document.addEventListener('DOMContentLoaded', () => {
             if (json.status) {
                 const d = json.data;
                 const fileUrl = `<?= base_url('pengesahandokumen/viewFile') ?>/${d.idservis}/${d.namafail}`;
+                const statusLabel = d.status ? d.status.toLowerCase() : 'pending';
+
                 let fileHTML = d.mime.includes('image')
                     ? `<img src="${fileUrl}" class="w-full rounded-2xl shadow-lg border" />`
                     : (d.mime === 'application/pdf'
                         ? `<div class="file-preview-wrapper"><iframe src="${fileUrl}" class="file-preview-frame"></iframe></div>`
                         : `<div class="p-8 border-2 border-dashed rounded-2xl text-center"><a href="${fileUrl}" target="_blank" class="text-indigo-600 font-bold underline">Muat Turun Fail</a></div>`);
-                dokumenDetails.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"><div class="bg-slate-50 p-4 rounded-2xl"><span class="text-xs text-slate-400 font-bold uppercase">Nama Dokumen</span><p class="font-bold text-slate-700 mt-1">${d.nama}</p></div><div class="bg-slate-50 p-4 rounded-2xl"><span class="text-xs text-slate-400 font-bold uppercase">Jenis Servis</span><p class="font-bold text-slate-700 mt-1">${d.namaservis || '-'}</p></div><div class="bg-slate-50 p-4 rounded-2xl md:col-span-2"><span class="text-xs text-slate-400 font-bold uppercase">Status Semasa</span><div class="mt-2"><span class="status-pill status-${d.status}">${d.status}</span></div></div></div><div class="mb-6"><span class="text-xs text-slate-400 font-bold uppercase">Catatan</span><p class="text-slate-600 mt-1">${d.descdoc || 'Tiada catatan.'}</p></div>${fileHTML}`;
+                
+                // KOD BARU: Grid 2x2 yang kemas dan selari
+                dokumenDetails.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-4 mb-6">
+                        <div>
+                            <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Nama Dokumen</span>
+                            <p class="font-bold text-slate-800 mt-1">${d.nama}</p>
+                        </div>
+                        
+                        <div>
+                            <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Jenis Servis</span>
+                            <p class="font-bold text-slate-800 mt-1">${d.namaservis || '-'}</p>
+                        </div>
+
+                        <div>
+                            <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Status Semasa</span>
+                            <div class="mt-2">
+                                <span class="status-pill status-${statusLabel}">${statusLabel.toUpperCase()}</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <span class="text-xs font-bold uppercase hidden md:block opacity-0">&nbsp;</span>
+                            <div class="mt-2 flex justify-start">
+                                <a href="${fileUrl}" target="_blank" class="bg-indigo-100 hover:bg-indigo-600 text-indigo-700 hover:text-white px-4 py-2 rounded-xl text-sm font-bold transition inline-flex items-center gap-2">
+                                    <i class="bi bi-box-arrow-up-right"></i> Buka Tab Baru
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Catatan</span>
+                        <div class="text-slate-600 mt-1">${d.descdoc || 'Tiada catatan.'}</div>
+                    </div>
+                    ${fileHTML}
+                `;
             }
         } catch (err) { console.error(err); }
     }
