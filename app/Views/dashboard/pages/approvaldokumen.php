@@ -207,13 +207,7 @@
     <div class="modal-container bg-white rounded-3xl shadow-2xl animate-[slideUp_0.3s_ease-out]">
         <div class="bg-slate-50 p-5 flex justify-between items-center border-b">
             <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2 m-0">Perincian Dokumen</h2>
-            
-            <div class="flex items-center gap-3">
-                
-                <button id="closeViewModal" title="Tutup">
-                    <i class="bi bi-x-lg" style="font-size: 1.3rem;"></i>
-                </button>
-            </div>
+            <button id="closeViewModal" title="Tutup"><i class="bi bi-x-lg" style="font-size: 1.3rem;"></i></button>
         </div>
         <div id="dokumenDetails" class="p-8"></div>
     </div>
@@ -318,61 +312,20 @@ document.addEventListener('DOMContentLoaded', () => {
     window.showDokumenModal = async function(id) {
         viewModal.classList.remove('hidden');
         dokumenDetails.innerHTML = '<div class="text-center p-10">Memuatkan...</div>';
-        
-        // Sembunyikan butang new tab sekejap sementara loading
-
         try {
             const res = await fetch(`<?= base_url('pengesahandokumen/getDokumen') ?>/${id}`);
             const json = await res.json();
-            
             if (json.status) {
                 const d = json.data;
                 const fileUrl = `<?= base_url('pengesahandokumen/viewFile') ?>/${d.idservis}/${d.namafail}`;
-
                 let fileHTML = d.mime.includes('image')
                     ? `<img src="${fileUrl}" class="w-full rounded-2xl shadow-lg border" />`
                     : (d.mime === 'application/pdf'
                         ? `<div class="file-preview-wrapper"><iframe src="${fileUrl}" class="file-preview-frame"></iframe></div>`
                         : `<div class="p-8 border-2 border-dashed rounded-2xl text-center"><a href="${fileUrl}" target="_blank" class="text-indigo-600 font-bold underline">Muat Turun Fail</a></div>`);
-                
-                dokumenDetails.innerHTML = `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div class="bg-slate-50 p-4 rounded-2xl">
-                            <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">Nama Dokumen</span>
-                            <p class="font-bold text-slate-700 mt-1">${d.nama}</p>
-                        </div>
-                        <div class="bg-slate-50 p-4 rounded-2xl">
-                            <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">Jenis Servis</span>
-                            <p class="font-bold text-slate-700 mt-1">${d.namaservis || '-'}</p>
-                        </div>
-
-                        <div class="bg-slate-50 p-4 rounded-2xl">
-                            <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">Status Semasa</span>
-                            <div class="mt-2">
-                                <span class="status-pill status-${d.status}">${d.status}</span>
-                            </div>
-                        </div>
-                        
-
-                        <div class="flex items-center px-4"> 
-                            <a href="${fileUrl}" target="_blank" 
-                            class="flex items-center justify-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-2xl text-sm font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-100">
-                                <i class="bi bi-box-arrow-up-right"></i>
-                                Buka di Tab Baru
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="mb-6">
-                        <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">Catatan</span>
-                        <p class="text-slate-600 mt-1">${d.descdoc || 'Tiada catatan.'}</p>
-                    </div>
-                    ${fileHTML}`;
+                dokumenDetails.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"><div class="bg-slate-50 p-4 rounded-2xl"><span class="text-xs text-slate-400 font-bold uppercase">Nama Dokumen</span><p class="font-bold text-slate-700 mt-1">${d.nama}</p></div><div class="bg-slate-50 p-4 rounded-2xl"><span class="text-xs text-slate-400 font-bold uppercase">Jenis Servis</span><p class="font-bold text-slate-700 mt-1">${d.namaservis || '-'}</p></div><div class="bg-slate-50 p-4 rounded-2xl md:col-span-2"><span class="text-xs text-slate-400 font-bold uppercase">Status Semasa</span><div class="mt-2"><span class="status-pill status-${d.status}">${d.status}</span></div></div></div><div class="mb-6"><span class="text-xs text-slate-400 font-bold uppercase">Catatan</span><p class="text-slate-600 mt-1">${d.descdoc || 'Tiada catatan.'}</p></div>${fileHTML}`;
             }
-        } catch (err) { 
-            console.error(err); 
-            dokumenDetails.innerHTML = '<div class="text-center p-10 text-red-500">Gagal memuatkan dokumen.</div>';
-        }
+        } catch (err) { console.error(err); }
     }
 
     window.changeStatus = async function(id, status) {
