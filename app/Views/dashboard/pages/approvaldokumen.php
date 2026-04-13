@@ -227,7 +227,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const lottieContainer = document.getElementById('lottieContainer');
     const successAnimation = document.getElementById('successAnimation');
 
-    // Logic untuk Custom Dropdown Filter
     const wrapper = document.getElementById('statusFilterWrapper');
     const trigger = document.getElementById('statusFilterTrigger');
     const optionsList = document.getElementById('statusFilterOptions');
@@ -256,7 +255,6 @@ document.addEventListener('DOMContentLoaded', () => {
         wrapper.classList.remove('active');
     });
 
-    // Monitor Checkbox Individual
     tbody.addEventListener('change', (e) => {
         if (e.target.classList.contains('doc-checkbox')) {
             toggleBulkBar();
@@ -454,6 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
             icon: status === 'approved' ? 'question' : 'warning',
             showCancelButton: true,
             confirmButtonText: `Ya, ${confirmText}!`,
+            cancelButtonText: 'Batal',
             customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-batal', actions: 'swal2-actions' }
         });
 
@@ -490,7 +489,9 @@ document.addEventListener('DOMContentLoaded', () => {
             title: `Pengesahan ${confirmText}`, 
             text: `Adakah anda pasti untuk tukar status dokumen ini kepada ${status}?`, 
             icon: status === 'approved' ? 'question' : 'warning', 
-            showCancelButton: true, confirmButtonText: `Ya, ${confirmText}!`,
+            showCancelButton: true, 
+            confirmButtonText: `Ya, ${confirmText}!`,
+            cancelButtonText: 'Batal',
             customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-batal', actions: 'swal2-actions' }
         });
         if (!result.isConfirmed) return;

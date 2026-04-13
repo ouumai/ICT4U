@@ -176,4 +176,82 @@ class ApprovalDokumenController extends BaseController
             ->setHeader('Content-Disposition', 'inline; filename="' . $filename . '"')
             ->setBody(file_get_contents($path));
     }
+
+    public function bulkChangeStatus()
+    {
+        if ($this->request->isAJAX()) {
+            
+            $ids = $this->request->getPost('ids'); 
+            $status = strtolower((string) $this->request->getPost('status')); 
+
+            // Pastikan ada ID dan status adalah sah
+            if (!empty($ids) && is_array($ids) && in_array($status, ['approved', 'rejected'])) {
+                
+                $userId = session()->get('user_id') ?? 'Admin';
+                $now    = date('Y-m-d H:i:s');
+
+                $db = \Config\Database::connect();
+                $db->transStart(); // Mula transaction supaya selamat
+
+                foreach ($ids as $iddoc) {
+                    // 1. Cari dokumen lama untuk tujuan Audit Log
+                    $dokumenLama = $this->dokumenModel->find($iddoc);
+                    $oldStatus = $dokumenLama ? ucfirst($this->auditValue($dokumenLama['status'])) : 'Pending';
+                    $docName = $dokumenLama ? $this->auditValue($dokumenLama['nama']) : 'Unknown';
+
+                    // 2. Kemaskini table approval
+                    $this->approvalModel->saveStatus($iddoc, [
+                        'status'      => $status,
+                        'approved_by' => $userId,
+                        'approved_at' => $now
+                    ]);
+
+                    // 3. Kemaskini table utama dokumen
+                    $this->dokumenModel->update($iddoc, [
+                        'status'     => $status,
+                        'updated_at' => $now
+                    ]);
+
+                    // 4. Rekod Audit Log
+                    if ($dokumenLama) {
+                        $this->writeAuditLog(
+                            'update_status',
+                            'dokumen',
+                            $iddoc,
+                            'Tukar Status Dokumen (Pukal) ' . $docName,
+                            [
+                                'Status: ' . $oldStatus . ' -> ' . ucfirst($status),
+                                'Tarikh Tindakan: ' . $now,
+                            ],
+                            'Status untuk Dokumen "' . $docName . '" telah ditukar kepada ' . ucfirst($status) . ' melalui Tindakan Pukal.'
+                        );
+                    }
+                }
+
+                $db->transComplete(); // Selesai transaction
+
+                if ($db->transStatus() === false) {
+                    return $this->response->setJSON([
+                        'status'  => false,
+                        'message' => 'Ralat pangkalan data semasa kemaskini pukal!',
+                        'csrf'    => csrf_hash()
+                    ]);
+                }
+
+                return $this->response->setJSON([
+                    'status'  => true,
+                    'message' => count($ids) . ' dokumen telah berjaya dikemaskini kepada status ' . strtoupper($status) . '.',
+                    'csrf'    => csrf_hash()
+                ]);
+            }
+
+            return $this->response->setJSON([
+                'status'  => false,
+                'message' => 'Ralat: Tiada dokumen dipilih atau status tidak sah.',
+                'csrf'    => csrf_hash()
+            ]);
+        }
+        
+        return throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+    }
 }
