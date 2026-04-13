@@ -172,36 +172,31 @@
     </div>
 </div>
 
-<div id="bulkToast" class="fixed bottom-10 right-10 w-[380px] bg-white rounded-[24px] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] p-6 z-50 transition-all duration-300 hidden translate-y-8 opacity-0 border border-slate-50">
+<div id="bulkToast" class="fixed bottom-10 right-10 bg-white p-6 z-50 transition-all duration-300 hidden transform translate-y-8 opacity-0 border border-gray-50" style="width: 380px; border-radius: 24px; box-shadow: 0 20px 50px -12px rgba(0,0,0,0.15);">
     
-    <button onclick="hideBulkToast()" class="absolute top-5 right-5 text-gray-300 hover:text-gray-500 transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-    </button>
-    
-    <div class="flex items-center gap-4 mb-6 mt-4">
-        <div class="bg-[#E2E8FF] w-[48px] h-[48px] rounded-[12px] flex items-center justify-center flex-shrink-0">
-            <i class="bi bi-file-earmark-text text-[22px] text-[#5A55D2]"></i>
+    <div class="flex items-center" style="margin-top: 15px; margin-bottom: 24px; gap: 1rem;">
+        <div class="flex items-center justify-center flex-shrink-0" style="width: 48px; height: 48px; background-color: #E2E8FF; border-radius: 12px;">
+            <i class="bi bi-file-earmark-text" style="font-size: 22px; color: #5A55D2;"></i>
         </div>
         
-        <div class="flex flex-col justify-center gap-1">
-            <div id="bulkToastCount" class="text-[#0f172a] text-[16px] font-extrabold leading-none transition-colors duration-200">1 Dokumen</div>
-            <div class="text-[13px] text-slate-500 font-medium leading-none">Sedia untuk disemak</div>
+        <div class="flex flex-col justify-center text-left">
+            <div id="bulkToastCount" class="font-extrabold leading-none transition-colors duration-200" style="color: #0f172a; font-size: 16px; margin-bottom: 5px;">1 Dokumen</div>
+            <div class="font-medium leading-none" style="color: #64748b; font-size: 13px;">Sedia untuk disemak</div>
         </div>
     </div>
     
-    <div class="flex gap-3">
-        <button onclick="confirmBulkStatus('approved')" class="flex-1 bg-[#15C97A] hover:bg-[#12b36b] text-white rounded-[12px] py-3 text-[15px] font-bold transition-colors flex items-center justify-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
+    <div class="flex" style="gap: 0.75rem;">
+        <button onclick="confirmBulkStatus('approved')" class="flex-1 font-bold flex items-center justify-center focus:outline-none" 
+                style="background-color: #dcfce7; color: #166534; border-radius: 12px; font-size: 14px; gap: 0.5rem; transition: background-color 0.2s; padding: 10px 0;" 
+                onmouseover="this.style.backgroundColor='#bbf7d0'" onmouseout="this.style.backgroundColor='#dcfce7'">
+            <i class="bi bi-check-lg" style="font-size: 18px; -webkit-text-stroke: 0.5px;"></i>
             Diterima
         </button>
-        <button onclick="confirmBulkStatus('rejected')" class="flex-1 bg-[#EF4444] hover:bg-[#d93f3f] text-white rounded-[12px] py-3 text-[15px] font-bold transition-colors flex items-center justify-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+        
+        <button onclick="confirmBulkStatus('rejected')" class="flex-1 font-bold flex items-center justify-center focus:outline-none" 
+                style="background-color: #fee2e2; color: #991b1b; border-radius: 12px; font-size: 14px; gap: 0.5rem; transition: background-color 0.2s; padding: 10px 0;" 
+                onmouseover="this.style.backgroundColor='#fecaca'" onmouseout="this.style.backgroundColor='#fee2e2'">
+            <i class="bi bi-x-lg" style="font-size: 16px; -webkit-text-stroke: 0.5px;"></i>
             Ditolak
         </button>
     </div>
