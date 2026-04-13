@@ -69,157 +69,44 @@
         -webkit-text-stroke: 1.2px #ef4444;
     }
 
-    .swal-rounded {
-        border-radius: 2rem !important;
-        padding: 1.5rem !important;
-    }
+    .swal-rounded { border-radius: 2rem !important; padding: 1.5rem !important; }
+    .swal2-actions { display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: center !important; width: 100% !important; gap: 10px !important; margin-top: 1.5rem !important; }
 
-    .swal2-actions {
-        display: flex !important;
-        flex-direction: row !important; 
-        align-items: center !important;
-        justify-content: center !important;
-        width: 100% !important;
-        gap: 10px !important;
-        margin-top: 1.5rem !important;
-    }
-
-    .btn-swal-hantar { 
-        flex: 1 !important; 
-        background: #4f46e5 !important; 
-        color: white !important; 
-        font-weight: 700 !important; 
-        padding: 14px !important; 
-        border-radius: 16px !important; 
-        border: none !important; 
-        order: 2 !important; 
-        transition: all 0.2s ease;
-    }
-
-    .btn-swal-batal { 
-        flex: 1 !important; 
-        background: #fee2e2 !important; 
-        color: #ef4444 !important; 
-        font-weight: 700 !important; 
-        padding: 14px !important; 
-        border-radius: 16px !important; 
-        border: none !important; 
-        order: 1 !important; 
-    }
+    .btn-swal-hantar { flex: 1 !important; background: #4f46e5 !important; color: white !important; font-weight: 700 !important; padding: 14px !important; border-radius: 16px !important; border: none !important; order: 2 !important; transition: all 0.2s ease; }
+    .btn-swal-batal { flex: 1 !important; background: #fee2e2 !important; color: #ef4444 !important; font-weight: 700 !important; padding: 14px !important; border-radius: 16px !important; border: none !important; order: 1 !important; }
 
     .modal-container {
-        margin: auto;
-        width: min(90vw, 960px);
-        height: min(85vh, 760px);
-        min-width: 640px;
-        min-height: 520px;
-        max-width: 96vw;
-        max-height: 92vh;
-        display: flex;
-        flex-direction: column;
-        resize: both;
-        overflow: hidden;
+        margin: auto; width: min(90vw, 960px); height: min(85vh, 760px); min-width: 640px; min-height: 520px;
+        max-width: 96vw; max-height: 92vh; display: flex; flex-direction: column; resize: both; overflow: hidden;
     }
 
-    #dokumenDetails {
-        flex: 1;
-        overflow: auto;
-    }
+    #dokumenDetails { flex: 1; overflow: auto; }
+    .file-preview-frame { width: 100%; height: 100%; min-height: 450px; border: 1px solid #e2e8f0; border-radius: 1rem; }
+    .file-preview-wrapper { height: clamp(420px, 58vh, 720px); }
 
-    .file-preview-frame {
-        width: 100%;
-        height: 100%;
-        min-height: 450px;
-        border: 1px solid #e2e8f0;
-        border-radius: 1rem;
-    }
-
-    .file-preview-wrapper {
-        height: clamp(420px, 58vh, 720px);
-    }
-
-    @media (max-width: 768px) {
-        .modal-container {
-            width: 100%;
-            height: 88vh;
-            min-width: 0;
-            min-height: 0;
-            resize: none;
-        }
-    }
+    @media (max-width: 768px) { .modal-container { width: 100%; height: 88vh; min-width: 0; min-height: 0; resize: none; } }
 
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
     /* Custom Dropdown Style (Tiru Indigo Style) */
-    .servis-select-wrapper {
-        position: relative;
-        width: 100%;
-    }
-
+    .servis-select-wrapper { position: relative; width: 100%; }
     .custom-select-trigger {
-        min-height: 56px !important;
-        padding: 0 1.2rem !important;
-        border-radius: 0.75rem !important;
-        border: 1px solid #e2e8f0 !important;
-        background: #ffffff !important;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        cursor: pointer !important;
-        transition: all 0.2s ease;
-        font-size: 0.95rem !important;
-        font-weight: 600 !important;
-        color: #475569 !important;
+        min-height: 56px !important; padding: 0 1.2rem !important; border-radius: 0.75rem !important;
+        border: 1px solid #e2e8f0 !important; background: #ffffff !important; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+        display: flex; align-items: center; justify-content: space-between; cursor: pointer !important;
+        transition: all 0.2s ease; font-size: 0.95rem !important; font-weight: 600 !important; color: #475569 !important;
     }
-
-    .custom-select-wrapper.active .custom-select-trigger {
-        border-color: #4f46e5 !important;
-        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15) !important;
-    }
-
+    .custom-select-wrapper.active .custom-select-trigger { border-color: #4f46e5 !important; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15) !important; }
     .custom-options-container {
-        position: absolute;
-        top: calc(100% + 8px);
-        left: 0;
-        right: 0;
-        background: white;
-        border-radius: 0.75rem !important;
-        border: 1px solid #e2e8f0 !important;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
-        z-index: 9999;
-        display: none;
-        padding: 4px !important;
+        position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: white; border-radius: 0.75rem !important;
+        border: 1px solid #e2e8f0 !important; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+        z-index: 9999; display: none; padding: 4px !important;
     }
-
-    .custom-options-container.show {
-        display: block;
-        animation: slideUp 0.2s ease-out;
-    }
-
-    .custom-option-item {
-        padding: 0.6rem 1rem !important;
-        font-size: 0.95rem !important;
-        color: #334155 !important;
-        border-radius: 0.5rem !important;
-        margin-bottom: 2px !important;
-        transition: all 0.2s ease;
-        cursor: pointer;
-    }
-
-    .custom-option-item:hover {
-        background-color: #e0e7ff !important; 
-        color: #3730a3 !important; 
-        font-weight: 700 !important;
-    }
-
-    .custom-arrow {
-        transition: transform 0.2s ease;
-    }
-
-    .custom-select-wrapper.active .custom-arrow {
-        transform: rotate(180deg);
-    }
+    .custom-options-container.show { display: block; animation: slideUp 0.2s ease-out; }
+    .custom-option-item { padding: 0.6rem 1rem !important; font-size: 0.95rem !important; color: #334155 !important; border-radius: 0.5rem !important; margin-bottom: 2px !important; transition: all 0.2s ease; cursor: pointer; }
+    .custom-option-item:hover { background-color: #e0e7ff !important; color: #3730a3 !important; font-weight: 700 !important; }
+    .custom-arrow { transition: transform 0.2s ease; }
+    .custom-select-wrapper.active .custom-arrow { transform: rotate(180deg); }
 
 </style>
 
@@ -266,9 +153,10 @@
             <table class="min-w-full table-auto" id="dokumenTable">
                 <thead>
                     <tr class="bg-slate-50 border-b">
+                        <th class="p-4 w-10"></th>
                         <th class="p-4 text-center w-20">No</th>
-                        <th class="p-4 text-left">Maklumat Dokumen</th>
-                        <th class="p-4 text-left">Format</th>
+                        <th class="p-4 text-left w-[220px]">Maklumat Dokumen</th>
+                        <th class="p-4 text-center">Format</th>
                         <th class="p-4 text-center">Status</th>
                         <th class="p-4 text-left">Tarikh Hantar</th>
                         <th class="p-4 text-center">Tindakan</th>
@@ -284,10 +172,45 @@
     </div>
 </div>
 
+<div id="bulkToast" class="fixed bottom-10 right-10 w-[380px] bg-white rounded-[24px] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] p-6 z-50 transition-all duration-300 hidden translate-y-8 opacity-0 border border-slate-50">
+    
+    <button onclick="hideBulkToast()" class="absolute top-5 right-5 text-gray-300 hover:text-gray-500 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </button>
+    
+    <div class="flex items-center gap-4 mb-6 mt-4">
+        <div class="bg-[#E2E8FF] w-[48px] h-[48px] rounded-[12px] flex items-center justify-center flex-shrink-0">
+            <i class="bi bi-file-earmark-text text-[22px] text-[#5A55D2]"></i>
+        </div>
+        
+        <div class="flex flex-col justify-center gap-1">
+            <div id="bulkToastCount" class="text-[#0f172a] text-[16px] font-extrabold leading-none transition-colors duration-200">1 Dokumen</div>
+            <div class="text-[13px] text-slate-500 font-medium leading-none">Sedia untuk disemak</div>
+        </div>
+    </div>
+    
+    <div class="flex gap-3">
+        <button onclick="confirmBulkStatus('approved')" class="flex-1 bg-[#15C97A] hover:bg-[#12b36b] text-white rounded-[12px] py-3 text-[15px] font-bold transition-colors flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            Diterima
+        </button>
+        <button onclick="confirmBulkStatus('rejected')" class="flex-1 bg-[#EF4444] hover:bg-[#d93f3f] text-white rounded-[12px] py-3 text-[15px] font-bold transition-colors flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            Ditolak
+        </button>
+    </div>
+</div>
+
 <div id="viewModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4" style="z-index: 9999;">
     <div class="modal-container bg-white rounded-3xl shadow-2xl animate-[slideUp_0.3s_ease-out]">
         <div class="bg-slate-50 p-5 flex justify-between items-center border-b">
-            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2 m-0">Perincian Dokumen</h2>
+            <h2 class="text-xs font-bold text-slate-800 flex items-center gap-2 m-0">Perincian Dokumen</h2>
             <button id="closeViewModal" title="Tutup"><i class="bi bi-x-lg" style="font-size: 1.3rem;"></i></button>
         </div>
         <div id="dokumenDetails" class="p-8"></div>
@@ -317,49 +240,86 @@ document.addEventListener('DOMContentLoaded', () => {
     const label = document.getElementById('currentStatusLabel');
     const hiddenInput = document.getElementById('filterStatus');
 
-    // Open/Close Dropdown
     trigger.addEventListener('click', (e) => {
         e.stopPropagation();
         optionsList.classList.toggle('show');
         wrapper.classList.toggle('active');
     });
 
-    // Select Option
     options.forEach(opt => {
         opt.addEventListener('click', function() {
-            const val = this.getAttribute('data-value');
-            const text = this.innerText;
-
-            label.innerText = text;
-            hiddenInput.value = val; // Update hidden input value
-            
-            // UI Reset
+            label.innerText = this.innerText;
+            hiddenInput.value = this.getAttribute('data-value');
             optionsList.classList.remove('show');
             wrapper.classList.remove('active');
-
-            // Trigger loadData macam select asal
             loadData(1);
         });
     });
 
-    // Close bila click luar
     window.addEventListener('click', () => {
         optionsList.classList.remove('show');
         wrapper.classList.remove('active');
     });
 
+    // Monitor Checkbox Individual
+    tbody.addEventListener('change', (e) => {
+        if (e.target.classList.contains('doc-checkbox')) {
+            toggleBulkBar();
+        }
+    });
+
+    const bulkToast = document.getElementById('bulkToast');
+    const bulkToastCount = document.getElementById('bulkToastCount');
+
     let currentPage = 1, limit = 10;
+
+    window.showBulkToast = function(count) {
+        const bulkToast = document.getElementById('bulkToast');
+        const bulkToastCount = document.getElementById('bulkToastCount');
+        
+        bulkToastCount.innerText = `${count} Dokumen`;
+        
+        if (bulkToast.classList.contains('hidden')) {
+            bulkToast.classList.remove('hidden');
+            
+            // Trigger DOM reflow supaya tailwind animation boleh jalan
+            void bulkToast.offsetWidth;
+            
+            // Slide up & Fade in
+            bulkToast.classList.remove('translate-y-8', 'opacity-0');
+            bulkToast.classList.add('translate-y-0', 'opacity-100');
+        }
+
+        // Desktop UI Feedback: Teks nombor akan kelip warna indigo sekejap bila user tick dokumen baru
+        bulkToastCount.classList.add('text-indigo-600');
+        setTimeout(() => {
+            bulkToastCount.classList.remove('text-indigo-600');
+        }, 200);
+    }
+
+    window.hideBulkToast = function() {
+        const bulkToast = document.getElementById('bulkToast');
+        
+        // Slide down & Fade out
+        bulkToast.classList.remove('translate-y-0', 'opacity-100');
+        bulkToast.classList.add('translate-y-8', 'opacity-0');
+        
+        // Tunggu transition (300ms) habis baru betul-betul hide dari DOM
+        setTimeout(() => {
+            bulkToast.classList.add('hidden');
+        }, 300);
+    }
 
     async function loadData(page = 1) {
         const status = filterStatus.value;
-        tbody.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-slate-400">Memuatkan data...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="p-10 text-center text-slate-400">Memuatkan data...</td></tr>';
         try {
             const res = await fetch(`<?= url_to('pengesahan_dokumen') ?>/getAll?status=${status}&page=${page}`);
             const result = await res.json();
             if (result.data && result.data.length > 0) {
                 populateTable(result.data, result.pagination);
             } else {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-12 text-center text-slate-400">Tiada rekod dijumpai.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="p-12 text-center text-slate-400">Tiada rekod dijumpai.</td></tr>';
                 document.getElementById('totalInfo').innerText = 'Menunjukkan 0 rekod';
                 paginationContainer.innerHTML = '';
             }
@@ -370,39 +330,81 @@ document.addEventListener('DOMContentLoaded', () => {
         tbody.innerHTML = '';
         currentPage = pagination.page;
         const totalPages = Math.ceil(pagination.total / pagination.limit);
+        
         const start = (currentPage - 1) * pagination.limit + 1;
         const end = start + data.length - 1;
         document.getElementById('totalInfo').innerText = `Menunjukkan ${start}-${end} daripada ${pagination.total} rekod`;
 
         data.forEach((d, index) => {
             const statusLabel = d.status ?? 'pending';
+            
+            // Format: Ambil PDF sahaja
+            let displayFormat = 'FILE';
+            if (d.mime) {
+                displayFormat = d.mime.split('/').pop().toUpperCase();
+            }
+
             const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-50/50 transition-colors border-b border-slate-50";
             tr.innerHTML = `
+                <td class="p-4 text-center">
+                    <input type="checkbox" class="doc-checkbox w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer" data-id="${d.iddoc}">
+                </td>
                 <td class="p-4 text-center text-slate-400 font-semibold">${index + 1 + (currentPage - 1) * limit}</td>
+                
                 <td class="p-4">
-                    <div class="flex items-center justify-between cursor-pointer group" onclick="showDokumenModal('${d.iddoc}')">
-                        <div>
-                            <div class="font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">${d.nama}</div>
-                            <div class="text-sm text-slate-500 mt-1">Jenis Servis: ${d.namaservis || '-'}</div>
-                            <div class="text-slate-400 mt-0.5" style="font-size: 13px; line-height: 1.2;">ID: #${d.iddoc}</div>
+                    <div class="flex items-center cursor-pointer group justify-between min-h-[56px]" onclick="showDokumenModal('${d.iddoc}')">
+                        <div class="w-[160px] min-w-0 flex flex-col justify-center"> 
+                            <div class="font-bold text-slate-800 group-hover:text-indigo-600 transition-colors line-clamp-1">${d.nama}</div>
+                            <div class="text-[11px] text-slate-400 mt-0.5">ID: #${d.iddoc}</div>
                         </div>
-                        <i class="bi bi-chevron-down text-slate-300 group-hover:text-indigo-600 transition-colors"></i>
+                        <i class="bi bi-chevron-down text-slate-300 text-m"></i>
                     </div>
                 </td>
-                <td class="p-4"><span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-1 rounded font-bold uppercase tracking-wide">${d.mime ? d.mime.split('/')[1] : 'FILE'}</span></td>
-                <td class="p-4 text-center"><span class="status-pill status-${statusLabel}">${statusLabel}</span></td>
-                <td class="p-4 text-slate-500"><div class="flex items-center gap-2 text-sm"><i class="bi bi-clock-history"></i> ${formatDate(d.created_at)}</div></td>
+
+                <td class="p-4 text-center">
+                    <span class="font-bold text-slate-700 text-base">${displayFormat}</span>
+                </td>
+
+                <td class="p-4 text-center">
+                    <span class="status-pill status-${statusLabel.toLowerCase()}">${statusLabel.toUpperCase()}</span>
+                </td>
+
+                <td class="p-4">
+                    <div class="flex items-center gap-2 text-slate-500 text-sm">
+                        <i class="bi bi-clock-history text-slate-400"></i>
+                        ${formatDate(d.created_at)}
+                    </div>
+                </td>
+
                 <td class="p-4 text-center">
                     <div class="flex justify-center gap-2">
-                        <button class="viewBtn btn-action w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 p-2 rounded-xl hover:bg-indigo-600 hover:text-white transition" data-id="${d.iddoc}"><i class="bi bi-eye-fill pointer-events-none"></i></button>
-                        <button class="approveBtn btn-action w-10 h-10 flex items-center justify-center bg-green-50 text-green-600 p-2 rounded-xl hover:bg-green-600 hover:text-white transition" data-id="${d.iddoc}"><i class="bi bi-check-lg pointer-events-none"></i></button>
-                        <button class="rejectBtn btn-action w-10 h-10 flex items-center justify-center bg-red-50 text-red-600 p-2 rounded-xl hover:bg-red-600 hover:text-white transition" data-id="${d.iddoc}"><i class="bi bi-x-lg pointer-events-none"></i></button>
+                        <button class="viewBtn btn-action w-9 h-9 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition" data-id="${d.iddoc}"><i class="bi bi-eye-fill pointer-events-none"></i></button>
+                        <button class="approveBtn btn-action w-9 h-9 flex items-center justify-center bg-green-50 text-green-600 rounded-xl hover:bg-green-600 hover:text-white transition" data-id="${d.iddoc}"><i class="bi bi-check-lg pointer-events-none"></i></button>
+                        <button class="rejectBtn btn-action w-9 h-9 flex items-center justify-center bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition" data-id="${d.iddoc}"><i class="bi bi-x-lg pointer-events-none"></i></button>
                     </div>
                 </td>
             `;
             tbody.appendChild(tr);
         });
+
         renderPagination(totalPages);
+    }
+    
+    // Fungsi Toggle Bulk Action Bar (Di-adjust sikit untuk panggil bulkToast baru)
+    window.toggleBulkBar = function() {
+        const selected = document.querySelectorAll('.doc-checkbox:checked');
+
+        if (selected.length > 0) {
+            showBulkToast(selected.length);
+        } else {
+            hideBulkToast();
+        }
+    }
+
+    window.unselectAll = function() {
+        document.querySelectorAll('.doc-checkbox').forEach(cb => cb.checked = false);
+        toggleBulkBar();
     }
 
     function renderPagination(totalPages) {
@@ -419,14 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function formatDate(str) { 
         if (!str) return '-'; 
         const d = new Date(str); 
-        return d.toLocaleString('ms-MY', { 
-            day: '2-digit', 
-            month: 'short', 
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true 
-        }); 
+        return d.toLocaleString('ms-MY', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }); 
     }
 
     window.showDokumenModal = async function(id) {
@@ -439,131 +434,83 @@ document.addEventListener('DOMContentLoaded', () => {
                 const d = json.data;
                 const fileUrl = `<?= base_url('pengesahandokumen/viewFile') ?>/${d.idservis}/${d.namafail}`;
                 const statusLabel = d.status ? d.status.toLowerCase() : 'pending';
-
-                let fileHTML = d.mime.includes('image')
-                    ? `<img src="${fileUrl}" class="w-full rounded-2xl shadow-lg border" />`
-                    : (d.mime === 'application/pdf'
-                        ? `<div class="file-preview-wrapper"><iframe src="${fileUrl}" class="file-preview-frame"></iframe></div>`
-                        : `<div class="p-8 border-2 border-dashed rounded-2xl text-center"><a href="${fileUrl}" target="_blank" class="text-indigo-600 font-bold underline">Muat Turun Fail</a></div>`);
-                
-                // KOD BARU: Grid 2x2 yang kemas dan selari
+                let fileHTML = d.mime.includes('image') ? `<img src="${fileUrl}" class="w-full rounded-2xl shadow-lg border" />` : (d.mime === 'application/pdf' ? `<div class="file-preview-wrapper"><iframe src="${fileUrl}" class="file-preview-frame"></iframe></div>` : `<div class="p-8 border-2 border-dashed rounded-2xl text-center"><a href="${fileUrl}" target="_blank" class="text-indigo-600 font-bold underline">Muat Turun Fail</a></div>`);
                 dokumenDetails.innerHTML = `
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-4 mb-6">
-                        <div>
-                            <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Nama Dokumen</span>
-                            <p class="font-bold text-slate-800 mt-1">${d.nama}</p>
-                        </div>
-                        
-                        <div>
-                            <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Jenis Servis</span>
-                            <p class="font-bold text-slate-800 mt-1">${d.namaservis || '-'}</p>
-                        </div>
-
-                        <div>
-                            <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Status Semasa</span>
-                            <div class="mt-2">
-                                <span class="status-pill status-${statusLabel}">${statusLabel.toUpperCase()}</span>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <span class="text-xs font-bold uppercase hidden md:block opacity-0">&nbsp;</span>
-                            <div class="mt-2 flex justify-start">
-                                <a href="${fileUrl}" target="_blank" class="bg-indigo-100 hover:bg-indigo-600 text-indigo-700 hover:text-white px-4 py-2 rounded-xl text-sm font-bold transition inline-flex items-center gap-2">
-                                    <i class="bi bi-box-arrow-up-right"></i> Buka Tab Baru
-                                </a>
-                            </div>
-                        </div>
+                        <div><span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Nama Dokumen</span><p class="font-bold text-slate-800 mt-1">${d.nama}</p></div>
+                        <div><span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Jenis Servis</span><p class="font-bold text-slate-800 mt-1">${d.namaservis || '-'}</p></div>
+                        <div><span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Status Semasa</span><div class="mt-2"><span class="status-pill status-${statusLabel}">${statusLabel.toUpperCase()}</span></div></div>
+                        <div><div class="mt-2 flex justify-start"><a href="${fileUrl}" target="_blank" class="bg-indigo-100 hover:bg-indigo-600 text-indigo-700 hover:text-white px-4 py-2 rounded-xl text-sm font-bold transition inline-flex items-center gap-2"><i class="bi bi-box-arrow-up-right"></i> Buka Tab Baru</a></div></div>
                     </div>
-                    
-                    <div class="mb-6">
-                        <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Catatan</span>
-                        <div class="text-slate-600 mt-1">${d.descdoc || 'Tiada catatan.'}</div>
-                    </div>
-                    ${fileHTML}
-                `;
+                    <div class="mb-6"><span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Catatan</span><div class="text-slate-600 mt-1">${d.descdoc || 'Tiada catatan.'}</div></div>
+                    ${fileHTML}`;
             }
         } catch (err) { console.error(err); }
     }
 
+    window.confirmBulkStatus = async function(status) {
+        const selected = document.querySelectorAll('.doc-checkbox:checked');
+        if (selected.length === 0) return;
+
+        const confirmText = status === 'approved' ? 'Luluskan' : 'Tolak';
+        const result = await Swal.fire({
+            title: `Pengesahan ${confirmText}`,
+            text: `Adakah anda pasti untuk ${confirmText.toLowerCase()} ${selected.length} dokumen?`,
+            icon: status === 'approved' ? 'question' : 'warning',
+            showCancelButton: true,
+            confirmButtonText: `Ya, ${confirmText}!`,
+            customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-batal', actions: 'swal2-actions' }
+        });
+
+        if (!result.isConfirmed) return;
+        bulkChangeStatus(status);
+    }
+
+    // Function Bulk Actions
+    window.bulkChangeStatus = async function(status) {
+        const selected = document.querySelectorAll('.doc-checkbox:checked');
+        const ids = Array.from(selected).map(cb => cb.getAttribute('data-id'));
+        if (ids.length === 0) return;
+
+        const formData = new FormData();
+        formData.append('<?= csrf_token() ?>', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+        formData.append('status', status);
+        ids.forEach(id => formData.append('ids[]', id));
+        try {
+            const res = await fetch(`<?= base_url('pengesahandokumen/bulkChangeStatus') ?>`, { method: 'POST', body: formData });
+            const data = await res.json();
+            if (data.csrf) document.querySelector('meta[name="csrf-token"]').setAttribute('content', data.csrf);
+            if (data.status) {
+                Swal.fire({ icon: 'success', title: 'Berjaya!', text: data.message, timer: 2000, showConfirmButton: false, customClass: { popup: 'swal-rounded' } });
+                unselectAll();
+                loadData(currentPage);
+            }
+        } catch (err) { console.error(err); }
+    }
+
+    // Kod changeStatus tunggal
     window.changeStatus = async function(id, status) {
         const confirmText = status.charAt(0).toUpperCase() + status.slice(1);
-        
         const result = await Swal.fire({ 
             title: `Pengesahan ${confirmText}`, 
             text: `Adakah anda pasti untuk tukar status dokumen ini kepada ${status}?`, 
             icon: status === 'approved' ? 'question' : 'warning', 
-            showCancelButton: true, 
-            showCloseButton: true, 
-            confirmButtonText: `Ya, ${confirmText}!`,
-            cancelButtonText: 'Batal',
-            buttonsStyling: false,
-            customClass: { 
-                popup: 'swal-rounded',
-                confirmButton: 'btn-swal-hantar', 
-                cancelButton: 'btn-swal-batal',
-                actions: 'swal2-actions',
-                closeButton: 'swal2-close'
-            }
+            showCancelButton: true, confirmButtonText: `Ya, ${confirmText}!`,
+            customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-batal', actions: 'swal2-actions' }
         });
-        
         if (!result.isConfirmed) return;
-
         try {
-            const csrfName = '<?= csrf_token() ?>';
-            const csrfHash = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
             const formData = new FormData();
-            formData.append(csrfName, csrfHash); 
-
-            const res = await fetch(`<?= base_url('pengesahandokumen/changeStatus') ?>/${id}/${status}`, { 
-                method: 'POST',
-                body: formData, 
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            
+            formData.append('<?= csrf_token() ?>', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+            const res = await fetch(`<?= base_url('pengesahandokumen/changeStatus') ?>/${id}/${status}`, { method: 'POST', body: formData });
             const data = await res.json();
-
-            if (data.csrf) {
-                document.querySelector('meta[name="csrf-token"]').setAttribute('content', data.csrf);
-            }
-
+            if (data.csrf) document.querySelector('meta[name="csrf-token"]').setAttribute('content', data.csrf);
             if (data.status) {
-                if (status === 'approved') { 
-                    lottieContainer.style.display = 'block'; 
-                    successAnimation.play(); 
-                    setTimeout(() => { lottieContainer.style.display = 'none'; }, 1500); 
-                }
-                
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berjaya!',
-                    text: data.message,
-                    timer: 2000,
-                    showConfirmButton: false,
-                    showCloseButton: true, 
-                    customClass: { popup: 'swal-rounded', closeButton: 'swal2-close' }
-                });
+                if (status === 'approved') { lottieContainer.style.display = 'block'; successAnimation.play(); setTimeout(() => { lottieContainer.style.display = 'none'; }, 1500); }
+                Swal.fire({ icon: 'success', title: 'Berjaya!', text: data.message, timer: 2000, showConfirmButton: false, customClass: { popup: 'swal-rounded' } });
                 loadData(currentPage);
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal!',
-                    text: data.message,
-                    showCloseButton: true, 
-                    customClass: { popup: 'swal-rounded', closeButton: 'swal2-close' }
-                });
             }
-        } catch (err) { 
-            console.error(err);
-            Swal.fire({
-                icon: 'error',
-                title: 'Ralat!',
-                text: 'Sesi tamat atau ralat pelayan. Sila refresh halaman.',
-                showCloseButton: true, 
-                customClass: { popup: 'swal-rounded', closeButton: 'swal2-close' }
-            });
-        }
+        } catch (err) { console.error(err); }
     }
 
     tbody.addEventListener('click', e => {
@@ -580,7 +527,6 @@ document.addEventListener('DOMContentLoaded', () => {
         Array.from(tbody.rows).forEach(row => { row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none'; });
     });
 
-    filterStatus.addEventListener('change', () => loadData(1));
     document.getElementById('closeViewModal').onclick = () => viewModal.classList.add('hidden');
 
     loadData(1);
