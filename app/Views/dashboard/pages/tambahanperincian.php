@@ -86,7 +86,7 @@
 
     /* Kotak Utama - Ikut style .ts-control */
     .custom-select-trigger {
-        min-height: 48px !important;
+        min-height: 56px !important;
         padding: 0 1.2rem 0 1rem !important;
         border-radius: 0.75rem !important;
         border: 1px solid #e2e8f0 !important;
@@ -173,7 +173,7 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-8">
-        <div class="md:col-span-3">
+        <div class="md:col-span-3 relative">
         <div class="servis-select-wrapper custom-select-wrapper" id="sortWrapper">
             <div class="custom-select-trigger" id="sortTrigger">
                 <span id="currentSortLabel">Terdahulu (ID)</span>
