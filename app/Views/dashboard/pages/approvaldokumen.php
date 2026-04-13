@@ -149,6 +149,78 @@
     }
 
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Custom Dropdown Style (Tiru Indigo Style) */
+    .servis-select-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .custom-select-trigger {
+        min-height: 56px !important;
+        padding: 0 1.2rem !important;
+        border-radius: 0.75rem !important;
+        border: 1px solid #e2e8f0 !important;
+        background: #ffffff !important;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer !important;
+        transition: all 0.2s ease;
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        color: #475569 !important;
+    }
+
+    .custom-select-wrapper.active .custom-select-trigger {
+        border-color: #4f46e5 !important;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15) !important;
+    }
+
+    .custom-options-container {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 0.75rem !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+        z-index: 9999;
+        display: none;
+        padding: 4px !important;
+    }
+
+    .custom-options-container.show {
+        display: block;
+        animation: slideUp 0.2s ease-out;
+    }
+
+    .custom-option-item {
+        padding: 0.6rem 1rem !important;
+        font-size: 0.95rem !important;
+        color: #334155 !important;
+        border-radius: 0.5rem !important;
+        margin-bottom: 2px !important;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .custom-option-item:hover {
+        background-color: #e0e7ff !important; 
+        color: #3730a3 !important; 
+        font-weight: 700 !important;
+    }
+
+    .custom-arrow {
+        transition: transform 0.2s ease;
+    }
+
+    .custom-select-wrapper.active .custom-arrow {
+        transform: rotate(180deg);
+    }
+
 </style>
 
 <div class="container-fluid py-1">
@@ -165,19 +237,27 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6">
-        <div class="md:col-span-4 relative">
-            <select id="filterStatus" class="w-full appearance-none bg-white border border-slate-200 p-3 rounded-xl focus:outline-none transition font-semibold text-slate-600 cursor-pointer h-[56px]">
-                <option value="all">Semua Status</option>
-                <option value="pending">Menunggu (Pending)</option>
-                <option value="approved">Diterima (Approved)</option>
-                <option value="rejected">Ditolak (Rejected)</option>
-            </select>
-            <i class="bi bi-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+        <div class="md:col-span-3 relative">
+            <div class="servis-select-wrapper custom-select-wrapper" id="statusFilterWrapper">
+                <div class="custom-select-trigger" id="statusFilterTrigger">
+                    <span id="currentStatusLabel">Semua Status</span>
+                    <i class="bi bi-chevron-down custom-arrow text-slate-400"></i>
+                </div>
+                
+                <div class="custom-options-container" id="statusFilterOptions">
+                    <div class="custom-option-item" data-value="all">Semua Status</div>
+                    <div class="custom-option-item" data-value="pending">Menunggu (Pending)</div>
+                    <div class="custom-option-item" data-value="approved">Diterima (Approved)</div>
+                    <div class="custom-option-item" data-value="rejected">Ditolak (Rejected)</div>
+                </div>
+            </div>
+            <input type="hidden" id="filterStatus" value="all">
         </div>
-        <div class="md:col-span-8 relative">
+
+        <div class="md:col-span-9 relative">
             <i class="bi bi-search absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 z-10"></i>
             <input type="text" id="searchDokumen" placeholder="Cari tajuk dokumen..." 
-                   class="input-with-icon w-full bg-white border border-slate-200 p-3 rounded-xl focus:outline-none h-[56px]">
+                class="input-with-icon w-full bg-white border border-slate-200 p-3 rounded-xl focus:outline-none h-[56px] focus:ring-4 focus:ring-indigo-50 transition">
         </div>
     </div>
 
@@ -228,6 +308,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const paginationContainer = document.querySelector('.pagination');
     const lottieContainer = document.getElementById('lottieContainer');
     const successAnimation = document.getElementById('successAnimation');
+
+    // Logic untuk Custom Dropdown Filter
+    const wrapper = document.getElementById('statusFilterWrapper');
+    const trigger = document.getElementById('statusFilterTrigger');
+    const optionsList = document.getElementById('statusFilterOptions');
+    const options = document.querySelectorAll('#statusFilterOptions .custom-option-item');
+    const label = document.getElementById('currentStatusLabel');
+    const hiddenInput = document.getElementById('filterStatus');
+
+    // Open/Close Dropdown
+    trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        optionsList.classList.toggle('show');
+        wrapper.classList.toggle('active');
+    });
+
+    // Select Option
+    options.forEach(opt => {
+        opt.addEventListener('click', function() {
+            const val = this.getAttribute('data-value');
+            const text = this.innerText;
+
+            label.innerText = text;
+            hiddenInput.value = val; // Update hidden input value
+            
+            // UI Reset
+            optionsList.classList.remove('show');
+            wrapper.classList.remove('active');
+
+            // Trigger loadData macam select asal
+            loadData(1);
+        });
+    });
+
+    // Close bila click luar
+    window.addEventListener('click', () => {
+        optionsList.classList.remove('show');
+        wrapper.classList.remove('active');
+    });
 
     let currentPage = 1, limit = 10;
 
