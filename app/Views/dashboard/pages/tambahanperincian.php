@@ -77,6 +77,85 @@
     .swal-input-custom { height: 52px; border-radius: 12px; border: 1px solid #e2e8f0; padding: 0 15px; width: 100%; background-color: #ffffff; font-weight: 500; font-size: 0.95rem; }
     
     .icon-search-fix { position: absolute; left: 1.3rem; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 1.2rem; }
+
+    /* Custom Dropdown Style (Tiru Tom Select Indigo) */
+    .servis-select-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    /* Kotak Utama - Ikut style .ts-control */
+    .custom-select-trigger {
+        min-height: 48px !important;
+        padding: 0 1.2rem 0 1rem !important;
+        border-radius: 0.75rem !important;
+        border: 1px solid #e2e8f0 !important;
+        background: #ffffff !important;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer !important;
+        transition: all 0.2s ease;
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        color: #475569 !important;
+    }
+
+    /* Kotak Menyala Indigo bila active - Ikut style focus .ts-control */
+    .custom-select-wrapper.active .custom-select-trigger {
+        border-color: #4f46e5 !important;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15) !important;
+        background: #ffffff !important;
+    }
+
+    /* Container Dropdown Menu - Ikut style .ts-dropdown */
+    .custom-options-container {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 0.75rem !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+        z-index: 9999;
+        display: none;
+        padding: 4px !important;
+    }
+
+    .custom-options-container.show {
+        display: block;
+        animation: slideUp 0.2s ease-out;
+    }
+
+    /* Option Style - Ikut style .option:hover */
+    .custom-option-item {
+        padding: 0.6rem 1rem !important;
+        font-size: 0.95rem !important;
+        color: #334155 !important;
+        border-radius: 0.5rem !important;
+        margin-bottom: 2px !important;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .custom-option-item:hover {
+        background-color: #e0e7ff !important; 
+        color: #3730a3 !important; 
+        font-weight: 700 !important;
+    }
+
+    /* Animasi Arrow Pusing */
+    .custom-arrow {
+        transition: transform 0.2s ease;
+    }
+    .custom-select-wrapper.active .custom-arrow {
+        transform: rotate(180deg);
+    }
+
+    
+
 </style>
 
 <div class="container-fluid py-1">
@@ -94,13 +173,21 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-8">
-        <div class="md:col-span-3 relative">
-            <select id="sortOrder" onchange="sortData()" class="modern-input-size w-full appearance-none px-4 focus:outline-none transition text-slate-700 cursor-pointer">
-                <option value="asc">Terdahulu (ID)</option>
-                <option value="desc">Terkini (ID)</option>
-            </select>
-            <i class="bi bi-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+        <div class="md:col-span-3">
+        <div class="servis-select-wrapper custom-select-wrapper" id="sortWrapper">
+            <div class="custom-select-trigger" id="sortTrigger">
+                <span id="currentSortLabel">Terdahulu (ID)</span>
+                <i class="bi bi-chevron-down custom-arrow text-slate-400"></i>
+            </div>
+            
+            <div class="custom-options-container" id="sortOptions">
+                <div class="custom-option-item" data-value="asc">Terdahulu (ID)</div>
+                <div class="custom-option-item" data-value="desc">Terkini (ID)</div>
+            </div>
         </div>
+        <input type="hidden" id="sortOrder" value="asc">
+    </div>
+        
         <div class="md:col-span-9 relative">
             <i class="bi bi-search icon-search-fix"></i>
             <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Cari nama servis..." class="modern-input-size input-with-icon w-full focus:outline-none transition focus:ring-4 focus:ring-indigo-50">
@@ -313,6 +400,49 @@ function filterTable() {
 }
 
 fetchServis();
+
+document.addEventListener('DOMContentLoaded', () => {
+    const wrapper = document.getElementById('sortWrapper');
+    const trigger = document.getElementById('sortTrigger');
+    const optionsList = document.getElementById('sortOptions');
+    const options = document.querySelectorAll('.custom-option-item');
+    const label = document.getElementById('currentSortLabel');
+    const hiddenInput = document.getElementById('sortOrder');
+
+    // Open/Close Dropdown
+    trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = optionsList.classList.contains('show');
+        
+        // Tutup semua yang lain kalau ada, and toggle yang ni
+        optionsList.classList.toggle('show');
+        wrapper.classList.toggle('active');
+    });
+
+    // Select Option
+    options.forEach(opt => {
+        opt.addEventListener('click', function() {
+            const val = this.getAttribute('data-value');
+            const text = this.innerText;
+
+            label.innerText = text;
+            hiddenInput.value = val;
+            
+            // UI Reset
+            optionsList.classList.remove('show');
+            wrapper.classList.remove('active');
+
+            // Panggil function sorting asal kau
+            sortData();
+        });
+    });
+
+    // Close click outside
+    window.addEventListener('click', () => {
+        optionsList.classList.remove('show');
+        wrapper.classList.remove('active');
+    });
+});
 </script>
 
 <?= $this->endSection() ?>
