@@ -447,6 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
             text: `Adakah anda pasti untuk ${confirmText.toLowerCase()} ${selected.length} dokumen?`,
             icon: status === 'approved' ? 'question' : 'warning',
             showCancelButton: true,
+            showCloseButton: true,
             confirmButtonText: `Ya, ${confirmText}!`,
             cancelButtonText: 'Batal',
             customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-batal', actions: 'swal2-actions' }
@@ -504,7 +505,8 @@ document.addEventListener('DOMContentLoaded', () => {
             title: `Pengesahan ${confirmText}`, 
             text: `Adakah anda pasti untuk tukar status dokumen ini kepada ${status}?`, 
             icon: status === 'approved' ? 'question' : 'warning', 
-            showCancelButton: true, 
+            showCancelButton: true,
+            showCloseButton: true,
             confirmButtonText: `Ya, ${confirmText}!`,
             cancelButtonText: 'Batal',
             customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-batal', actions: 'swal2-actions' }
