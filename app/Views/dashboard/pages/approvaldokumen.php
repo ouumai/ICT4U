@@ -267,9 +267,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPage = 1, limit = 10;
 
     window.showBulkToast = function(count) {
-        const bulkToast = document.getElementById('bulkToast');
-        const bulkToastCount = document.getElementById('bulkToastCount');
-        
         bulkToastCount.innerText = `${count} Dokumen`;
         
         if (bulkToast.classList.contains('hidden')) {
@@ -461,7 +458,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Function Bulk Actions
-    window.bulkChangeStatus = async function(status) {
+    window.bulkChangeStatus = async function(status) 
+    {
         const selected = document.querySelectorAll('.doc-checkbox:checked');
         const ids = Array.from(selected).map(cb => cb.getAttribute('data-id'));
         if (ids.length === 0) return;
@@ -470,16 +468,34 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('<?= csrf_token() ?>', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
         formData.append('status', status);
         ids.forEach(id => formData.append('ids[]', id));
+        
         try {
-            const res = await fetch(`<?= base_url('pengesahandokumen/bulkChangeStatus') ?>`, { method: 'POST', body: formData });
+            const res = await fetch(`<?= base_url('pengesahandokumen/bulkChangeStatus') ?>`, { 
+                method: 'POST', 
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            // Kalau URL salah (404) atau Server Error (500), dia akan tangkap
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            
             const data = await res.json();
             if (data.csrf) document.querySelector('meta[name="csrf-token"]').setAttribute('content', data.csrf);
+            
             if (data.status) {
                 Swal.fire({ icon: 'success', title: 'Berjaya!', text: data.message, timer: 2000, showConfirmButton: false, customClass: { popup: 'swal-rounded' } });
                 unselectAll();
                 loadData(currentPage);
+            } else {
+                Swal.fire({ icon: 'error', title: 'Gagal', text: data.message, customClass: { popup: 'swal-rounded' } });
             }
-        } catch (err) { console.error(err); }
+        } catch (err) { 
+            console.error('AJAX Error:', err); 
+            // Pop up kalau crash
+            Swal.fire({ icon: 'error', title: 'Ralat Sistem', text: 'Gagal berhubung dengan server. Sila semak console.', customClass: { popup: 'swal-rounded' } });
+        }
     }
 
     // Kod changeStatus tunggal

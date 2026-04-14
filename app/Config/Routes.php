@@ -58,6 +58,7 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
         $routes->get('getAll', 'ApprovalDokumenController::getAll');
         $routes->get('getDokumen/(:num)', 'ApprovalDokumenController::getDokumen/$1');
         $routes->post('changeStatus/(:num)/(:any)', 'ApprovalDokumenController::changeStatus/$1/$2');
+        $routes->post('bulkChangeStatus', 'ApprovalDokumenController::bulkChangeStatus'); //add bulk status change
         $routes->get('viewFile/(:num)/(:any)', 'ApprovalDokumenController::viewFile/$1/$2');
     });
 
