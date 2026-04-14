@@ -205,7 +205,7 @@
 <div id="viewModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4" style="z-index: 9999;">
     <div class="modal-container bg-white rounded-3xl shadow-2xl animate-[slideUp_0.3s_ease-out]">
         <div class="bg-slate-50 p-5 flex justify-between items-center border-b">
-            <h2 class="text-xs font-bold text-slate-800 flex items-center gap-2 m-0">Perincian Dokumen</h2>
+            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2 m-0">Perincian Dokumen</h2>
             <button id="closeViewModal" title="Tutup"><i class="bi bi-x-lg" style="font-size: 1.3rem;"></i></button>
         </div>
         <div id="dokumenDetails" class="p-8"></div>
