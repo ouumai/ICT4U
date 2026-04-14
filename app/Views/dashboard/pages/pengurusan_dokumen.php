@@ -565,6 +565,21 @@ function openDokumenEditor(iddoc = null) {
 function showSwalEditor(data = null, idservis) {
     const isNew = !data;
     
+    // Preview Template - Pastikan margin 0
+    const previewTemplate = `
+    <div class="dz-preview dz-file-preview w-full" style="margin: 0 !important; padding: 0 !important; min-height: auto !important;">
+        <div class="border border-gray-300 rounded-xl px-4 py-3 flex justify-between items-center bg-white shadow-sm transition-all">
+            <div class="flex items-center gap-3 overflow-hidden">
+                <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+                    <i class="bi bi-file-earmark-pdf-fill"></i>
+                </div>
+                <div class="dz-filename font-bold text-indigo-700 truncate" style="font-size: 14px;" data-dz-name></div>
+            </div>
+            <div class="dz-size font-bold text-gray-800 shrink-0 ml-4" style="font-size: 14px;" data-dz-size></div>
+        </div>
+        <div class="dz-error-message text-red-500 mt-1" style="font-size: 12px;" data-dz-errormessage></div>
+    </div>`;
+
     Swal.fire({
         title: isNew ? 'Muat Naik Dokumen Baru' : 'Kemaskini Dokumen',
         showCloseButton: true,
@@ -579,20 +594,26 @@ function showSwalEditor(data = null, idservis) {
                 <label class="swal-label-custom">Penerangan / Nota</label>
                 <textarea id="swal-descdoc">${data ? (data.descdoc || '') : ''}</textarea>
             </div>
+            
             <div>
-                <label class="swal-label-custom">Fail Dokumen (PDF Sahaja)</label>
-                <form id="swal-dropzone" class="dropzone ict4u-dropzone">
+                <div class="flex justify-between items-end mb-2">
+                    <label class="swal-label-custom mb-0">Fail Dokumen (PDF Sahaja)</label>
+                    <button type="button" id="btn-remove-file" class="text-red-500 font-bold hover:text-red-700 transition-colors hidden" style="font-size: 12px;">Buang Fail</button>
+                </div>
+                
+                <form id="swal-dropzone" class="dropzone ict4u-dropzone" style="margin-bottom: 0;">
                     <div class="dz-message needsclick">
-                        <div class="flex flex-col items-center text-center">
+                        <div class="flex flex-col items-center text-center pointer-events-none">
                             <div class="w-16 h-16 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 shadow-sm">
                                 <i class="bi bi-cloud-arrow-up-fill text-3xl"></i>
                             </div>
-                            <div class="text-base font-extrabold text-slate-800">Seret fail PDF ke sini</div>
-                            <div class="text-sm text-slate-500 mt-2">Atau klik kawasan ini untuk pilih satu fail sahaja.</div>
+                            <div class="font-extrabold text-gray-800" style="font-size: 15px;">Seret fail PDF ke sini</div>
+                            <div class="text-gray-500 mt-2" style="font-size: 13px;">Atau klik kawasan ini untuk pilih fail.</div>
                         </div>
                     </div>
                 </form>
-                ${!isNew ? `<div class="text-sm text-blue-600 mt-1">* Biarkan kosong jika tidak mahu tukar fail</div>` : ''}
+                
+                ${!isNew ? `<div id="hint-teks-biru" class="text-blue-500 font-medium transition-all duration-200" style="font-size: 13px; margin-top: 12px;">* Biarkan kosong jika tidak mahu tukar fail</div>` : ''}
             </div>
         </div>`,
         width: '600px',
@@ -611,10 +632,11 @@ function showSwalEditor(data = null, idservis) {
             ClassicEditor.create(document.querySelector('#swal-descdoc'))
                 .then(newEditor => { editorInstance = newEditor; });
 
-            if (dokumenDropzone) {
-                dokumenDropzone.destroy();
-                dokumenDropzone = null;
-            }
+            if (dokumenDropzone) { dokumenDropzone.destroy(); }
+
+            const btnRemove = document.getElementById('btn-remove-file');
+            const dropzoneForm = document.getElementById('swal-dropzone');
+            const hintTeks = document.getElementById('hint-teks-biru'); // Panggil teks biru
 
             dokumenDropzone = new Dropzone('#swal-dropzone', {
                 url: '#',
@@ -622,35 +644,52 @@ function showSwalEditor(data = null, idservis) {
                 uploadMultiple: false,
                 maxFiles: 1,
                 acceptedFiles: 'application/pdf,.pdf',
-                addRemoveLinks: true,
-                clickable: true,
-                dictRemoveFile: 'Buang fail',
-                dictInvalidFileType: 'Hanya fail PDF dibenarkan.',
-                dictMaxFilesExceeded: 'Hanya satu fail dibenarkan untuk setiap muat naik.',
+                previewTemplate: previewTemplate,
                 init: function() {
                     this.on('addedfile', function(file) {
-                        if (this.files.length > 1) {
-                            this.removeFile(this.files);
+                        if (this.files.length > 1) { this.removeFile(this.files); }
+                        
+                        btnRemove.classList.remove('hidden');
+                        
+                        dropzoneForm.classList.remove('ict4u-dropzone');
+                        dropzoneForm.style.setProperty('padding', '0', 'important');
+                        dropzoneForm.style.setProperty('min-height', '0', 'important');
+                        dropzoneForm.style.setProperty('margin-bottom', '0', 'important');
+                        dropzoneForm.style.border = 'none';
+                        dropzoneForm.style.background = 'transparent';
+
+                        // 🔥 BILA FAIL MASUK: Rapatkan teks biru jadi 4px je dari kotak
+                        if (hintTeks) {
+                            hintTeks.style.marginTop = '4px';
                         }
                     });
+                    
+                    this.on('removedfile', function() {
+                        if(this.files.length === 0) {
+                            btnRemove.classList.add('hidden');
+                            
+                            dropzoneForm.classList.add('ict4u-dropzone');
+                            dropzoneForm.style.removeProperty('padding');
+                            dropzoneForm.style.removeProperty('min-height');
+                            dropzoneForm.style.border = '';
+                            dropzoneForm.style.background = '';
 
-                    this.on('maxfilesexceeded', function(file) {
-                        this.removeAllFiles();
-                        this.addFile(file);
+                            // 🔥 BILA FAIL DIBUANG: Jauhkan balik jadi 12px supaya tak overlap border dashed
+                            if (hintTeks) {
+                                hintTeks.style.marginTop = '12px';
+                            }
+                        }
                     });
                 }
             });
+
+            btnRemove.addEventListener('click', () => {
+                dokumenDropzone.removeAllFiles(true);
+            });
         },
         willClose: () => {
-            if (editorInstance) {
-                editorInstance.destroy();
-                editorInstance = null;
-            }
-
-            if (dokumenDropzone) {
-                dokumenDropzone.destroy();
-                dokumenDropzone = null;
-            }
+            if (editorInstance) { editorInstance.destroy(); editorInstance = null; }
+            if (dokumenDropzone) { dokumenDropzone.destroy(); dokumenDropzone = null; }
         },
         preConfirm: () => {
             const nama = document.getElementById('swal-nama').value.trim();
@@ -658,13 +697,7 @@ function showSwalEditor(data = null, idservis) {
             const acceptedFiles = dokumenDropzone ? dokumenDropzone.getAcceptedFiles() : [];
 
             if (!nama) { Swal.showValidationMessage('Tajuk Dokumen wajib diisi.'); return false; }
-            const plainText = description.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, '').trim();
-            if (plainText === "") { description = ""; }
-            if (isNew && acceptedFiles.length === 0) {
-                Swal.showValidationMessage('Sila muat naik satu fail PDF sebelum simpan.');
-                return false;
-            }
-
+            
             const fd = new FormData();
             fd.append('<?= csrf_token() ?>', currentCsrfHash); 
             fd.append('idservis', idservis);
@@ -673,6 +706,9 @@ function showSwalEditor(data = null, idservis) {
             
             if (acceptedFiles.length > 0) {
                 fd.append('file', acceptedFiles);
+            } else if (isNew) {
+                Swal.showValidationMessage('Sila muat naik satu fail PDF.');
+                return false;
             }
             return { formData: fd };
         }
