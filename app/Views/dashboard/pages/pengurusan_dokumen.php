@@ -419,7 +419,7 @@ function refreshTable(idservis){
     }
     
     $('#btnTambahModal').prop('disabled', false);
-    $('#dokumenArea').html('<div class="text-center py-20 text-slate-400 font-bold">Memproses data...</div>');
+    $('#dokumenArea').html('<div class="text-center py-20 text-slate-400 ">Memproses data...</div>');
     
     $.get('<?= base_url('pengurusandokumen/getDokumen') ?>/' + idservis, function(res){
         if(res.csrf) refreshToken(res.csrf);
