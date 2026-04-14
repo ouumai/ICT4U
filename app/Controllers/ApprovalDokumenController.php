@@ -178,9 +178,7 @@ class ApprovalDokumenController extends BaseController
     }
 
     public function bulkChangeStatus()
-    {
-        // Saya dah buang if ($this->request->isAJAX()) { ... } kat sini
-        
+    {        
         $ids = $this->request->getPost('ids'); 
         $status = strtolower((string) $this->request->getPost('status')); 
 
@@ -191,7 +189,7 @@ class ApprovalDokumenController extends BaseController
             $now    = date('Y-m-d H:i:s');
 
             $db = \Config\Database::connect();
-            $db->transStart(); // Mula transaction supaya selamat
+            $db->transStart(); // Mula transaction
 
             foreach ($ids as $iddoc) {
                 // 1. Cari dokumen lama untuk tujuan Audit Log
@@ -251,6 +249,5 @@ class ApprovalDokumenController extends BaseController
             'csrf'    => csrf_hash()
         ]);
         
-        // Return 404 PageNotFoundException pun saya dah buang kat bawah ni
     }
 }

@@ -280,7 +280,6 @@ document.addEventListener('DOMContentLoaded', () => {
             bulkToast.classList.add('translate-y-0', 'opacity-100');
         }
 
-        // Desktop UI Feedback: Teks nombor akan kelip warna indigo sekejap bila user tick dokumen baru
         bulkToastCount.classList.add('text-indigo-600');
         setTimeout(() => {
             bulkToastCount.classList.remove('text-indigo-600');
