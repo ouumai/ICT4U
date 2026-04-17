@@ -54,11 +54,26 @@
         white-space: nowrap;
     }
 
+    #dokumenTable {
+        table-layout: fixed !important;
+        width: 100% !important;
+    }
+
+    #dokumenTable td {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
     /* 5. Buttons Styling */
     .btn-action-table-large {
         width: 160px; height: 44px; display: inline-flex; align-items: center; justify-content: center;
         gap: 10px; font-size: 11px !important; font-weight: 800 !important; border-radius: 12px;
         text-transform: uppercase; transition: all 0.2s; border: 1px solid transparent;
+    }
+    .btn-action-table-large i {
+        font-size: 1rem !important;
+        line-height: 1 !important;
     }
     .btn-view { background: #F1F5F9; color: #64748B; border-color: #E2E8F0; }
     .btn-edit { background: #EEF2FF; color: #4F46E5; border-color: #E0E7FF; }
@@ -154,7 +169,16 @@
         transform: rotate(180deg);
     }
 
-    
+    @keyframes pulse-custom {
+        0%, 100% { opacity: 1; }
+        50% { opacity: .7; }
+    }
+
+    .skeleton-box {
+        background-color: #e2e8f0;
+        border-radius: 0.5rem;
+        animation: pulse-custom 1.5s infinite ease-in-out;
+    }
 
 </style>
 
@@ -197,6 +221,11 @@
     <div class="glass-card overflow-hidden bg-white">
         <div class="overflow-x-auto">
             <table class="w-full text-left" id="dokumenTable">
+                <colgroup>
+                    <col style="width: 55%;">
+                    <col style="width: 22.5%;">
+                    <col style="width: 22.5%;">
+                </colgroup>
                 <thead>
                     <tr class="bg-slate-50">
                         <th class="px-8 compact-th">Maklumat Servis</th>
@@ -225,15 +254,40 @@ function refreshToken(newToken) {
     $('meta[name="csrf-token"]').attr('content', newToken);
 }
 
+function showSkeleton() {
+    let skeletonHTML = '';
+    for (let i = 0; i < 5; i++) {
+        skeletonHTML += `
+            <tr class="border-b border-slate-100">
+                <td class="px-8 py-6">
+                    <div class="skeleton-box h-5 w-56 rounded mb-3"></div>
+                    <div class="skeleton-box h-3 w-32 rounded"></div>
+                </td>
+                <td class="px-8 py-6 text-center">
+                    <div class="skeleton-box h-11 w-40 mx-auto rounded-xl"></div>
+                </td>
+                <td class="px-8 py-6 text-center">
+                    <div class="skeleton-box h-11 w-40 mx-auto rounded-xl"></div>
+                </td>
+            </tr>`;
+    }
+    return skeletonHTML;
+}
+
 async function fetchServis(){
+    const body = document.getElementById('serviceTableBody');
+    body.innerHTML = showSkeleton();
+
     try {
         const res = await fetch('<?= base_url("tambahanperincian/getAll") ?>');
         const json = await res.json();
         if(json.status) { 
             allServis = json.data; 
             sortData(); 
+        } else {
+            body.innerHTML = `<tr><td colspan="3" class="px-8 py-20 text-center text-slate-500">Tiada data untuk dipaparkan.</td></tr>`;
         }
-    } catch (e) { console.error("Error:", e); }
+    } catch (e) { console.error("Error:", e); body.innerHTML = `<tr><td colspan="3" class="px-8 py-20 text-center text-slate-500">Ralat memuatkan data. Sila cuba semula.</td></tr>`; }
 }
 
 function renderTable(){

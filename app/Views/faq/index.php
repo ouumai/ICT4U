@@ -190,6 +190,17 @@
         transform: translateY(-50%) rotate(180deg) !important;
     }
 
+    @keyframes pulse-custom {
+        0%, 100% { opacity: 1; }
+        50% { opacity: .7; }
+    }
+
+    .skeleton-box {
+        background-color: #e2e8f0;
+        border-radius: 0.5rem;
+        animation: pulse-custom 1.5s infinite ease-in-out;
+    }
+
 </style>
 
 <div class="container-fluid py-1">
@@ -296,8 +307,36 @@ $(document).ready(function() {
 
     $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
 
+    function showFaqSkeleton() {
+        let skeletonHtml = '<div class="accordion" id="faqSkeletonAccordion">';
+
+        for (let i = 0; i < 4; i++) {
+            skeletonHtml += `
+                <div class="accordion-item shadow-sm border-0">
+                    <div class="flex items-center justify-between bg-white pr-4">
+                        <div class="flex-1 p-6">
+                            <div class="skeleton-box h-5 w-3/4"></div>
+                        </div>
+                        <div class="flex gap-2 py-2">
+                            <div class="skeleton-box w-10 h-10 rounded-xl"></div>
+                            <div class="skeleton-box w-10 h-10 rounded-xl"></div>
+                            <div class="skeleton-box w-10 h-10 rounded-xl"></div>
+                        </div>
+                    </div>
+                    <div class="px-6 pb-6 border-t border-slate-50">
+                        <div class="pt-6">
+                            <div class="skeleton-box h-4 w-full"></div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        skeletonHtml += '</div>';
+        $('#faqList').html(skeletonHtml);
+    }
+
     function loadFaq(id) {
-        $('#faqList').html('<div class="text-center py-10 text-slate-400 font-bold">Memproses data...</div>');
+        showFaqSkeleton();
         $.get(`<?= base_url('faq/ajax') ?>/${id}`, function(res) {
             if(res.csrf) refreshToken(res.csrf);
             if(res.success && res.faqs.length > 0) {
