@@ -108,6 +108,17 @@
     .custom-arrow { transition: transform 0.2s ease; }
     .custom-select-wrapper.active .custom-arrow { transform: rotate(180deg); }
 
+    @keyframes pulse-custom {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .7; } /* Kurangkan sikit transparency biar nampak pekat */
+    }
+
+    .skeleton-box {
+        background-color: #e2e8f0; /* Warna kelabu slate pekat */
+        border-radius: 0.5rem;
+        animation: pulse-custom 1.5s infinite ease-in-out;
+    }
+
 </style>
 
 <div class="container-fluid py-1">
@@ -217,10 +228,10 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => 
+{
     const tbody = document.querySelector('#dokumenTable tbody');
     const searchInput = document.getElementById('searchDokumen');
-    const filterStatus = document.getElementById('filterStatus');
     const viewModal = document.getElementById('viewModal');
     const dokumenDetails = document.getElementById('dokumenDetails');
     const paginationContainer = document.querySelector('.pagination');
@@ -234,6 +245,62 @@ document.addEventListener('DOMContentLoaded', () => {
     const label = document.getElementById('currentStatusLabel');
     const hiddenInput = document.getElementById('filterStatus');
 
+    let currentPage = 1, limit = 10;
+
+    // --- FUNCTION SKELETON LOADING ---
+    function showSkeleton() {
+    const tbody = document.querySelector('#dokumenTable tbody');
+    let skeletonHTML = '';
+
+    for (let i = 0; i < 5; i++) {
+        skeletonHTML += `
+            <tr class="border-b border-slate-50">
+                <td class="p-4 text-center w-[60px]">
+                    <div class="skeleton-box h-5 w-5 mx-auto rounded"></div>
+                </td>
+                
+                <td class="p-4 text-center w-[60px]">
+                    <div class="skeleton-box h-4 w-4 mx-auto rounded"></div>
+                </td>
+                
+                <td class="p-4 min-w-[300px]">
+                    <div class="flex items-center justify-between w-full min-h-[56px]">
+                        <div class="flex flex-col gap-2">
+                            <div class="skeleton-box h-5 w-[180px] rounded"></div>
+                            <div class="skeleton-box h-3 w-[80px] rounded"></div>
+                        </div>
+                        <div class="skeleton-box h-4 w-4 rounded mr-2"></div> 
+                    </div>
+                </td>
+                
+                <td class="p-4 text-center w-[100px]">
+                    <div class="skeleton-box h-5 w-10 mx-auto rounded"></div>
+                </td>
+                
+                <td class="p-4 text-center w-[120px]">
+                    <div class="skeleton-box h-7 w-20 mx-auto rounded-full"></div>
+                </td>
+                
+                <td class="p-4 w-[200px]">
+                    <div class="flex items-center justify-center gap-2">
+                        <div class="skeleton-box h-4 w-4 rounded-full"></div>
+                        <div class="skeleton-box h-4 w-32 rounded"></div>
+                    </div>
+                </td>
+                
+                <td class="p-4 text-center w-[150px]">
+                    <div class="flex justify-center gap-2">
+                        <div class="skeleton-box h-9 w-9 rounded-xl"></div>
+                        <div class="skeleton-box h-9 w-9 rounded-xl"></div>
+                        <div class="skeleton-box h-9 w-9 rounded-xl"></div>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+    tbody.innerHTML = skeletonHTML;
+}
+    // --- DROPDOWN LOGIC ---
     trigger.addEventListener('click', (e) => {
         e.stopPropagation();
         optionsList.classList.toggle('show');
@@ -255,67 +322,35 @@ document.addEventListener('DOMContentLoaded', () => {
         wrapper.classList.remove('active');
     });
 
-    tbody.addEventListener('change', (e) => {
-        if (e.target.classList.contains('doc-checkbox')) {
-            toggleBulkBar();
-        }
-    });
-
-    const bulkToast = document.getElementById('bulkToast');
-    const bulkToastCount = document.getElementById('bulkToastCount');
-
-    let currentPage = 1, limit = 10;
-
-    window.showBulkToast = function(count) {
-        bulkToastCount.innerText = `${count} Dokumen`;
-        
-        if (bulkToast.classList.contains('hidden')) {
-            bulkToast.classList.remove('hidden');
-            
-            // Trigger DOM reflow supaya tailwind animation boleh jalan
-            void bulkToast.offsetWidth;
-            
-            // Slide up & Fade in
-            bulkToast.classList.remove('translate-y-8', 'opacity-0');
-            bulkToast.classList.add('translate-y-0', 'opacity-100');
-        }
-
-        bulkToastCount.classList.add('text-indigo-600');
-        setTimeout(() => {
-            bulkToastCount.classList.remove('text-indigo-600');
-        }, 200);
-    }
-
-    window.hideBulkToast = function() {
-        const bulkToast = document.getElementById('bulkToast');
-        
-        // Slide down & Fade out
-        bulkToast.classList.remove('translate-y-0', 'opacity-100');
-        bulkToast.classList.add('translate-y-8', 'opacity-0');
-        
-        // Tunggu transition (300ms) habis baru betul-betul hide dari DOM
-        setTimeout(() => {
-            bulkToast.classList.add('hidden');
-        }, 300);
-    }
-
+    // --- DATA LOADING ---
     async function loadData(page = 1) {
-        const status = filterStatus.value;
-        tbody.innerHTML = '<tr><td colspan="7" class="p-10 text-center text-slate-400">Memuatkan data...</td></tr>';
-        try {
-            const res = await fetch(`<?= url_to('pengesahan_dokumen') ?>/getAll?status=${status}&page=${page}`);
-            const result = await res.json();
-            if (result.data && result.data.length > 0) {
-                populateTable(result.data, result.pagination);
-            } else {
-                tbody.innerHTML = '<tr><td colspan="7" class="p-12 text-center text-slate-400">Tiada rekod dijumpai.</td></tr>';
-                document.getElementById('totalInfo').innerText = 'Menunjukkan 0 rekod';
-                paginationContainer.innerHTML = '';
-            }
-        } catch (err) { console.error(err); }
-    }
+    const status = hiddenInput.value;
+    
+    // 1. Panggil skeleton loading dulu
+    showSkeleton();
+    
+    // 2. Kosongkan info total & pagination sekejap biar nampak bersih
+    document.getElementById('totalInfo').innerText = '';
+    paginationContainer.innerHTML = '';
 
-    function populateTable(data, pagination) {
+    try {
+        const res = await fetch(`<?= url_to('pengesahan_dokumen') ?>/getAll?status=${status}&page=${page}`);
+        const result = await res.json();
+        
+        // 3. Bila fetch siap, populateTable akan tindih skeleton tu dengan data betul
+        if (result.data && result.data.length > 0) {
+            populateTable(result.data, result.pagination);
+        } else {
+            tbody.innerHTML = '<tr><td colspan="7" class="p-12 text-center text-slate-400 font-medium">Tiada rekod dijumpai.</td></tr>';
+        }
+    } catch (err) { 
+        console.error(err);
+        tbody.innerHTML = '<tr><td colspan="7" class="p-12 text-center text-red-400 font-bold">Ralat sistem. Sila cuba lagi.</td></tr>';
+    }
+}
+
+    function populateTable(data, pagination) 
+    {
         tbody.innerHTML = '';
         currentPage = pagination.page;
         const totalPages = Math.ceil(pagination.total / pagination.limit);
@@ -326,12 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         data.forEach((d, index) => {
             const statusLabel = d.status ?? 'pending';
-            
-            // Format: Ambil PDF sahaja
-            let displayFormat = 'FILE';
-            if (d.mime) {
-                displayFormat = d.mime.split('/').pop().toUpperCase();
-            }
+            let displayFormat = d.mime ? d.mime.split('/').pop().toUpperCase() : 'FILE';
 
             const tr = document.createElement('tr');
             tr.className = "hover:bg-slate-50/50 transition-colors border-b border-slate-50";
@@ -340,54 +370,54 @@ document.addEventListener('DOMContentLoaded', () => {
                     <input type="checkbox" class="doc-checkbox w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer" data-id="${d.iddoc}">
                 </td>
                 <td class="p-4 text-center text-slate-400 font-semibold">${index + 1 + (currentPage - 1) * limit}</td>
-                
                 <td class="p-4">
                     <div class="flex items-center cursor-pointer group justify-between min-h-[56px]" onclick="showDokumenModal('${d.iddoc}')">
                         <div class="w-[160px] min-w-0 flex flex-col justify-center"> 
                             <div class="font-bold text-slate-800 group-hover:text-indigo-600 transition-colors line-clamp-1">${d.nama}</div>
                             <div class="text-[11px] text-slate-400 mt-0.5">ID: #${d.iddoc}</div>
                         </div>
-                        <i class="bi bi-chevron-down text-slate-300 text-m"></i>
+                        <i class="bi bi-chevron-down text-slate-300"></i>
                     </div>
                 </td>
-
-                <td class="p-4 text-center">
-                    <span class="font-bold text-slate-700 text-base">${displayFormat}</span>
-                </td>
-
-                <td class="p-4 text-center">
-                    <span class="status-pill status-${statusLabel.toLowerCase()}">${statusLabel.toUpperCase()}</span>
-                </td>
-
-                <td class="p-4">
-                    <div class="flex items-center gap-2 text-slate-500 text-sm">
-                        <i class="bi bi-clock-history text-slate-400"></i>
-                        ${formatDate(d.created_at)}
-                    </div>
-                </td>
-
+                <td class="p-4 text-center"><span class="font-bold text-slate-700 text-base">${displayFormat}</span></td>
+                <td class="p-4 text-center"><span class="status-pill status-${statusLabel.toLowerCase()}">${statusLabel.toUpperCase()}</span></td>
+                <td class="p-4"><div class="flex items-center gap-2 text-slate-500 text-sm"><i class="bi bi-clock-history text-slate-400"></i>${formatDate(d.created_at)}</div></td>
                 <td class="p-4 text-center">
                     <div class="flex justify-center gap-2">
                         <button class="viewBtn btn-action w-9 h-9 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition" data-id="${d.iddoc}"><i class="bi bi-eye-fill pointer-events-none"></i></button>
                         <button class="approveBtn btn-action w-9 h-9 flex items-center justify-center bg-green-50 text-green-600 rounded-xl hover:bg-green-600 hover:text-white transition" data-id="${d.iddoc}"><i class="bi bi-check-lg pointer-events-none"></i></button>
                         <button class="rejectBtn btn-action w-9 h-9 flex items-center justify-center bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition" data-id="${d.iddoc}"><i class="bi bi-x-lg pointer-events-none"></i></button>
                     </div>
-                </td>
-            `;
+                </td>`;
             tbody.appendChild(tr);
         });
-
         renderPagination(totalPages);
     }
-    
-    // Fungsi Toggle Bulk Action Bar (Di-adjust sikit untuk panggil bulkToast baru)
+
+    // --- BULK ACTIONS ---
+    const bulkToast = document.getElementById('bulkToast');
+    const bulkToastCount = document.getElementById('bulkToastCount');
+
+    tbody.addEventListener('change', (e) => {
+        if (e.target.classList.contains('doc-checkbox')) {
+            toggleBulkBar();
+        }
+    });
+
     window.toggleBulkBar = function() {
         const selected = document.querySelectorAll('.doc-checkbox:checked');
-
         if (selected.length > 0) {
-            showBulkToast(selected.length);
+            bulkToastCount.innerText = `${selected.length} Dokumen`;
+            if (bulkToast.classList.contains('hidden')) {
+                bulkToast.classList.remove('hidden');
+                void bulkToast.offsetWidth;
+                bulkToast.classList.remove('translate-y-8', 'opacity-0');
+                bulkToast.classList.add('translate-y-0', 'opacity-100');
+            }
         } else {
-            hideBulkToast();
+            bulkToast.classList.remove('translate-y-0', 'opacity-100');
+            bulkToast.classList.add('translate-y-8', 'opacity-0');
+            setTimeout(() => { bulkToast.classList.add('hidden'); }, 300);
         }
     }
 
@@ -396,6 +426,45 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleBulkBar();
     }
 
+    window.confirmBulkStatus = async function(status) {
+        const selected = document.querySelectorAll('.doc-checkbox:checked');
+        if (selected.length === 0) return;
+        const confirmText = status === 'approved' ? 'Luluskan' : 'Tolak';
+        const result = await Swal.fire({
+            title: `Pengesahan ${confirmText}`,
+            text: `Adakah anda pasti untuk ${confirmText.toLowerCase()} ${selected.length} dokumen?`,
+            icon: status === 'approved' ? 'question' : 'warning',
+            showCancelButton: true,
+            confirmButtonText: `Ya, ${confirmText}!`,
+            cancelButtonText: 'Batal',
+            customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-batal', actions: 'swal2-actions' }
+        });
+        if (result.isConfirmed) bulkChangeStatus(status);
+    }
+
+    window.bulkChangeStatus = async function(status) {
+        const selected = document.querySelectorAll('.doc-checkbox:checked');
+        const ids = Array.from(selected).map(cb => cb.getAttribute('data-id'));
+        const formData = new FormData();
+        formData.append('<?= csrf_token() ?>', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+        formData.append('status', status);
+        ids.forEach(id => formData.append('ids[]', id));
+        
+        try {
+            const res = await fetch(`<?= base_url('pengesahandokumen/bulkChangeStatus') ?>`, { 
+                method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await res.json();
+            if (data.csrf) document.querySelector('meta[name="csrf-token"]').setAttribute('content', data.csrf);
+            if (data.status) {
+                Swal.fire({ icon: 'success', title: 'Berjaya!', text: data.message, timer: 2000, showConfirmButton: false, customClass: { popup: 'swal-rounded' } });
+                unselectAll();
+                loadData(currentPage);
+            }
+        } catch (err) { console.error(err); }
+    }
+
+    // --- OTHER UTILITIES ---
     function renderPagination(totalPages) {
         paginationContainer.innerHTML = '';
         for (let i = 1; i <= totalPages; i++) {
@@ -437,78 +506,13 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) { console.error(err); }
     }
 
-    window.confirmBulkStatus = async function(status) {
-        const selected = document.querySelectorAll('.doc-checkbox:checked');
-        if (selected.length === 0) return;
-
-        const confirmText = status === 'approved' ? 'Luluskan' : 'Tolak';
-        const result = await Swal.fire({
-            title: `Pengesahan ${confirmText}`,
-            text: `Adakah anda pasti untuk ${confirmText.toLowerCase()} ${selected.length} dokumen?`,
-            icon: status === 'approved' ? 'question' : 'warning',
-            showCancelButton: true,
-            showCloseButton: true,
-            confirmButtonText: `Ya, ${confirmText}!`,
-            cancelButtonText: 'Batal',
-            customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-batal', actions: 'swal2-actions' }
-        });
-
-        if (!result.isConfirmed) return;
-        bulkChangeStatus(status);
-    }
-
-    // Function Bulk Actions
-    window.bulkChangeStatus = async function(status) 
-    {
-        const selected = document.querySelectorAll('.doc-checkbox:checked');
-        const ids = Array.from(selected).map(cb => cb.getAttribute('data-id'));
-        if (ids.length === 0) return;
-
-        const formData = new FormData();
-        formData.append('<?= csrf_token() ?>', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-        formData.append('status', status);
-        ids.forEach(id => formData.append('ids[]', id));
-        
-        try {
-            const res = await fetch(`<?= base_url('pengesahandokumen/bulkChangeStatus') ?>`, { 
-                method: 'POST', 
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            
-            // Kalau URL salah (404) atau Server Error (500), dia akan tangkap
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            
-            const data = await res.json();
-            if (data.csrf) document.querySelector('meta[name="csrf-token"]').setAttribute('content', data.csrf);
-            
-            if (data.status) {
-                Swal.fire({ icon: 'success', title: 'Berjaya!', text: data.message, timer: 2000, showConfirmButton: false, customClass: { popup: 'swal-rounded' } });
-                unselectAll();
-                loadData(currentPage);
-            } else {
-                Swal.fire({ icon: 'error', title: 'Gagal', text: data.message, customClass: { popup: 'swal-rounded' } });
-            }
-        } catch (err) { 
-            console.error('AJAX Error:', err); 
-            // Pop up kalau crash
-            Swal.fire({ icon: 'error', title: 'Ralat Sistem', text: 'Gagal berhubung dengan server. Sila semak console.', customClass: { popup: 'swal-rounded' } });
-        }
-    }
-
-    // Kod changeStatus tunggal
     window.changeStatus = async function(id, status) {
         const confirmText = status.charAt(0).toUpperCase() + status.slice(1);
         const result = await Swal.fire({ 
             title: `Pengesahan ${confirmText}`, 
             text: `Adakah anda pasti untuk tukar status dokumen ini kepada ${status}?`, 
             icon: status === 'approved' ? 'question' : 'warning', 
-            showCancelButton: true,
-            showCloseButton: true,
-            confirmButtonText: `Ya, ${confirmText}!`,
-            cancelButtonText: 'Batal',
+            showCancelButton: true, confirmButtonText: `Ya, ${confirmText}!`, cancelButtonText: 'Batal',
             customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-batal', actions: 'swal2-actions' }
         });
         if (!result.isConfirmed) return;
@@ -525,15 +529,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (err) { console.error(err); }
     }
-
-    tbody.addEventListener('click', e => {
-        const btn = e.target.closest('.btn-action');
-        if (!btn) return;
-        const id = btn.getAttribute('data-id');
-        if (btn.classList.contains('viewBtn')) showDokumenModal(id);
-        else if (btn.classList.contains('approveBtn')) changeStatus(id, 'approved');
-        else if (btn.classList.contains('rejectBtn')) changeStatus(id, 'rejected');
-    });
 
     searchInput.addEventListener('input', () => {
         const term = searchInput.value.toLowerCase();
