@@ -44,6 +44,17 @@
         white-space: nowrap;
     }
 
+    #dokumenTable {
+    table-layout: fixed !important;
+    width: 100% !important;
+    }
+
+    #dokumenTable td {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
     /* Status Pills */
     .status-pill { padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; display: inline-block; }
     .status-pending { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
@@ -84,11 +95,20 @@
     .file-preview-frame { width: 100%; height: 100%; min-height: 450px; border: 1px solid #e2e8f0; border-radius: 1rem; }
     .file-preview-wrapper { height: clamp(420px, 58vh, 720px); }
 
+    #dokumenTable td:first-child {
+        font-size: 0 !important; /* Sorok teks/titik */
+        color: transparent !important;
+    }
+
+    #dokumenTable td:first-child input {
+        font-size: initial !important;
+        display: inline-block !important;
+    }
+
     @media (max-width: 768px) { .modal-container { width: 100%; height: 88vh; min-width: 0; min-height: 0; resize: none; } }
 
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Custom Dropdown Style (Tiru Indigo Style) */
     .servis-select-wrapper { position: relative; width: 100%; }
     .custom-select-trigger {
         min-height: 56px !important; padding: 0 1.2rem !important; border-radius: 0.75rem !important;
@@ -110,11 +130,11 @@
 
     @keyframes pulse-custom {
     0%, 100% { opacity: 1; }
-    50% { opacity: .7; } /* Kurangkan sikit transparency biar nampak pekat */
+    50% { opacity: .7; } 
     }
 
     .skeleton-box {
-        background-color: #e2e8f0; /* Warna kelabu slate pekat */
+        background-color: #e2e8f0; 
         border-radius: 0.5rem;
         animation: pulse-custom 1.5s infinite ease-in-out;
     }
@@ -164,13 +184,12 @@
             <table class="min-w-full table-auto" id="dokumenTable">
                 <thead>
                     <tr class="bg-slate-50 border-b">
-                        <th class="p-4 w-10"></th>
-                        <th class="p-4 text-center w-20">No</th>
-                        <th class="p-4 text-left w-[220px]">Maklumat Dokumen</th>
-                        <th class="p-4 text-center">Format</th>
-                        <th class="p-4 text-center">Status</th>
-                        <th class="p-4 text-left">Tarikh Hantar</th>
-                        <th class="p-4 text-center">Tindakan</th>
+                        <th class="p-4 w-10"></th> <th class="p-4 text-center w-20">No</th>
+                        <th class="p-4 text-left" style="width: 400px;">Maklumat Dokumen</th>
+                        <th class="p-4 text-center w-32">Format</th>
+                        <th class="p-4 text-center w-40">Status</th>
+                        <th class="p-4 text-left w-60">Tarikh Hantar</th>
+                        <th class="p-4 text-center w-48">Tindakan</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 bg-white"></tbody>
@@ -247,59 +266,60 @@ document.addEventListener('DOMContentLoaded', () =>
 
     let currentPage = 1, limit = 10;
 
-    // --- FUNCTION SKELETON LOADING ---
+    //skeleton loading func
     function showSkeleton() {
-    const tbody = document.querySelector('#dokumenTable tbody');
-    let skeletonHTML = '';
+        const tbody = document.querySelector('#dokumenTable tbody');
+        let skeletonHTML = '';
 
-    for (let i = 0; i < 5; i++) {
-        skeletonHTML += `
-            <tr class="border-b border-slate-50">
-                <td class="p-4 text-center w-[60px]">
-                    <div class="skeleton-box h-5 w-5 mx-auto rounded"></div>
-                </td>
-                
-                <td class="p-4 text-center w-[60px]">
-                    <div class="skeleton-box h-4 w-4 mx-auto rounded"></div>
-                </td>
-                
-                <td class="p-4 min-w-[300px]">
-                    <div class="flex items-center justify-between w-full min-h-[56px]">
-                        <div class="flex flex-col gap-2">
-                            <div class="skeleton-box h-5 w-[180px] rounded"></div>
-                            <div class="skeleton-box h-3 w-[80px] rounded"></div>
+        for (let i = 0; i < 5; i++) {
+            skeletonHTML += `
+                <tr class="border-b border-slate-50">
+                    <td class="p-4 text-center">
+                        <div class="skeleton-box h-5 w-5 mx-auto rounded"></div>
+                    </td>
+                    
+                    <td class="p-4 text-center">
+                        <div class="skeleton-box h-4 w-6 mx-auto rounded"></div>
+                    </td>
+                    
+                    <td class="p-4">
+                        <div class="flex items-center justify-between" style="width: 400px; min-height: 56px;">
+                            <div class="flex flex-col">
+                                <div class="skeleton-box h-5 w-48 rounded mb-2"></div>
+                                <div class="skeleton-box h-3 w-24 rounded"></div>
+                            </div>
+                            <div class="skeleton-box h-4 w-4 rounded ml-4"></div> 
                         </div>
-                        <div class="skeleton-box h-4 w-4 rounded mr-2"></div> 
-                    </div>
-                </td>
-                
-                <td class="p-4 text-center w-[100px]">
-                    <div class="skeleton-box h-5 w-10 mx-auto rounded"></div>
-                </td>
-                
-                <td class="p-4 text-center w-[120px]">
-                    <div class="skeleton-box h-7 w-20 mx-auto rounded-full"></div>
-                </td>
-                
-                <td class="p-4 w-[200px]">
-                    <div class="flex items-center justify-center gap-2">
-                        <div class="skeleton-box h-4 w-4 rounded-full"></div>
-                        <div class="skeleton-box h-4 w-32 rounded"></div>
-                    </div>
-                </td>
-                
-                <td class="p-4 text-center w-[150px]">
-                    <div class="flex justify-center gap-2">
-                        <div class="skeleton-box h-9 w-9 rounded-xl"></div>
-                        <div class="skeleton-box h-9 w-9 rounded-xl"></div>
-                        <div class="skeleton-box h-9 w-9 rounded-xl"></div>
-                    </div>
-                </td>
-            </tr>
-        `;
+                    </td>
+                    
+                    <td class="p-4 text-center">
+                        <div class="skeleton-box h-5 w-10 mx-auto rounded"></div>
+                    </td>
+                    
+                    <td class="p-4 text-center">
+                        <div class="skeleton-box h-7 w-24 mx-auto rounded-full"></div>
+                    </td>
+                    
+                    <td class="p-4">
+                        <div class="flex items-center space-x-2">
+                            <div class="skeleton-box h-4 w-4 rounded-full"></div>
+                            <div class="skeleton-box h-4 w-32 rounded"></div>
+                        </div>
+                    </td>
+                    
+                    <td class="p-4 text-center">
+                        <div class="flex justify-center space-x-2">
+                            <div class="skeleton-box h-9 w-9 rounded-xl"></div>
+                            <div class="skeleton-box h-9 w-9 rounded-xl"></div>
+                            <div class="skeleton-box h-9 w-9 rounded-xl"></div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+        tbody.innerHTML = skeletonHTML;
     }
-    tbody.innerHTML = skeletonHTML;
-}
+
     // --- DROPDOWN LOGIC ---
     trigger.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -367,12 +387,12 @@ document.addEventListener('DOMContentLoaded', () =>
             tr.className = "hover:bg-slate-50/50 transition-colors border-b border-slate-50";
             tr.innerHTML = `
                 <td class="p-4 text-center">
-                    <input type="checkbox" class="doc-checkbox w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer" data-id="${d.iddoc}">
+                    <input type="checkbox" class="doc-checkbox w-5 h-5 rounded border-slate-300 text-indigo-600 cursor-pointer" data-id="${d.iddoc}">
                 </td>
-                <td class="p-4 text-center text-slate-400 font-semibold">${index + 1 + (currentPage - 1) * limit}</td>
+                <td class="p-4 text-center text-slate-400 font-semibold">${index + 1 + (pagination.page - 1) * pagination.limit}</td>
                 <td class="p-4">
-                    <div class="flex items-center cursor-pointer group justify-between min-h-[56px]" onclick="showDokumenModal('${d.iddoc}')">
-                        <div class="w-[160px] min-w-0 flex flex-col justify-center"> 
+                    <div class="flex items-center justify-between min-h-[56px] cursor-pointer group" onclick="showDokumenModal('${d.iddoc}')">
+                        <div class="flex flex-col flex-1">
                             <div class="font-bold text-slate-800 group-hover:text-indigo-600 transition-colors line-clamp-1">${d.nama}</div>
                             <div class="text-[11px] text-slate-400 mt-0.5">ID: #${d.iddoc}</div>
                         </div>
