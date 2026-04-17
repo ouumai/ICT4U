@@ -96,13 +96,18 @@
     .file-preview-wrapper { height: clamp(420px, 58vh, 720px); }
 
     #dokumenTable td:first-child {
-        font-size: 0 !important; /* Sorok teks/titik */
+        font-size: 0 !important; /* Sorok titik sebelah checkbox */
         color: transparent !important;
     }
 
     #dokumenTable td:first-child input {
         font-size: initial !important;
         display: inline-block !important;
+    }
+
+    /* Warna baris bila checkbox ditanda */
+    #dokumenTable tr.row-selected {
+        background-color: #f0f4ff !important; 
     }
 
     @media (max-width: 768px) { .modal-container { width: 100%; height: 88vh; min-width: 0; min-height: 0; resize: none; } }
@@ -425,6 +430,20 @@ document.addEventListener('DOMContentLoaded', () =>
     });
 
     window.toggleBulkBar = function() {
+
+        const checkboxes = document.querySelectorAll('.doc-checkbox');
+            let selectedCount = 0;
+
+            checkboxes.forEach(cb => {
+                const row = cb.closest('tr');
+                if (cb.checked) {
+                    row.classList.add('row-selected');
+                    selectedCount++;
+                } else {
+                    row.classList.remove('row-selected');
+                }
+            });
+
         const selected = document.querySelectorAll('.doc-checkbox:checked');
         if (selected.length > 0) {
             bulkToastCount.innerText = `${selected.length} Dokumen`;
