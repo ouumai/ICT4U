@@ -285,6 +285,17 @@
     .ts-wrapper.dropdown-active ~ .custom-arrow {
         transform: translateY(-50%) rotate(180deg) !important;
     }
+
+    @keyframes pulse-custom {
+        0%, 100% { opacity: 1; }
+        50% { opacity: .7; }
+    }
+
+    .skeleton-box {
+        background-color: #e2e8f0;
+        border-radius: 0.5rem;
+        animation: pulse-custom 1.5s infinite ease-in-out;
+    }
 </style>
 
 <div class="container-fluid py-1">
@@ -411,6 +422,51 @@ function refreshToken(newToken) {
 
 $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': currentCsrfHash } });
 
+function showSkeleton() {
+    let skeletonHTML = `<div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="bg-slate-50">
+                        <th class="px-8 compact-th text-center">Fail</th>
+                        <th class="px-8 compact-th">Maklumat Dokumen</th>
+                        <th class="px-8 compact-th text-center">Status</th>
+                        <th class="px-8 compact-th text-center">Tindakan</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+`;
+
+    for (let i = 0; i < 5; i++) {
+        skeletonHTML += `
+            <tr class="hover:bg-slate-50/50 transition-colors">
+                <td class="px-8 py-6 text-center">
+                    <div class="skeleton-box h-12 w-12 mx-auto"></div>
+                </td>
+                <td class="px-8 py-6" style="max-width: 400px; word-wrap: break-word; white-space: normal;">
+                    <div class="skeleton-box h-5 w-48 mb-3"></div>
+                    <div class="skeleton-box h-4 w-64 mb-4"></div>
+                    <div class="space-y-2">
+                        <div class="skeleton-box h-3 w-28"></div>
+                        <div class="skeleton-box h-3 w-32"></div>
+                    </div>
+                </td>
+                <td class="px-8 py-6 text-center">
+                    <div class="skeleton-box h-8 w-24 mx-auto"></div>
+                </td>
+                <td class="px-8 py-6 text-center">
+                    <div class="flex justify-center gap-2">
+                        <div class="skeleton-box h-10 w-10 rounded-xl"></div>
+                        <div class="skeleton-box h-10 w-10 rounded-xl"></div>
+                        <div class="skeleton-box h-10 w-10 rounded-xl"></div>
+                    </div>
+                </td>
+            </tr>`;
+    }
+
+    skeletonHTML += `</tbody></table></div>`;
+    return skeletonHTML;
+}
+
 function refreshTable(idservis){
     if(!idservis){
         $('#dokumenArea').html(`<div class="text-center py-20"><div class="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm"><i class="bi bi-filter text-4xl text-slate-300"></i></div><h5 class="text-slate-900 font-bold mb-1">Sila Pilih Servis</h5><p class="text-slate-500 font-medium">Pilih kategori servis di atas untuk memaparkan senarai dokumen.</p></div>`);
@@ -419,7 +475,7 @@ function refreshTable(idservis){
     }
     
     $('#btnTambahModal').prop('disabled', false);
-    $('#dokumenArea').html('<div class="text-center py-20 text-slate-400 ">Memproses data...</div>');
+    $('#dokumenArea').html(showSkeleton());
     
     $.get('<?= base_url('pengurusandokumen/getDokumen') ?>/' + idservis, function(res){
         if(res.csrf) refreshToken(res.csrf);
