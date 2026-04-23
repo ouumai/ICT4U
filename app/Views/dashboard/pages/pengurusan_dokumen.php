@@ -747,32 +747,72 @@ function showSwalEditor(data = null, idservis) {
             if (editorInstance) { editorInstance.destroy(); editorInstance = null; }
             if (dokumenDropzone) { dokumenDropzone.destroy(); dokumenDropzone = null; }
         },
+
         preConfirm: () => {
             const nama = document.getElementById('swal-nama').value.trim();
-            let description = editorInstance ? editorInstance.getData() : '';
-            const acceptedFiles = dokumenDropzone ? dokumenDropzone.getAcceptedFiles() : [];
+            const description = editorInstance ? editorInstance.getData() : '';
+            
+            // CARA BETUL AMBIL FAIL DARI DROPZONE
+            const files = dokumenDropzone.getQueuedFiles(); // Ambil fail yang belum diupload
+            const acceptedFiles = dokumenDropzone.getAcceptedFiles(); // Ambil fail yang dah diterima
+            
+            const theFile = acceptedFiles.length > 0
+                ? acceptedFiles[0]
+                : (files.length > 0 ? files[0] : null);
 
-            if (!nama) { Swal.showValidationMessage('Tajuk Dokumen wajib diisi.'); return false; }
+            if (!nama) { 
+                Swal.showValidationMessage('Tajuk Dokumen wajib diisi.'); 
+                return false; 
+            }
             
-            const fd = new FormData();
-            fd.append('<?= csrf_token() ?>', currentCsrfHash); 
-            fd.append('idservis', idservis);
-            fd.append('nama', nama);
-            fd.append('descdoc', description);
-            
-            if (acceptedFiles.length > 0) {
-                fd.append('file', acceptedFiles);
-            } else if (isNew) {
-                Swal.showValidationMessage('Sila muat naik satu fail PDF.');
+            if (isNew && !theFile) {
+                Swal.showValidationMessage('Sila pilih fail PDF.');
                 return false;
             }
-            return { formData: fd };
+
+            // Pastikan kita return fail tu supaya .then() boleh tangkap
+            return {
+                idservis: idservis,
+                nama: nama,
+                descdoc: description,
+                file: theFile
+            };
         }
+
     }).then((result) => {
         if (result.isConfirmed) {
-            const { formData } = result.value;
+            const payload = result.value;
+            const fd = new FormData();
+            
+            // CSRF Token
+            fd.append('<?= csrf_token() ?>', currentCsrfHash);
+            fd.append('idservis', payload.idservis);
+            fd.append('nama', payload.nama);
+            fd.append('descdoc', payload.descdoc);
+            
+            // PENTING: Masukkan fail ke dalam FormData
+            if (payload.file) {
+                fd.append('file', payload.file); 
+            }
+
             const url = isNew ? '<?= base_url('pengurusandokumen/tambah') ?>' : '<?= base_url('pengurusandokumen/kemaskini') ?>/' + data.iddoc;
-            saveDokumen(url, formData);
+            
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: fd,
+                processData: false, // Wajib false
+                contentType: false, // Wajib false
+                success: function(res) {
+                    if(res.csrf) refreshToken(res.csrf); 
+                    if(res.status) {
+                        Swal.fire({ icon: 'success', title: 'Berjaya', text: res.msg, timer: 1500, showConfirmButton: false });
+                        refreshTable($('#dropdownServis').val());
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Gagal', text: res.msg });
+                    }
+                }
+            });
         }
     });
 }

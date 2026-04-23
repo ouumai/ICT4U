@@ -126,68 +126,83 @@ class DokumenController extends BaseController
 }
 
     public function tambah()
-    {
-        $idservis = $this->request->getPost('idservis');
-        $nama     = $this->request->getPost('nama');
-        $descdoc  = $this->cleanCKEditor($this->request->getPost('descdoc'));
-        $file     = $this->request->getFile('file');
-        $folderName = $this->getFolderNameByServisId($idservis);
+{
+    $idservis = $this->request->getPost('idservis');
+    $nama     = $this->request->getPost('nama');
+    $descdoc  = $this->cleanCKEditor($this->request->getPost('descdoc'));
+    
+    // --- LOGIC PENYELAMAT DROPZONE ---
+    $fileRaw = $this->request->getFile('file');
+    $file = null;
 
-        if (!$file || !$file->isValid()) {
-            return $this->response->setJSON(['status' => false, 'msg' => 'Fail tidak sah.', 'csrf' => csrf_hash()]);
-        }
-
-        if (!$folderName) {
-            return $this->response->setJSON(['status' => false, 'msg' => 'Servis tidak sah.', 'csrf' => csrf_hash()]);
-        }
-
-        if (!$this->isPdfFile($file)) {
-            return $this->response->setJSON(['status' => false, 'msg' => 'Hanya fail PDF dibenarkan.', 'csrf' => csrf_hash()]);
-        }
-
-        $newName = time() . '_' . $file->getRandomName();
-        $originalName = $file->getClientName();
-        $uploadPath = WRITEPATH . "uploads/dokumen/{$folderName}/";
-        
-        if (!is_dir($uploadPath)) mkdir($uploadPath, 0777, true);
-        
-        if ($file->move($uploadPath, $newName)) {
-            $data = [
-                'idservis'           => $idservis,
-                'folder_name'        => $folderName,
-                'nama'               => $nama,
-                'descdoc'            => $descdoc,
-                'namafail'           => $newName,
-                'file_original_name' => $originalName,
-                'mime'               => $file->getClientMimeType(),
-                'status'             => 'pending',
-                'created_by'         => function_exists('auth') && auth()->loggedIn() ? auth()->id() : null,
-                'uploaded_by'        => function_exists('auth') && auth()->loggedIn() ? auth()->id() : null,
-            ];
-
-            if ($this->dokumenModel->insert($data)) {
-                $documentId = $this->dokumenModel->getInsertID();
-                $this->writeAuditLog(
-                    'create',
-                    'dokumen',
-                    $documentId,
-                    "Tambah Dokumen {$nama}",
-                    [
-                        'Servis ID: ' . $this->auditValue($idservis),
-                        'Nama Dokumen: ' . $this->auditValue($nama),
-                        'Status Awal: Pending',
-                    ],
-                    'Dokumen baharu "' . $this->auditValue($nama) . '" telah ditambah ke dalam sistem.'
-                );
-
-                return $this->response->setJSON(['status' => true, 'msg' => 'Dokumen berjaya dimuat naik!', 'csrf' => csrf_hash()]);
-            } else {
-                return $this->response->setJSON(['status' => false, 'msg' => 'Gagal simpan rekod.', 'csrf' => csrf_hash()]);
-            }
-        }
-
-        return $this->response->setJSON(['status' => false, 'msg' => 'Gagal pindah fail.', 'csrf' => csrf_hash()]);
+    // Sokong kedua-dua format: `file` biasa atau array `file[]`
+    if (is_array($fileRaw)) {
+        $file = $fileRaw[0] ?? null;
+    } else {
+        $file = $fileRaw;
     }
+
+    if (!$file) {
+        $fileMultiple = $this->request->getFileMultiple('file');
+        $file = $fileMultiple[0] ?? null;
+    }
+
+    // DEBUG: Cek kalau server langsung tak nampak fail
+    if (!$file) {
+        return $this->response->setJSON(['status' => false, 'msg' => 'Fail tidak dikesan oleh server.', 'csrf' => csrf_hash()]);
+    }
+
+    if (!$file->isValid()) {
+        // Ini akan bagitahu punca sebenar (cth: saiz, partial upload, etc)
+        return $this->response->setJSON([
+            'status' => false, 
+            'msg' => 'Ralat Fail: ' . $file->getErrorString() . ' (' . $file->getError() . ')', 
+            'csrf' => csrf_hash()
+        ]);
+    }
+
+    if (!$this->isPdfFile($file)) {
+        return $this->response->setJSON(['status' => false, 'msg' => 'Hanya fail PDF dibenarkan.', 'csrf' => csrf_hash()]);
+    }
+    // --- END LOGIC PENYELAMAT ---
+
+    $folderName = $this->getFolderNameByServisId($idservis);
+    if (!$folderName) {
+        return $this->response->setJSON(['status' => false, 'msg' => 'Servis tidak sah.', 'csrf' => csrf_hash()]);
+    }
+
+    $newName = time() . '_' . $file->getRandomName();
+    $originalName = $file->getClientName();
+    $uploadPath = WRITEPATH . "uploads/dokumen/{$folderName}/";
+    
+    if (!is_dir($uploadPath)) mkdir($uploadPath, 0777, true);
+    
+    if ($file->move($uploadPath, $newName)) {
+        $data = [
+            'idservis'           => $idservis,
+            'folder_name'        => $folderName,
+            'nama'               => $nama,
+            'descdoc'            => $descdoc,
+            'namafail'           => $newName,
+            'file_original_name' => $originalName,
+            'mime'               => $file->getClientMimeType(),
+            'status'             => 'pending',
+            'created_by'         => function_exists('auth') && auth()->loggedIn() ? auth()->id() : null,
+            'uploaded_by'        => function_exists('auth') && auth()->loggedIn() ? auth()->id() : null,
+        ];
+
+        if ($this->dokumenModel->insert($data)) {
+            // Audit Log biarkan sama macam kod asal kau
+            $documentId = $this->dokumenModel->getInsertID();
+            $this->writeAuditLog('create','dokumen',$documentId,"Tambah Dokumen {$nama}",['Servis ID: '.$idservis, 'Nama: '.$nama],'Dokumen ditambah.');
+
+            return $this->response->setJSON(['status' => true, 'msg' => 'Dokumen berjaya dimuat naik!', 'csrf' => csrf_hash()]);
+        }
+        return $this->response->setJSON(['status' => false, 'msg' => 'Gagal simpan rekod ke database.', 'csrf' => csrf_hash()]);
+    }
+
+    return $this->response->setJSON(['status' => false, 'msg' => 'Gagal pindah fail ke folder.', 'csrf' => csrf_hash()]);
+}
 
     public function kemaskini($iddoc)
     {
