@@ -259,21 +259,23 @@
                     </a>
                     
                     <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="<?= url_to('pengesahan_dokumen') ?>" 
-                            class="nav-link <?= ($seg1 === 'pengesahandokumen') ? 'active' : '' ?>">
-                                <div class="nav-link-content">
-                                    <i class="nav-icon bi bi-check-circle"></i>
-                                    <p class="mb-0">Pengesahan Dokumen</p>
-                                </div>
-                            </a>
-                        </li>
+                        
                         <li class="nav-item">
                             <a href="<?= url_to('pengurusan_dokumen') ?>" 
                             class="nav-link <?= ($seg1 === 'pengurusandokumen') ? 'active' : '' ?>">
                                 <div class="nav-link-content">
                                     <i class="nav-icon bi bi-files"></i>
                                     <p class="mb-0">Pengurusan Dokumen</p>
+                                </div>
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a href="<?= url_to('pengesahan_dokumen') ?>" 
+                            class="nav-link <?= ($seg1 === 'pengesahandokumen') ? 'active' : '' ?>">
+                                <div class="nav-link-content">
+                                    <i class="nav-icon bi bi-check-circle"></i>
+                                    <p class="mb-0">Pengesahan Dokumen</p>
                                 </div>
                             </a>
                         </li>
