@@ -429,6 +429,25 @@ document.addEventListener('DOMContentLoaded', () =>
         }
     });
 
+    tbody.addEventListener('click', (e) => {
+        const viewButton = e.target.closest('.viewBtn');
+        if (viewButton) {
+            showDokumenModal(viewButton.dataset.id);
+            return;
+        }
+
+        const approveButton = e.target.closest('.approveBtn');
+        if (approveButton) {
+            changeStatus(approveButton.dataset.id, 'approved');
+            return;
+        }
+
+        const rejectButton = e.target.closest('.rejectBtn');
+        if (rejectButton) {
+            changeStatus(rejectButton.dataset.id, 'rejected');
+        }
+    });
+
     window.toggleBulkBar = function() {
 
         const checkboxes = document.querySelectorAll('.doc-checkbox');
