@@ -367,7 +367,7 @@
 
     <div id="formArea" class="hidden">
         <div class="glass-card p-8 bg-white relative z-10">
-            <form id="servisForm" action="<?= site_url('perincianmodul/save') ?>" method="POST" class="space-y-8">
+            <form id="servisForm" action="<?= site_url('perincianmodul/save') ?>" method="POST" class="space-y-8" novalidate>
                 <?= csrf_field() ?>
                 <input type="hidden" name="idservis" id="idservis">
 
@@ -380,7 +380,7 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">URL Info (HTTP/HTTPS/FTP)</label>
                         <div class="relative group">
-                            <input type="url" id="infourl" name="infourl" class="input-modern pr-12" placeholder="https://...">
+                            <input type="url" id="infourl" name="infourl" class="input-modern pr-12" placeholder="https://..." pattern="^(https?|ftp):\/\/.+$" inputmode="url">
                             <button type="button" onclick="copyToClipboard('infourl')" class="absolute" title="Salin Link">
                                 <i class="bi bi-clipboard text-lg"></i>
                             </button>
@@ -389,7 +389,7 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">URL Mohon (HTTP/HTTPS/FTP)</label>
                         <div class="relative group">
-                            <input type="url" id="mohonurl" name="mohonurl" class="input-modern pr-12" placeholder="https://...">
+                            <input type="url" id="mohonurl" name="mohonurl" class="input-modern pr-12" placeholder="https://..." pattern="^(https?|ftp):\/\/.+$" inputmode="url">
                             <button type="button" onclick="copyToClipboard('mohonurl')" class="absolute" title="Salin Link">
                                 <i class="bi bi-clipboard text-lg"></i>
                             </button>
@@ -509,33 +509,136 @@ $(document).ready(function() {
     $('#servisForm').on('submit', function(e) {
         e.preventDefault();
         const form = this; 
+        const selectedServisId = $('#idservis').val().trim();
         const nameVal = $('#namaservis').val().trim();
         const currentInfoUrl = $('#infourl').val().trim();
         const currentMohonUrl = $('#mohonurl').val().trim();
+        const currentDescription = editor ? editor.getData().trim() : $('#description').val().trim();
+        const keyboardRegex = /^[\x20-\x7E]*$/;
+
+        if (editor) {
+            $('#description').val(currentDescription);
+        }
+
+        $('#namaservis').val(nameVal);
+        $('#infourl').val(currentInfoUrl);
+        $('#mohonurl').val(currentMohonUrl);
+
+        if (selectedServisId === "") {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Servis Belum Dipilih',
+                text: 'Sila pilih servis terlebih dahulu sebelum simpan perubahan.',
+                customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar' },
+                buttonsStyling: false
+            });
+            dropdownServis.focus();
+            return false;
+        }
         
         if (nameVal === "") {
             Swal.fire({ icon: 'warning', title: 'Borang Tidak Lengkap', text: 'Nama Servis Rasmi wajib diisi.', customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar' }, buttonsStyling: false });
+            $('#namaservis').focus();
             return false;
         }
 
+        if (nameVal.length > 145) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Nama Servis Terlalu Panjang',
+                text: 'Nama Servis Rasmi tidak boleh melebihi 145 aksara.',
+                customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar' },
+                buttonsStyling: false
+            });
+            $('#namaservis').focus();
+            return false;
+        }
+
+        if (!keyboardRegex.test(nameVal)) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Nama Servis Tidak Sah',
+                text: 'Nama Servis Rasmi mengandungi aksara yang tidak dibenarkan.',
+                customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar' },
+                buttonsStyling: false
+            });
+            $('#namaservis').focus();
+            return false;
+        }
+
+        const allowedUrlRegex = /^(https?|ftp):\/\/.+$/i;
+
+        if (currentInfoUrl !== '' && !allowedUrlRegex.test(currentInfoUrl)) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Format URL Tidak Sah',
+                text: 'Info URL mesti bermula dengan http://, https://, atau ftp://',
+                customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar' },
+                buttonsStyling: false
+            });
+            $('#infourl').focus();
+            return false;
+        }
+
+        if (currentMohonUrl !== '' && !allowedUrlRegex.test(currentMohonUrl)) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Format URL Tidak Sah',
+                text: 'Mohon URL mesti bermula dengan http://, https://, atau ftp://',
+                customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar' },
+                buttonsStyling: false
+            });
+            $('#mohonurl').focus();
+            return false;
+        }
+
+        const normalizedOriginalDesc = (originalData.desc || '').trim();
+        const isNameChanged = (nameVal !== (originalData.name || '').trim());
         const isInfoUrlChanged = (currentInfoUrl !== (originalData.info || ''));
         const isMohonUrlChanged = (currentMohonUrl !== (originalData.mohon || ''));
+        const isDescriptionChanged = (currentDescription !== normalizedOriginalDesc);
+        const hasChanges = isNameChanged || isInfoUrlChanged || isMohonUrlChanged || isDescriptionChanged;
+
+        if (!hasChanges) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Tiada Perubahan',
+                text: 'Tiada maklumat yang diubah untuk dikemaskini.',
+                customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar' },
+                buttonsStyling: false
+            });
+            return false;
+        }
+
+        let confirmationTitle = 'Simpan Perubahan?';
+        let confirmationText = 'Adakah anda pasti untuk menyimpan perubahan ini?';
 
         if (isInfoUrlChanged || isMohonUrlChanged) {
-            Swal.fire({
-                title: 'Sahkan Perubahan Link?',
-                text: "Adakah anda pasti untuk tukar ke link yang baru?",
-                icon: 'question',
-                showCancelButton: true,
-                showCloseButton: true,
-                confirmButtonText: 'Ya, Simpan!',
-                cancelButtonText: 'Batal',
-                customClass: { popup: 'swal-rounded', confirmButton: 'btn-swal-hantar', cancelButton: 'btn-swal-batal', actions: 'swal2-actions', closeButton: 'swal2-close' },
-                buttonsStyling: false
-            }).then((result) => { if (result.isConfirmed) { form.submit(); } });
-        } else {
-            form.submit();
+            confirmationTitle = 'Sahkan Perubahan Link?';
+            confirmationText = 'Adakah anda pasti untuk menyimpan perubahan termasuk link yang baru?';
         }
+
+        Swal.fire({
+            title: confirmationTitle,
+            text: confirmationText,
+            icon: 'question',
+            showCancelButton: true,
+            showCloseButton: true,
+            confirmButtonText: 'Ya, Simpan!',
+            cancelButtonText: 'Batal',
+            customClass: {
+                popup: 'swal-rounded',
+                confirmButton: 'btn-swal-hantar',
+                cancelButton: 'btn-swal-batal',
+                actions: 'swal2-actions',
+                closeButton: 'swal2-close'
+            },
+            buttonsStyling: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
     });
 
     // ==========================================
@@ -556,9 +659,11 @@ $(document).ready(function() {
             buttonsStyling: false
         }).then((result) => {
             if (result.isConfirmed) {
-                if (editor) editor.setData(''); 
-                $('#description').val(''); 
-                $('#servisForm').submit(); 
+                if (editor) {
+                    editor.setData('');
+                    editor.editing.view.focus();
+                }
+                $('#description').val('');
             }
         });
     });

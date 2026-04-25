@@ -105,15 +105,15 @@ class PerincianModulController extends BaseController
             $errors[] = 'Nama servis mengandungi aksara yang tidak dibenarkan.';
         }
 
-        // 3. VALIDASI URL (Optional - Check kalau tak kosong)
-        $urlRegex = '/^(https?|ftp):\/\/[^\s\/$.?#].[^\s]*$/i';
+        // 3. VALIDASI URL
+        $urlRegex = '/^(https?|ftp):\/\/.+$/i';
 
         if (!empty($infourl) && !preg_match($urlRegex, $infourl)) {
-            $errors[] = 'Format Info URL tidak sah.';
+            $errors[] = 'Info URL mesti bermula dengan http://, https://, atau ftp://';
         }
 
         if (!empty($mohonurl) && !preg_match($urlRegex, $mohonurl)) {
-            $errors[] = 'Format Mohon URL tidak sah.';
+            $errors[] = 'Mohon URL mesti bermula dengan http://, https://, atau ftp://';
         }
 
         // 4. VALIDASI DESCRIPTION (Dah benarkan kosong atas permintaan Mai)
