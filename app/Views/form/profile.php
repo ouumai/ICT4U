@@ -314,7 +314,7 @@
                         <div class="col-12 text-end mt-4">
                             <div id="pw-error" class="text-danger small mb-3 d-none font-bold">Kata laluan tidak sepadan!</div>
                             <button type="submit" id="btn-submit-pw" class="btn-submit bg-blue-600 hover:bg-blue-800 text-white px-6 py-2.5 rounded-2xl font-bold transition-all duration-300 border-0 shadow-lg">
-                                Kemaskini Password
+                                Kemaskini Kata Laluan
                             </button>
                         </div>
                     </div>
